@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import './screens/landing_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // <- Initialize Firebase
+  runApp(MaterialApp(home: LandingScreen()));
 }
 
 class MyApp extends StatelessWidget {
