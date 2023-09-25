@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import './identify_user.dart';
+import 'package:chatbot/screens/identify_user.dart';
 
-class LandingScreen extends StatelessWidget {
+class LandingScreen extends StatefulWidget {
+  @override
+  _LandingScreenState createState() => _LandingScreenState();
+}
+
+class _LandingScreenState extends State<LandingScreen> {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -20,12 +25,13 @@ class LandingScreen extends StatelessWidget {
         final UserCredential authResult =
             await _auth.signInWithCredential(credential);
         final User? user = authResult.user;
+
         return user;
       }
     } catch (error) {
       print(error);
     }
-    return null; // Ensure null is returned if the user did not sign in or there was an exception
+    return null;
   }
 
   @override
@@ -44,10 +50,14 @@ class LandingScreen extends StatelessWidget {
               onPressed: () async {
                 final User? user = await _handleSignIn();
                 if (user != null) {
-                  // User successfully signed in with Google.
-                  // Navigate to next screen or handle accordingly.
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => IdentifyUserScreen(user: user),
+                    ),
+                  );
                 } else {
-                  // Error or user cancelled the sign-in process.
+                  // Handle sign-in error or cancellation.
                 }
               },
               child: const Text("Create Account"),
@@ -55,15 +65,16 @@ class LandingScreen extends StatelessWidget {
             SizedBox(height: 10),
             TextButton(
               onPressed: () async {
-                // You can use the same _handleSignIn method for login too.
-                // Google Sign-In will recognize if the user has already
-                // authenticated with Google before.
                 final User? user = await _handleSignIn();
                 if (user != null) {
-                  // User successfully logged in with Google.
-                  // Navigate to next screen or handle accordingly.
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => IdentifyUserScreen(user: user),
+                    ),
+                  );
                 } else {
-                  // Error or user cancelled the login process.
+                  // Handle login error or cancellation.
                 }
               },
               child: const Text("Login"),
