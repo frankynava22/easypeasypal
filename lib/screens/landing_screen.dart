@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:chatbot/FSDB/user_model.dart';
+import 'package:chatbot/FSDB/user_repository.dart';
 import 'package:chatbot/screens/identify_user.dart';
+import 'package:get/get.dart';
 
 class LandingScreen extends StatefulWidget {
   @override
@@ -26,12 +29,27 @@ class _LandingScreenState extends State<LandingScreen> {
             await _auth.signInWithCredential(credential);
         final User? user = authResult.user;
 
-        return user;
+        if (user != null) {
+          final fullName = user.displayName ?? "";
+          final email = user.email ?? "";
+
+          // Save user data to Firestore
+          Get.lazyPut(()=>UserRepository.instance.createUser(UserModel(email: email, fullName: fullName)));
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => IdentifyUserScreen(user: user),
+            ),
+          );
+        } else {
+          // Handle sign-in error or cancellation.
+        }
       }
     } catch (error) {
       print(error);
+      // Handle sign-in error.
     }
-    return null;
   }
 
   @override
@@ -47,19 +65,7 @@ class _LandingScreenState extends State<LandingScreen> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () async {
-                final User? user = await _handleSignIn();
-                if (user != null) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => IdentifyUserScreen(user: user),
-                    ),
-                  );
-                } else {
-                  // Handle sign-in error or cancellation.
-                }
-              },
+              onPressed: _handleSignIn,
               child: const Text("Create Account"),
             ),
             SizedBox(height: 10),
@@ -85,3 +91,4 @@ class _LandingScreenState extends State<LandingScreen> {
     );
   }
 }
+

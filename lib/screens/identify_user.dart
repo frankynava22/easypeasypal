@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'appointments_screen.dart'; 
 
 class IdentifyUserScreen extends StatelessWidget {
   final User user;
@@ -32,7 +33,7 @@ class IdentifyUserScreen extends StatelessWidget {
             ),
             SizedBox(height: 10),
             Text(
-              user.email ?? "", // Use the user's email here
+              user.email ?? "",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -41,14 +42,17 @@ class IdentifyUserScreen extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Add your logic for the first button here
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AppointmentScreen()), // Corrected class name
+                );
               },
               child: Text(
                 "Appointments",
-                style: TextStyle(fontSize: 20), // Set button font size here
+                style: TextStyle(fontSize: 20),
               ),
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60), // Set button size here
+                minimumSize: Size(300, 60),
               ),
             ),
             SizedBox(height: 10), // Add spacing here
