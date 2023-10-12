@@ -10,13 +10,32 @@ class AppointmentScreen extends StatefulWidget {
 
 class _AppointmentScreenState extends State<AppointmentScreen> {
   final FirebaseFirestore firestore = FirebaseFirestore.instance; // Initialize Firestore
+  final CollectionReference appointmentsCollection =
+      FirebaseFirestore.instance.collection('Appointments');
 
   // Function to add a new appointment to the "Appointments" collection
   Future<void> addAppointmentToFirestore(String date, String title) async {
-    await firestore.collection('Appointments').add({
+    await appointmentsCollection.add({
       'date': date,
       'title': title,
     });
+  }
+
+  // Function to retrieve and print all appointments from the "Appointments" collection
+  Future<void> getAppointmentsFromFirestore() async {
+    final QuerySnapshot querySnapshot = await appointmentsCollection.get();
+    final appointments = querySnapshot.docs;
+    
+    for (var appointment in appointments) {
+      final data = appointment.data() as Map<String, dynamic>;
+      if (data.containsKey('date') && data.containsKey('title')) {
+        final date = data['date'] as String; // Cast to String
+        final title = data['title'] as String; // Cast to String
+        print('Date: $date, Title: $title');
+      } else {
+        print('Invalid document format');
+      }
+    }
   }
 
   @override
@@ -42,6 +61,13 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                 addAppointmentToFirestore('2023-10-15', 'Sample Appointment');
               },
               child: Text('Add Appointment to Firestore'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Call the function to retrieve and print all appointments
+                getAppointmentsFromFirestore();
+              },
+              child: Text('Retrieve Appointments from Firestore'),
             ),
           ],
         ),
