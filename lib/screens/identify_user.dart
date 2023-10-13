@@ -1,18 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-//import user SMS screen
-import 'messaging.dart';
+import 'landing_screen.dart';
+import 'communication.dart';
 
 class IdentifyUserScreen extends StatelessWidget {
   final User user;
 
   IdentifyUserScreen({required this.user});
 
+  void _signOut(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => LandingScreen()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Identification'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () => _signOut(context),
+          )
+        ],
       ),
       body: Center(
         child: Column(
@@ -59,7 +71,7 @@ class IdentifyUserScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MessagingScreen(),
+                    builder: (context) => CommunicationScreen(),
                   ),
                 );
               },
@@ -71,7 +83,6 @@ class IdentifyUserScreen extends StatelessWidget {
                 minimumSize: Size(300, 60),
               ),
             ),
-
             SizedBox(height: 10), // Add spacing here
             ElevatedButton(
               onPressed: () {
