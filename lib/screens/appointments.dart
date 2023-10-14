@@ -39,30 +39,16 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Appointments'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.calendar_today),
-            onPressed: () async {
-              final selectedDate = await showDatePicker(
-                context: context,
-                initialDate: _selectedDate,
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2101),
-                initialDatePickerMode: DatePickerMode.day,
-              );
+  title: Text('Appointments'),
+  actions: [
+    IconButton(
+      icon: Icon(Icons.calendar_today),
+      onPressed: () => _selectDate(context), // Open DatePicker dialog
+      tooltip: 'Select Date',
+    ),
+  ],
+),
 
-              if (selectedDate != null) {
-                setState(() {
-                  _selectedDate = selectedDate;
-                });
-                _loadUserEvents(); // Reload events for the selected date
-              }
-            },
-            tooltip: 'Select Date',
-          ),
-        ],
-      ),
       body:  _loadUserEventsWidget(),
       
       floatingActionButton: Column(
@@ -82,7 +68,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
                 child: Text('ALL Events'),
               ),
               FloatingActionButton(
-                onPressed: () {
+                onPressed: () async{
                   _showEventSetupDialog(context);
                 },
                 child: Icon(Icons.add),
@@ -102,7 +88,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
       Text('Events for ${DateFormat('MMMM yyyy').format(_selectedDate)}'),
       Wrap(
         alignment: WrapAlignment.center,
-        spacing: 8.0, // Adjust the spacing between buttons
+        spacing: 8.0,
         children: [
           _buildDayFilterButton('Mon', DateTime.monday),
           _buildDayFilterButton('Tue', DateTime.tuesday),
@@ -114,53 +100,64 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
         ],
       ),
       Expanded(
-        child: ListView.builder(
-          itemCount: _events.length,
-          itemBuilder: (context, index) {
-            final event = _events[index];
-            final eventTitle = event['title'] ?? '';
-            final eventDate = DateFormat('MM-dd-yyyy').format(event['date'].toDate());
+        child: _events.isNotEmpty
+            ? ListView.builder(
+                itemCount: _events.length,
+                itemBuilder: (context, index) {
+                  final event = _events[index];
+                  final eventTitle = event['title'] ?? '';
+                  final eventDate = DateFormat('MM-dd-yyyy').format(event['date'].toDate());
 
-            return Dismissible(
-              key: Key(eventTitle),
-              onDismissed: (direction) {
-                _deleteEvent(eventTitle);
-              },
-              background: Container(
-                color: Colors.red,
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                alignment: Alignment.centerRight,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Icon(
-                      Icons.delete,
-                      color: Colors.white,
-                      size: 36,
-                    ),
-                    Text(
-                      "Delete",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
+                  return Dismissible(
+                    key: Key(eventTitle),
+                    onDismissed: (direction) {
+                      _deleteEvent(eventTitle);
+                    },
+                    background: Container(
+                      color: Colors.red,
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      alignment: Alignment.centerRight,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Icon(
+                            Icons.delete,
+                            color: Colors.white,
+                            size: 36,
+                          ),
+                          Text(
+                            "Delete",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
+                    child: Card(
+                      child: ListTile(
+                        title: Text(eventTitle),
+                        subtitle: Text(eventDate),
+                      ),
+                    ),
+                  );
+                },
+              )
+            : Center(
+                child: Text(
+                  'No events found',
+                  style: TextStyle(
+                    color: Colors.blue, // Change the text color to red
+                    fontSize: 20,
+                  ),
                 ),
               ),
-              child: Card(
-                child: ListTile(
-                  title: Text(eventTitle),
-                  subtitle: Text(eventDate),
-                ),
-              ),
-            );
-          },
-        ),
       ),
     ],
   );
 }
+
 
 Widget _buildDayFilterButton(String day, int dayOfWeek) {
   return ElevatedButton(
@@ -211,46 +208,87 @@ void _filterEventsByDay(int dayOfWeek) {
     );
   }
 
-  void _showEventSetupDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Set Up Event'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text(DateFormat('MM-dd-yyyy').format(_selectedDate)),
-              _buildDatePickerButton(context),
-              TextField(
-                controller: _eventTitleController,
-                decoration: InputDecoration(labelText: 'Title'),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () async {
-                await _saveEventToFirestore(
-                  title: _eventTitleController.text,
-                  date: _selectedDate,
-                );
-                Navigator.of(context).pop();
-              },
-              child: Text('Save'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
+  void _showEventSetupDialog(BuildContext context) async {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Set Up Event'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(DateFormat('MM-dd-yyyy').format(_selectedDate)),
+            TextField(
+              controller: _eventTitleController,
+              decoration: InputDecoration(labelText: 'Title'),
             ),
           ],
-        );
-      },
-    );
-  }
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () async {
+              await _saveEventToFirestore(
+                title: _eventTitleController.text,
+                date: _selectedDate,
+              );
+              Navigator.of(context).pop();
+            },
+            child: Text('Save'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Cancel'),
+          ),
+        ],
+      );
+    },
+  );
+}
+Future<void> _selectDate(BuildContext context) async {
+  final selectedDate = await showDatePicker(
+    context: context,
+    initialDate: _selectedDate,
+    firstDate: DateTime(2000),
+    lastDate: DateTime(2101),
+    initialDatePickerMode: DatePickerMode.day,
+  );
 
+  if (selectedDate != null) {
+    setState(() {
+      _selectedDate = selectedDate;
+    });
+    _loadUserEventsForSelectedDate(); // Load events for the selected date
+  }
+}
+
+void _loadUserEventsForSelectedDate() async {
+  final user = _auth.currentUser;
+  final userUid = user != null ? user.uid : '';
+  final userAppointmentsRef = _firestore.collection('Appointments').doc(userUid);
+
+  final userAppointmentsSnapshot = await userAppointmentsRef.get();
+  if (userAppointmentsSnapshot.exists) {
+    setState(() {
+      _events = List<Map<String, dynamic>>.from(userAppointmentsSnapshot.data()!['events']);
+    });
+    _filterEventsBySelectedDate(); // Filter events for the selected date
+  }
+}
+
+void _filterEventsBySelectedDate() {
+  final filteredEvents = _events.where((event) {
+    final eventDate = event['date'].toDate();
+    return eventDate.year == _selectedDate.year &&
+        eventDate.month == _selectedDate.month &&
+        eventDate.day == _selectedDate.day;
+  }).toList();
+
+  setState(() {
+    _events = filteredEvents;
+  });
+}
   Future<void> _saveEventToFirestore(
       {required String title, required DateTime date}) async {
     final user = _auth.currentUser;
