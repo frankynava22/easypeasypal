@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'landing_screen.dart';
 import 'communication.dart';
 import 'medication_screen.dart';
+import 'appointments.dart';
 
 class IdentifyUserScreen extends StatelessWidget {
   final User user;
@@ -56,7 +57,12 @@ class IdentifyUserScreen extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Add your logic for the first button here
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AppointmentsPage(),
+                  ),
+                );
               },
               child: Text(
                 "Appointments",
