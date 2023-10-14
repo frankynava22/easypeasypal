@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:chatbot/screens/identify_user.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LandingScreen extends StatefulWidget {
   @override
@@ -25,6 +26,23 @@ class _LandingScreenState extends State<LandingScreen> {
         final UserCredential authResult =
             await _auth.signInWithCredential(credential);
         final User? user = authResult.user;
+
+        if (user != null) {
+          // Store the user's details in Firestore
+          final usersRef = FirebaseFirestore.instance.collection('users');
+          final snapshot = await usersRef.doc(user.uid).get();
+
+          // Check if user already exists, if not, add to Firestore
+          if (!snapshot.exists) {
+            usersRef.doc(user.uid).set({
+              'uid': user.uid,
+              'displayName': user.displayName,
+              'photoURL': user.photoURL,
+              'email': user.email,
+              // Add any other necessary fields
+            });
+          }
+        }
 
         return user;
       }
