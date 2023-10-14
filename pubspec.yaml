@@ -39,6 +39,7 @@ dependencies:
   firebase_auth: ^4.10.0
   firebase_core: ^2.16.0
   cloud_firestore: ^4.9.3
+  flutter_time_picker_spinner: ^2.0.0
 
 dev_dependencies:
   flutter_test:

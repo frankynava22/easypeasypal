@@ -4,6 +4,7 @@ import 'landing_screen.dart';
 import 'communication.dart';
 import 'medication_screen.dart';
 import 'appointments.dart';
+import 'personal_care.dart';
 
 class IdentifyUserScreen extends StatelessWidget {
   final User user;
@@ -111,7 +112,12 @@ class IdentifyUserScreen extends StatelessWidget {
             SizedBox(height: 10), // Add spacing here
             ElevatedButton(
               onPressed: () {
-                // Add your logic for the fourth button here
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PersonalCareScreen(),
+                  ),
+                );
               },
               child: Text(
                 "Personal Care",
