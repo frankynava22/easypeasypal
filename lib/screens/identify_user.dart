@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'landing_screen.dart';
 import 'communication.dart';
+import 'medication_screen.dart';
 
 class IdentifyUserScreen extends StatelessWidget {
   final User user;
@@ -86,7 +87,12 @@ class IdentifyUserScreen extends StatelessWidget {
             SizedBox(height: 10), // Add spacing here
             ElevatedButton(
               onPressed: () {
-                // Add your logic for the third button here
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MedicationScreen(),
+                  ),
+                );
               },
               child: Text(
                 "Medication",
