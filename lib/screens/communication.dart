@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'contacts.dart';
-import 'messaging.dart'; // 1. Import the messaging.dart file
+import 'messaging.dart';
 import 'chat_history.dart';
 
 class CommunicationScreen extends StatefulWidget {
@@ -19,17 +19,20 @@ class _CommunicationScreenState extends State<CommunicationScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text("Chat",
+                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold)),
             IconButton(
               icon: Icon(Icons.chat),
               iconSize: 60.0,
               onPressed: () {
-                // 2. Navigate to the MessagingScreen when the chat icon is pressed
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => MessagingScreen()),
                 );
               },
             ),
             SizedBox(height: 20.0),
+            Text("Contacts",
+                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold)),
             IconButton(
               icon: Icon(Icons.contacts),
               iconSize: 60.0,
@@ -40,6 +43,8 @@ class _CommunicationScreenState extends State<CommunicationScreen> {
               },
             ),
             SizedBox(height: 20.0),
+            Text("Help",
+                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold)),
             IconButton(
               icon: Icon(Icons.help_outline), // Question mark icon
               iconSize: 60.0,

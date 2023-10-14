@@ -15,6 +15,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
   final TextEditingController _messageController = TextEditingController();
+  final Set<String> _selectedMessageIds = Set();
 
   Stream<QuerySnapshot> get chatMessagesStream {
     return _firestore
@@ -51,11 +52,41 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
     }
   }
 
+  Future<void> _deleteSelectedMessages() async {
+    for (String id in _selectedMessageIds) {
+      // Delete for the sender
+      await _firestore
+          .collection('chat_history')
+          .doc(_auth.currentUser!.uid)
+          .collection(widget.contact['uid'])
+          .doc(id)
+          .delete();
+
+      // Delete for the recipient
+      await _firestore
+          .collection('chat_history')
+          .doc(widget.contact['uid'])
+          .collection(_auth.currentUser!.uid)
+          .doc(id)
+          .delete();
+    }
+    _selectedMessageIds.clear();
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.contact['displayName'] ?? 'Chat'),
+        actions: _selectedMessageIds.isNotEmpty
+            ? [
+                IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: _deleteSelectedMessages,
+                )
+              ]
+            : [],
       ),
       body: Column(
         children: [
@@ -76,27 +107,53 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
                   itemBuilder: (context, index) {
                     bool isCurrentUser =
                         messages[index]['senderId'] == _auth.currentUser!.uid;
+                    bool isSelected = _selectedMessageIds
+                        .contains(snapshot.data!.docs[index].id);
 
-                    return Align(
-                      alignment: isCurrentUser
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            vertical: 5.0, horizontal: 10.0),
-                        margin: EdgeInsets.symmetric(
-                            vertical: 5.0, horizontal: 10.0),
-                        decoration: BoxDecoration(
-                          color: isCurrentUser
-                              ? Colors.blue[200]
-                              : Colors.grey[300],
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        child: Text(
-                          messages[index]['text'],
-                          style: TextStyle(
-                              color:
-                                  isCurrentUser ? Colors.white : Colors.black),
+                    return GestureDetector(
+                      onLongPress: isCurrentUser
+                          ? () {
+                              if (isSelected) {
+                                _selectedMessageIds
+                                    .remove(snapshot.data!.docs[index].id);
+                              } else {
+                                _selectedMessageIds
+                                    .add(snapshot.data!.docs[index].id);
+                              }
+                              setState(() {});
+                            }
+                          : null,
+                      onTap: isCurrentUser && isSelected
+                          ? () {
+                              _selectedMessageIds
+                                  .remove(snapshot.data!.docs[index].id);
+                              setState(() {});
+                            }
+                          : null,
+                      child: Align(
+                        alignment: isCurrentUser
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 5.0, horizontal: 10.0),
+                          margin: EdgeInsets.symmetric(
+                              vertical: 5.0, horizontal: 10.0),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? Colors.red[200]
+                                : (isCurrentUser
+                                    ? Colors.blue[200]
+                                    : Colors.grey[300]),
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          child: Text(
+                            messages[index]['text'],
+                            style: TextStyle(
+                                color: isCurrentUser
+                                    ? Colors.white
+                                    : Colors.black),
+                          ),
                         ),
                       ),
                     );

@@ -5,6 +5,7 @@ import 'communication.dart';
 import 'medication_screen.dart';
 import 'appointments.dart';
 import 'personal_care.dart';
+import 'settings.dart'; // Importing the new settings page
 
 class IdentifyUserScreen extends StatelessWidget {
   final User user;
@@ -17,12 +18,30 @@ class IdentifyUserScreen extends StatelessWidget {
         MaterialPageRoute(builder: (context) => LandingScreen()));
   }
 
+  String extractFirstName(String email) {
+    return email
+        .split('@')
+        .first
+        .split('')
+        .takeWhile((c) => RegExp(r'[a-zA-Z]').hasMatch(c))
+        .join();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Identification'),
         actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            },
+          ),
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () => _signOut(context),
@@ -41,15 +60,7 @@ class IdentifyUserScreen extends StatelessWidget {
               ),
             ),
             Text(
-              'Successfully logged in as:',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              user.email ?? "", // Use the user's email here
+              user.email != null ? '${extractFirstName(user.email!)}' : '',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -67,13 +78,13 @@ class IdentifyUserScreen extends StatelessWidget {
               },
               child: Text(
                 "Appointments",
-                style: TextStyle(fontSize: 20), // Set button font size here
+                style: TextStyle(fontSize: 20),
               ),
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60), // Set button size here
+                minimumSize: Size(300, 60),
               ),
             ),
-            SizedBox(height: 10), // Add spacing here
+            SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -91,7 +102,7 @@ class IdentifyUserScreen extends StatelessWidget {
                 minimumSize: Size(300, 60),
               ),
             ),
-            SizedBox(height: 10), // Add spacing here
+            SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -103,13 +114,13 @@ class IdentifyUserScreen extends StatelessWidget {
               },
               child: Text(
                 "Medication",
-                style: TextStyle(fontSize: 20), // Set button font size here
+                style: TextStyle(fontSize: 20),
               ),
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60), // Set button size here
+                minimumSize: Size(300, 60),
               ),
             ),
-            SizedBox(height: 10), // Add spacing here
+            SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -121,23 +132,23 @@ class IdentifyUserScreen extends StatelessWidget {
               },
               child: Text(
                 "Personal Care",
-                style: TextStyle(fontSize: 20), // Set button font size here
+                style: TextStyle(fontSize: 20),
               ),
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60), // Set button size here
+                minimumSize: Size(300, 60),
               ),
             ),
-            SizedBox(height: 10), // Add spacing here
+            SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
                 // Add your logic for the fifth button here
               },
               child: Text(
-                "Ask me anything!",
-                style: TextStyle(fontSize: 20), // Set button font size here
+                "Today's Events",
+                style: TextStyle(fontSize: 20),
               ),
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60), // Set button size here
+                minimumSize: Size(300, 60),
               ),
             ),
           ],
