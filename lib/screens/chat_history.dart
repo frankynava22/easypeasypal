@@ -69,12 +69,36 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
                 final messages = snapshot.data!.docs
                     .map((doc) => doc.data() as Map<String, dynamic>)
                     .toList();
+
                 return ListView.builder(
                   reverse: true,
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(messages[index]['text']),
+                    bool isCurrentUser =
+                        messages[index]['senderId'] == _auth.currentUser!.uid;
+
+                    return Align(
+                      alignment: isCurrentUser
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 5.0, horizontal: 10.0),
+                        margin: EdgeInsets.symmetric(
+                            vertical: 5.0, horizontal: 10.0),
+                        decoration: BoxDecoration(
+                          color: isCurrentUser
+                              ? Colors.blue[200]
+                              : Colors.grey[300],
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: Text(
+                          messages[index]['text'],
+                          style: TextStyle(
+                              color:
+                                  isCurrentUser ? Colors.white : Colors.black),
+                        ),
+                      ),
                     );
                   },
                 );
