@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 
 void main() => runApp(MyApp());
 
@@ -19,7 +22,18 @@ class AppointmentsPage extends StatefulWidget {
 }
 
 class _AppointmentsPageState extends State<AppointmentsPage> {
-  bool _isWeekView = true; // by default, show week view
+  TextEditingController _eventTitleController = TextEditingController();
+  bool _isWeekView = true;
+  DateTime _selectedDate = DateTime.now();
+  final _firestore = FirebaseFirestore.instance; // Initialize Firestore
+  final _auth = FirebaseAuth.instance;
+  List<Map<String, dynamic>> _events = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserEvents();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,70 +41,270 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
       appBar: AppBar(
         title: Text('Appointments'),
         actions: [
-          if (_isWeekView)
-            IconButton(
-              icon: Icon(Icons.calendar_today),
-              onPressed: () => setState(() {
-                _isWeekView = false;
-                // TODO: Navigate to month view
-              }),
-              tooltip: 'Month View',
-            )
-          else
-            IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () => setState(() {
-                _isWeekView = true;
-                // TODO: Navigate back to week view
-              }),
-              tooltip: 'Back to Week View',
-            )
+          IconButton(
+            icon: Icon(Icons.calendar_today),
+            onPressed: () async {
+              final selectedDate = await showDatePicker(
+                context: context,
+                initialDate: _selectedDate,
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2101),
+                initialDatePickerMode: DatePickerMode.day,
+              );
+
+              if (selectedDate != null) {
+                setState(() {
+                  _selectedDate = selectedDate;
+                });
+                _loadUserEvents(); // Reload events for the selected date
+              }
+            },
+            tooltip: 'Select Date',
+          ),
         ],
       ),
-      body: _isWeekView ? _buildWeekView() : _buildMonthPlaceholder(),
+      body:  _loadUserEventsWidget(),
+      
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _isWeekView = false;
+                  });
+                  _loadUserEvents(); // Reload events when switching to the Events view
+                },
+                child: Text('ALL Events'),
+              ),
+              FloatingActionButton(
+                onPressed: () {
+                  _showEventSetupDialog(context);
+                },
+                child: Icon(Icons.add),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildWeekView() {
-    // Here, you can also retrieve dates dynamically instead of hardcoded values
-    final daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  
 
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 7,
+  Widget _loadUserEventsWidget() {
+  return Column(
+    children: [
+      Text('Events for ${DateFormat('MMMM yyyy').format(_selectedDate)}'),
+      Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 8.0, // Adjust the spacing between buttons
+        children: [
+          _buildDayFilterButton('Mon', DateTime.monday),
+          _buildDayFilterButton('Tue', DateTime.tuesday),
+          _buildDayFilterButton('Wed', DateTime.wednesday),
+          _buildDayFilterButton('Thu', DateTime.thursday),
+          _buildDayFilterButton('Fri', DateTime.friday),
+          _buildDayFilterButton('Sat', DateTime.saturday),
+          _buildDayFilterButton('Sun', DateTime.sunday),
+        ],
       ),
-      itemBuilder: (context, index) {
-        return InkWell(
-          onTap: () {
-            // TODO: Open dialog or navigate to a new screen to add an event to Firestore
+      Expanded(
+        child: ListView.builder(
+          itemCount: _events.length,
+          itemBuilder: (context, index) {
+            final event = _events[index];
+            final eventTitle = event['title'] ?? '';
+            final eventDate = DateFormat('MM-dd-yyyy').format(event['date'].toDate());
+
+            return Dismissible(
+              key: Key(eventTitle),
+              onDismissed: (direction) {
+                _deleteEvent(eventTitle);
+              },
+              background: Container(
+                color: Colors.red,
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                alignment: Alignment.centerRight,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Icon(
+                      Icons.delete,
+                      color: Colors.white,
+                      size: 36,
+                    ),
+                    Text(
+                      "Delete",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              child: Card(
+                child: ListTile(
+                  title: Text(eventTitle),
+                  subtitle: Text(eventDate),
+                ),
+              ),
+            );
           },
-          child: Card(
-            child: Center(
-              child: Text(daysOfWeek[index]),
-            ),
-          ),
+        ),
+      ),
+    ],
+  );
+}
+
+Widget _buildDayFilterButton(String day, int dayOfWeek) {
+  return ElevatedButton(
+    onPressed: () {
+      _filterEventsByDay(dayOfWeek);
+    },
+    child: Text(day),
+    style: ElevatedButton.styleFrom(
+      primary: Colors.blue,
+      padding: EdgeInsets.symmetric(horizontal: 10),
+    ),
+  );
+}
+
+void _filterEventsByDay(int dayOfWeek) {
+  final filteredEvents = _events.where((event) {
+    final eventDate = event['date'].toDate();
+    return eventDate.weekday == dayOfWeek;
+  }).toList();
+
+  setState(() {
+    _events = filteredEvents;
+  });
+}
+
+
+
+
+  Widget _buildDatePickerButton(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () async {
+        final selectedDate = await showDatePicker(
+          context: context,
+          initialDate: _selectedDate,
+          firstDate: DateTime(2000),
+          lastDate: DateTime(2101),
+          initialDatePickerMode: DatePickerMode.day,
         );
+
+        if (selectedDate != null) {
+          setState(() {
+            _selectedDate = selectedDate;
+          });
+          _loadUserEvents(); // Reload events for the selected date
+        }
       },
-      itemCount: daysOfWeek.length,
+      child: Text('Select Date'),
     );
   }
 
-  Widget _buildMonthPlaceholder() {
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 7,
-      ),
-      itemBuilder: (context, index) {
-        return Card(
-          child: Center(
-            child: Text(
-              // This is just a placeholder representation. In a real app, you'd have to calculate the actual day numbers dynamically.
-              (index < 30) ? (index + 1).toString() : '',
-            ),
+  void _showEventSetupDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Set Up Event'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(DateFormat('MM-dd-yyyy').format(_selectedDate)),
+              _buildDatePickerButton(context),
+              TextField(
+                controller: _eventTitleController,
+                decoration: InputDecoration(labelText: 'Title'),
+              ),
+            ],
           ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () async {
+                await _saveEventToFirestore(
+                  title: _eventTitleController.text,
+                  date: _selectedDate,
+                );
+                Navigator.of(context).pop();
+              },
+              child: Text('Save'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+          ],
         );
       },
-      itemCount: 35, // 5 weeks x 7 days
     );
+  }
+
+  Future<void> _saveEventToFirestore(
+      {required String title, required DateTime date}) async {
+    final user = _auth.currentUser;
+    final userUid = user != null ? user.uid : '';
+    final userAppointmentsRef =
+        _firestore.collection('Appointments').doc(userUid);
+
+    List<Map<String, dynamic>> userAppointments = [];
+    final userAppointmentsSnapshot = await userAppointmentsRef.get();
+    if (userAppointmentsSnapshot.exists) {
+      userAppointments =
+          List<Map<String, dynamic>>.from(userAppointmentsSnapshot.data()!['events']);
+    }
+
+    userAppointments.add({'title': title, 'date': date.toUtc()});
+
+    await userAppointmentsRef.set({'events': userAppointments});
+    _loadUserEvents(); // Reload events after saving a new event
+  }
+
+  void _loadUserEvents() async {
+    final user = _auth.currentUser;
+    final userUid = user != null ? user.uid : '';
+    final userAppointmentsRef =
+        _firestore.collection('Appointments').doc(userUid);
+
+    final userAppointmentsSnapshot = await userAppointmentsRef.get();
+    if (userAppointmentsSnapshot.exists) {
+      setState(() {
+        _events =
+            List<Map<String, dynamic>>.from(userAppointmentsSnapshot.data()!['events']);
+      });
+    }
+  }
+
+  void _deleteEvent(String title) async {
+    final user = _auth.currentUser;
+    final userUid = user != null ? user.uid : '';
+    final userAppointmentsRef = _firestore.collection('Appointments').doc(userUid);
+
+    List<Map<String, dynamic>> userAppointments = [];
+    final userAppointmentsSnapshot = await userAppointmentsRef.get();
+    if (userAppointmentsSnapshot.exists) {
+      userAppointments =
+          List<Map<String, dynamic>>.from(userAppointmentsSnapshot.data()!['events']);
+    }
+
+    // Find and remove the event with the specified title
+    userAppointments.removeWhere((event) => event['title'] == title);
+
+    // Update Firestore with the updated list of events
+    await userAppointmentsRef.set({'events': userAppointments});
+
+    // Refresh the events list
+    _loadUserEvents();
   }
 }
