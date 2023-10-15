@@ -14,7 +14,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
   final _medsCollection = FirebaseFirestore.instance.collection('medications');
   final _auth = FirebaseAuth.instance;
 
-//read data 
+//read data
   Future<List<Map<String, dynamic>>> readMedications() async {
     DocumentSnapshot snapshot =
         await _medsCollection.doc(_auth.currentUser!.uid).get();
@@ -28,8 +28,6 @@ class _MedicationScreenState extends State<MedicationScreen> {
       return [];
     }
   }
-
-
 
 /*
   @override
@@ -88,8 +86,8 @@ class _MedicationScreenState extends State<MedicationScreen> {
               ),
             ),
             const SizedBox(height: 32), // spacing between button and card
-                
-                                          Text('passedddata $medications'),
+
+            //Text('$medications'),
 
             Expanded(
               child: FutureBuilder<List<Map<String, dynamic>>>(
@@ -129,26 +127,23 @@ class _MedicationScreenState extends State<MedicationScreen> {
                                     IconButton(
                                         icon: Icon(Icons.edit),
                                         iconSize: 25,
-                                        onPressed: () async {
-
-
-
-                            
-                                      
-                                          /*
-
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(builder: (context) => 
-                                           MedicationEditForm(existingData: passData))
-
-                                          );
-                                          */
+                                        onPressed: () {
+                                          //handle edit
+                                            Navigator.of(context).push(
+                  
+                  MaterialPageRoute(
+                    builder: (context) => MedicationEditForm(
+                      existingData: medications[index],
+                      index: index,
+                    ),
+                  ),
+                ).then((value) {
+                  if (value == true) {
+                    setState(() {});
+                  }
+                });
                    
-
-                                          /*Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => MedicationEditForm(existingData: medications),
-                  ),);*/
-                                          
+                                         
 
 
                                         })
@@ -196,7 +191,6 @@ class _MedicationScreenState extends State<MedicationScreen> {
                                   ],
                                 )
 */
-
                             ],
                           ),
                         );
