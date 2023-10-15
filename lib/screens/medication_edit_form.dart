@@ -6,10 +6,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class MedicationEditForm extends StatefulWidget { 
 
-  final List<Map<String, dynamic>> existingData; 
+  final Map<String, dynamic> existingData;  // to get map of medication 
+    final int index; 
+    //final _firestore = FirebaseFirestore.instance;
+    //final String userId; 
 
   MedicationEditForm({
     required this.existingData, 
+    required this.index,
+    //required this.userId,
   });
 
   
@@ -19,7 +24,7 @@ class MedicationEditForm extends StatefulWidget {
 
 class _MedicationEditFormScreenState extends State<MedicationEditForm> {
   final TextEditingController _nameController = TextEditingController();
-  int selectedQuantity = 0;
+  int selectedQuantity = 1;
   String selectedFrequency = '1x daily';
 
   List<String> selectedInstructions = [];
@@ -40,25 +45,122 @@ class _MedicationEditFormScreenState extends State<MedicationEditForm> {
     'before dinner',
     'after dinner',
   ];
-  List<Map<String, dynamic>> medications = [];
+  //List<Map<String, dynamic>> medications = [];
   final _medsCollection = FirebaseFirestore.instance.collection('medications');
   final _auth = FirebaseAuth.instance;
+/*
+void editMedication(Map<String, dynamic> medication) {
+    // Create a TextEditingController to edit the title
+    TextEditingController _editedTitleController = TextEditingController(text: medication['name']);
 
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edit Event'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(
+                controller: _editedTitleController,
+                decoration: InputDecoration(labelText: 'Title'),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () async {
+                String editedName = _editedTitleController.text;
+                await _updateEventInFirestore(medication, editedName);
+                Navigator.of(context).pop();
+              },
+              child: Text('Save'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  Future<void> _updateEventInFirestore(Map<String, dynamic> event, String editedTitle) async {
+    final user = _auth.currentUser;
+    final userUid = user != null ? user.uid : '';
+    final userAppointmentsRef = _medsCollection.doc(userUid);
+
+    final userAppointmentsSnapshot = await userAppointmentsRef.get();
+    if (userAppointmentsSnapshot.exists) {
+      List<Map<String, dynamic>> userAppointments =
+          List<Map<String, dynamic>>.from(userAppointmentsSnapshot.data()!['events']);
+
+      // Find the index of the event that matches the provided event
+      final int index = userAppointments.indexWhere((e) => e['title'] == event['title'] && e['date'].toDate() == event['date'].toDate());
+
+      if (index >= 0) {
+        // Create a new event with the edited title and the same date as the original event
+        Map<String, dynamic> updatedEvent = {
+          'title': editedTitle,
+          'date': event['date'],
+        };
+
+        // Update the event list with the new event
+        userAppointments[index] = updatedEvent;
+
+        // Update Firestore with the updated list of events
+        await userAppointmentsRef.set({'events': userAppointments});
+      }
+
+      // Reload the events list
+      _loadUserEvents();
+    }
+  }
+*/
+
+Future<void> addMedication(Map<String, dynamic> medicationData) async {
+    final user = _auth.currentUser;
+    final uId = user?.uid;
+
+    if (uId != null) {
+      await _medsCollection.doc(uId).update({
+        'medicationsList': FieldValue.arrayUnion([medicationData])
+      });
+    }
+  }
  
+Future<void> updateMedication(Map<String, dynamic> medicationData) async {
+    final user = _auth.currentUser;
+    final uId = user?.uid;
+
+    if (uId != null) {
+      await _medsCollection.doc(uId).set({
+        'medicationsList': FieldValue.arrayUnion([medicationData])
+      }, SetOptions(merge:true));
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-
-    /*_nameController.text = widget.existingData['name'];*/
+    _nameController.text = widget.existingData['name'];
+    selectedQuantity = widget.existingData['quantity'];
+    selectedFrequency = widget.existingData[
+      'frequency'
+    ];
+    selectedInstructions = List<String>.from(widget.existingData['intakeInstructions']);
+   
       
   }
-
-  @override
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Medication'),
+        title: Text('Edit a Medication'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -178,24 +280,18 @@ class _MedicationEditFormScreenState extends State<MedicationEditForm> {
           child: ElevatedButton(
             onPressed: () async {
               final String name = _nameController.text;
-            
-
 
               if (name.isNotEmpty) {
-                Map<String, dynamic> updatedData = {
+                Map<String, dynamic> medicationData = {
                   'name': name,
                   'quantity': selectedQuantity,
                   'frequency': selectedFrequency,
                   'intakeInstructions': selectedInstructions
                 };
-                //existingData = updatedData;
-                //updateMedication(medicationData);
-                /*await _medsCollection.doc(_auth.currentUser!.uid).update({
-                  'medicationsList.${widget.medicationIndex}': updatedData,
-                });
-*/
+                //addMedication(medicationData);
+                updateMedication(medicationData);
 
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               }
             },
             child: Text(
