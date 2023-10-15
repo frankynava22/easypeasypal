@@ -3,14 +3,23 @@ import 'medication_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class MedicationFormScreen extends StatefulWidget { 
+
+class MedicationEditForm extends StatefulWidget { 
+
+  final List<Map<String, dynamic>> existingData; 
+
+  MedicationEditForm({
+    required this.existingData, 
+  });
+
+  
   @override
-  _MedicationFormScreenState createState() => _MedicationFormScreenState();
+  _MedicationEditFormScreenState createState() => _MedicationEditFormScreenState();
 }
 
-class _MedicationFormScreenState extends State<MedicationFormScreen> {
+class _MedicationEditFormScreenState extends State<MedicationEditForm> {
   final TextEditingController _nameController = TextEditingController();
-  int selectedQuantity = 1;
+  int selectedQuantity = 0;
   String selectedFrequency = '1x daily';
 
   List<String> selectedInstructions = [];
@@ -35,27 +44,21 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
   final _medsCollection = FirebaseFirestore.instance.collection('medications');
   final _auth = FirebaseAuth.instance;
 
-  Future<void> addMedication(Map<String, dynamic> medicationData) async {
-    final user = _auth.currentUser;
-    final uId = user?.uid;
-
-    if (uId != null) {
-      await _medsCollection.doc(uId).update({
-        'medicationsList': FieldValue.arrayUnion([medicationData])
-      });
-    }
-  }
+ 
 
   @override
   void initState() {
     super.initState();
+
+    /*_nameController.text = widget.existingData['name'];*/
+      
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add a Medication'),
+        title: Text('Edit Medication'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -175,17 +178,24 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
           child: ElevatedButton(
             onPressed: () async {
               final String name = _nameController.text;
+            
+
 
               if (name.isNotEmpty) {
-                Map<String, dynamic> medicationData = {
+                Map<String, dynamic> updatedData = {
                   'name': name,
                   'quantity': selectedQuantity,
                   'frequency': selectedFrequency,
                   'intakeInstructions': selectedInstructions
                 };
-                addMedication(medicationData);
+                //existingData = updatedData;
+                //updateMedication(medicationData);
+                /*await _medsCollection.doc(_auth.currentUser!.uid).update({
+                  'medicationsList.${widget.medicationIndex}': updatedData,
+                });
+*/
 
-                Navigator.pop(context, true);
+                Navigator.pop(context);
               }
             },
             child: Text(
