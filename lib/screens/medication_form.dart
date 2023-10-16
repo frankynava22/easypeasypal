@@ -43,7 +43,9 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
       await _medsCollection.doc(uId).update({
         'medicationsList': FieldValue.arrayUnion([medicationData])
       });
-    }
+      
+
+    } 
   }
 
   @override
