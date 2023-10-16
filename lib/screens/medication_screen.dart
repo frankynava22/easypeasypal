@@ -68,6 +68,20 @@ class _MedicationScreenState extends State<MedicationScreen> {
 
             ElevatedButton(
               onPressed: () async {
+                final user = _auth.currentUser;
+                final uId = user?.uid;
+
+                if (uId != null) {
+                  final userDocRef = _medsCollection.doc(uId);
+
+                  // Check if the document exists
+                  final documentSnapshot = await userDocRef.get();
+
+                  if (!documentSnapshot.exists) {
+                    // document doesn't exist, so create a new one
+                    await userDocRef.set({});
+                  } 
+                }
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -79,7 +93,6 @@ class _MedicationScreenState extends State<MedicationScreen> {
                   }
                 });
               },
-
               child: Text("Add a Medication"),
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.all(16),
@@ -87,7 +100,6 @@ class _MedicationScreenState extends State<MedicationScreen> {
               ),
             ),
             const SizedBox(height: 32), // spacing between button and card
-
 
             Expanded(
               child: FutureBuilder<List<Map<String, dynamic>>>(
@@ -130,24 +142,22 @@ class _MedicationScreenState extends State<MedicationScreen> {
                                         onPressed: () {
                                           //handle edit
 
-
-                                            Navigator.of(context).push(
-                  
-                  MaterialPageRoute(
-                    builder: (context) => MedicationEditForm(
-                      existingData: medications[index],
-                      index: index,
-                    ),
-                  ),
-                ).then((value) {
-                  if (value == true) {
-                    setState(() {});
-                  }
-                });
-                   
-                                         
-
-
+                                          Navigator.of(context)
+                                              .push(
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  MedicationEditForm(
+                                                existingData:
+                                                    medications[index],
+                                                index: index,
+                                              ),
+                                            ),
+                                          )
+                                              .then((value) {
+                                            if (value == true) {
+                                              setState(() {});
+                                            }
+                                          });
                                         })
                                   ],
                                 ),
@@ -177,22 +187,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
                               ),
                               const SizedBox(height: 25),
 
-                              /*
-                                const Divider(color: Colors.grey),
-                                const Text('Delete'),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.delete_outline,
-                                          size: 20),
-                                      color: Colors.red,
-                                      onPressed: () {},
-                                    ),
-                                  ],
-                                )
-*/
+               
                             ],
                           ),
                         );

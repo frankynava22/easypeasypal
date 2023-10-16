@@ -46,88 +46,20 @@ class _MedicationEditFormScreenState extends State<MedicationEditForm> {
   //List<Map<String, dynamic>> medications = [];
   final _medsCollection = FirebaseFirestore.instance.collection('medications');
   final _auth = FirebaseAuth.instance;
-/*
-void editMedication(Map<String, dynamic> medication) {
-    // Create a TextEditingController to edit the title
-    TextEditingController _editedTitleController = TextEditingController(text: medication['name']);
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Edit Event'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              TextField(
-                controller: _editedTitleController,
-                decoration: InputDecoration(labelText: 'Title'),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () async {
-                String editedName = _editedTitleController.text;
-                await _updateEventInFirestore(medication, editedName);
-                Navigator.of(context).pop();
-              },
-              child: Text('Save'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
 
-  Future<void> _updateEventInFirestore(Map<String, dynamic> event, String editedTitle) async {
-    final user = _auth.currentUser;
-    final userUid = user != null ? user.uid : '';
-    final userAppointmentsRef = _medsCollection.doc(userUid);
+//read data
+  Future<List<Map<String, dynamic>>> readMedications() async {
+    DocumentSnapshot snapshot =
+        await _medsCollection.doc(_auth.currentUser!.uid).get();
 
-    final userAppointmentsSnapshot = await userAppointmentsRef.get();
-    if (userAppointmentsSnapshot.exists) {
-      List<Map<String, dynamic>> userAppointments =
-          List<Map<String, dynamic>>.from(userAppointmentsSnapshot.data()!['events']);
+    if (snapshot.exists && snapshot.data() != null) {
+      List medsFromDB =
+          (snapshot.data() as Map<String, dynamic>)['medicationsList'] ?? [];
 
-      // Find the index of the event that matches the provided event
-      final int index = userAppointments.indexWhere((e) => e['title'] == event['title'] && e['date'].toDate() == event['date'].toDate());
-
-      if (index >= 0) {
-        // Create a new event with the edited title and the same date as the original event
-        Map<String, dynamic> updatedEvent = {
-          'title': editedTitle,
-          'date': event['date'],
-        };
-
-        // Update the event list with the new event
-        userAppointments[index] = updatedEvent;
-
-        // Update Firestore with the updated list of events
-        await userAppointmentsRef.set({'events': userAppointments});
-      }
-
-      // Reload the events list
-      _loadUserEvents();
-    }
-  }
-*/
-
-  Future<void> addMedication(Map<String, dynamic> medicationData) async {
-    final user = _auth.currentUser;
-    final uId = user?.uid;
-
-    if (uId != null) {
-      await _medsCollection.doc(uId).update({
-        'medicationsList': FieldValue.arrayUnion([medicationData])
-      });
+      return List<Map<String, dynamic>>.from(medsFromDB);
+    } else {
+      return [];
     }
   }
 
@@ -136,13 +68,7 @@ void editMedication(Map<String, dynamic> medication) {
     final user = _auth.currentUser;
     final uId = user?.uid;
 
-    /*if (uId != null) {
-      await _medsCollection.doc(uId).set({
-        'medicationsList': FieldValue.arrayUnion([medicationData])
-      }, SetOptions(merge:true));
-    }*/
     if (uId != null) {
-          //final DocumentSnapshot document = await _medsCollection.doc(uId).get();
       await _medsCollection.doc(uId).update({
         'medicationsList': FieldValue.arrayUnion([medicationData])
       }, );
