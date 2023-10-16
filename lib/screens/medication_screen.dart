@@ -10,34 +10,40 @@ class MedicationScreen extends StatefulWidget {
 }
 
 class _MedicationScreenState extends State<MedicationScreen> {
-  List<Map<String, dynamic>> medications = [];
   final _medsCollection = FirebaseFirestore.instance.collection('medications');
   final _auth = FirebaseAuth.instance;
 
-//read data
-  Future<List<Map<String, dynamic>>> readMedications() async {
-    DocumentSnapshot snapshot =
-        await _medsCollection.doc(_auth.currentUser!.uid).get();
+  Stream<List<Map<String, dynamic>>?> medicationsStream = Stream.value([]);
 
-    if (snapshot.exists && snapshot.data() != null) {
-      List medsFromDB =
-          (snapshot.data() as Map<String, dynamic>)['medicationsList'] ?? [];
+@override
+void initState() {
+  super.initState();
+  medicationsStream = listenToMedications();
+}
 
-      return List<Map<String, dynamic>>.from(medsFromDB);
+
+  Stream<List<Map<String, dynamic>>> listenToMedications() {
+    final user = _auth.currentUser;
+    final uId = user?.uid;
+
+    if (uId != null) {
+      // Replace .get() with .snapshots() to listen for changes
+      return _medsCollection.doc(uId).snapshots().map((doc) {
+        if (doc.exists) {
+          final List medsFromDB =
+              (doc.data() as Map<String, dynamic>)['medicationsList'] ?? [];
+
+          return List<Map<String, dynamic>>.from(medsFromDB);
+        } else {
+          return [];
+        }
+      });
     } else {
-      return [];
+      // Return an empty stream if the user is not authenticated
+      return Stream.value([]);
     }
   }
 
-/*
-  @override
-  void initState() {
-    super.initState();
-     
-    readMedications();
-  
-  }
-  */
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,7 +71,6 @@ class _MedicationScreenState extends State<MedicationScreen> {
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16),
-
             ElevatedButton(
               onPressed: () async {
                 final user = _auth.currentUser;
@@ -80,7 +85,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
                   if (!documentSnapshot.exists) {
                     // document doesn't exist, so create a new one
                     await userDocRef.set({});
-                  } 
+                  }
                 }
                 Navigator.push(
                   context,
@@ -99,11 +104,10 @@ class _MedicationScreenState extends State<MedicationScreen> {
                 textStyle: const TextStyle(fontSize: 18),
               ),
             ),
-            const SizedBox(height: 32), // spacing between button and card
-
+            const SizedBox(height: 32),
             Expanded(
-              child: FutureBuilder<List<Map<String, dynamic>>>(
-                future: readMedications(),
+              child: StreamBuilder<List<Map<String, dynamic>>?>(
+                stream: medicationsStream,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: Text('Loading...'));
@@ -112,7 +116,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
                       child: Text('Error: ${snapshot.error}'),
                     );
                   } else {
-                    medications = snapshot.data ?? [];
+                    final medications = snapshot.data ?? [];
 
                     return ListView.builder(
                       itemCount: medications.length,
@@ -126,39 +130,31 @@ class _MedicationScreenState extends State<MedicationScreen> {
                               ListTile(
                                 leading: Icon(Icons.medication_outlined,
                                     color: Colors.blue, size: 30),
-                                title:
-                                    /*Text(medications[index]['name'],
-                                    style: TextStyle(fontSize: 21)),
-                                    */
-                                    Row(
+                                title: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     Text(medications[index]['name'],
                                         style: TextStyle(fontSize: 21)),
                                     IconButton(
-                                        icon: Icon(Icons.edit),
-                                        iconSize: 25,
-                                        onPressed: () {
-                                          //handle edit
-
-                                          Navigator.of(context)
-                                              .push(
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  MedicationEditForm(
-                                                existingData:
-                                                    medications[index],
-                                                index: index,
-                                              ),
+                                      icon: Icon(Icons.edit),
+                                      iconSize: 25,
+                                      onPressed: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                MedicationEditForm(
+                                              existingData: medications[index],
+                                              index: index,
                                             ),
-                                          )
-                                              .then((value) {
-                                            if (value == true) {
-                                              setState(() {});
-                                            }
-                                          });
-                                        })
+                                          ),
+                                        ).then((value) {
+                                          if (value == true) {
+                                            setState(() {});
+                                          }
+                                        });
+                                      },
+                                    )
                                   ],
                                 ),
                                 subtitle: Column(
@@ -168,26 +164,27 @@ class _MedicationScreenState extends State<MedicationScreen> {
                                     const Divider(color: Colors.grey),
                                     SizedBox(height: 6),
                                     Text(
-                                        'Quantity: ${medications[index]['quantity'] ?? ''}',
-                                        style: const TextStyle(fontSize: 16)),
+                                      'Quantity: ${medications[index]['quantity'] ?? ''}',
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
                                     SizedBox(height: 6),
                                     const Divider(color: Colors.grey),
                                     SizedBox(height: 6),
                                     Text(
-                                        'How Often: ${medications[index]['frequency'] ?? ''}',
-                                        style: TextStyle(fontSize: 16)),
+                                      'How Often: ${medications[index]['frequency'] ?? ''}',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
                                     SizedBox(height: 6),
                                     const Divider(color: Colors.grey),
                                     SizedBox(height: 6),
                                     Text(
-                                        'Instructions: ${medications[index]['intakeInstructions'].join(", ")}',
-                                        style: TextStyle(fontSize: 16)),
+                                      'Instructions: ${medications[index]['intakeInstructions'].join(", ")}',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
                                   ],
                                 ),
                               ),
                               const SizedBox(height: 25),
-
-               
                             ],
                           ),
                         );

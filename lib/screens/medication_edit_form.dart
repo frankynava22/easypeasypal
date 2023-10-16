@@ -4,15 +4,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class MedicationEditForm extends StatefulWidget {
-  final Map<String, dynamic> existingData; // to get map of medication
+   Map<String, dynamic> existingData; // to get map of medication
   final int index;
-  //final _firestore = FirebaseFirestore.instance;
-  //final String userId;
 
   MedicationEditForm({
     required this.existingData,
     required this.index,
-    //required this.userId,
   });
 
   @override
@@ -65,23 +62,29 @@ class _MedicationEditFormScreenState extends State<MedicationEditForm> {
 
 
   Future<void> updateMedication(Map<String, dynamic> medicationData) async {
-    final user = _auth.currentUser;
-    final uId = user?.uid;
+  final user = _auth.currentUser;
+  final uId = user?.uid;
 
-    if (uId != null) {
+  if (uId != null) {
+    List<Map<String, dynamic>> medsList = await readMedications();
+
+    // Assuming you have a unique index for each medication in the list
+    int index = widget.index;
+
+    if (index >= 0 && index < medsList.length) {
+      medsList[index] = medicationData; // Update the medication data at the specified index
+
       await _medsCollection.doc(uId).update({
-        'medicationsList': FieldValue.arrayUnion([medicationData])
-      }, );
-      
+        'medicationsList': medsList, // Update the medicationsList field with the modified list
+      });
 
-
-
+      // You might want to also update the widget's existingData for consistency
+      setState(() {
+        widget.existingData = medicationData;
+      });
     }
-
- 
   }
-  
- 
+}
 
 
   @override
@@ -226,8 +229,7 @@ class _MedicationEditFormScreenState extends State<MedicationEditForm> {
                   'frequency': selectedFrequency,
                   'intakeInstructions': selectedInstructions
                 };
-                //addMedication(medicationData);
-                //currentMedsList.add(medicationData);
+                
                 updateMedication(medicationData);
 
                 Navigator.pop(context, true);
@@ -239,9 +241,9 @@ class _MedicationEditFormScreenState extends State<MedicationEditForm> {
             ),
             style: ButtonStyle(
               minimumSize:
-                  MaterialStateProperty.all(Size(150, 0)), // Set the width here
+                  MaterialStateProperty.all(Size(150, 0)), 
               padding: MaterialStateProperty.all(
-                  EdgeInsets.all(15.0)), // Optional: Adjust padding
+                  EdgeInsets.all(15.0)), 
             ),
           ),
         ),

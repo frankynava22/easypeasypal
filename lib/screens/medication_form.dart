@@ -3,7 +3,7 @@ import 'medication_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class MedicationFormScreen extends StatefulWidget { 
+class MedicationFormScreen extends StatefulWidget {
   @override
   _MedicationFormScreenState createState() => _MedicationFormScreenState();
 }
@@ -43,9 +43,7 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
       await _medsCollection.doc(uId).update({
         'medicationsList': FieldValue.arrayUnion([medicationData])
       });
-      
-
-    } 
+    }
   }
 
   @override
@@ -63,9 +61,8 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
         padding: const EdgeInsets.all(16.0),
         children: [
           Card(
-            elevation: 4, // Adds a shadow to the card
-            margin:
-                EdgeInsets.only(bottom: 10), // Provides spacing below the card
+            elevation: 4,
+            margin: EdgeInsets.only(bottom: 10),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: TextField(
