@@ -194,7 +194,7 @@ class IdentifyUserScreen extends StatelessWidget {
                         title: Text('Today\'s Events'),
                         content: SingleChildScrollView(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start, // New
                             children: [
                               Text(
                                 'Appointments:',
@@ -203,8 +203,11 @@ class IdentifyUserScreen extends StatelessWidget {
                                   fontSize: 18,
                                 ),
                               ),
-                              ...appointments.map((event) => Text(
-                                  event['title'])), // Only display event title
+                              ...appointments.map((event) => ListTile(
+                                    title: Text(event['title']),
+                                    subtitle: Text(
+                                        '${event['date'].toDate().hour}:${event['date'].toDate().minute}'), // display the time too
+                                  )),
                               SizedBox(height: 20),
                               Text(
                                 'Medications:',
