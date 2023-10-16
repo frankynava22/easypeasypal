@@ -79,6 +79,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
                   }
                 });
               },
+
               child: Text("Add a Medication"),
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.all(16),
@@ -87,7 +88,6 @@ class _MedicationScreenState extends State<MedicationScreen> {
             ),
             const SizedBox(height: 32), // spacing between button and card
 
-            //Text('$medications'),
 
             Expanded(
               child: FutureBuilder<List<Map<String, dynamic>>>(
@@ -129,6 +129,8 @@ class _MedicationScreenState extends State<MedicationScreen> {
                                         iconSize: 25,
                                         onPressed: () {
                                           //handle edit
+
+
                                             Navigator.of(context).push(
                   
                   MaterialPageRoute(
