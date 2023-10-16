@@ -71,9 +71,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0.0,
-        backgroundColor: Colors.blueGrey[900] ?? Colors.blueGrey,
-        title: Text('Contacts', style: TextStyle(color: Colors.white)),
+        title: Text('Contacts'),
       ),
       body: Column(
         children: [
@@ -85,36 +83,12 @@ class _ContactsScreenState extends State<ContactsScreen> {
                       Expanded(
                         child: TextField(
                           controller: _emailController,
-                          decoration: InputDecoration(
-                            hintText: "Search by email...",
-                            hintStyle: TextStyle(
-                                color: Colors.blueGrey[500] ?? Colors.blueGrey),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: Colors.blueGrey[700] ?? Colors.blueGrey,
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: Colors.blueGrey[700] ?? Colors.blueGrey,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: Colors.blueGrey[900] ?? Colors.blueGrey,
-                              ),
-                            ),
-                          ),
-                          style: TextStyle(
-                              color: Colors.blueGrey[800] ?? Colors.blueGrey),
+                          decoration:
+                              InputDecoration(hintText: "Search by email..."),
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.search,
-                            color: Colors.blueGrey[500] ?? Colors.blueGrey),
+                        icon: Icon(Icons.search),
                         onPressed: _searchByEmail,
                       ),
                     ],
@@ -126,36 +100,30 @@ class _ContactsScreenState extends State<ContactsScreen> {
                       });
                     },
                     child: Text('Search'),
-                    style: ElevatedButton.styleFrom(
-                        primary: Colors.blueGrey[800] ?? Colors.blueGrey),
                   ),
           ),
           if (_foundUser != null)
             ListTile(
-              title: Text(_foundUser!['displayName'] ?? '',
-                  style: TextStyle(
-                      color: Colors.blueGrey[700] ?? Colors.blueGrey)),
-              subtitle: Text(_foundUser!['email'] ?? '',
-                  style: TextStyle(
-                      color: Colors.blueGrey[500] ?? Colors.blueGrey)),
+              title: Text(_foundUser!['displayName'] ?? ''),
+              subtitle: Text(_foundUser!['email'] ?? ''),
               trailing: isUserAlreadyAdded(_foundUser)
                   ? Text("Added", style: TextStyle(color: Colors.grey))
                   : ElevatedButton(
-                      child: Text('Add', style: TextStyle(color: Colors.white)),
+                      child: Text('Add'),
                       onPressed: () async {
+                        // Add to local list
                         setState(() {
                           _contacts.add(_foundUser!);
                           _foundUser = null;
                         });
 
+                        // Add to Firestore
                         await _firestore
                             .collection('contacts')
                             .doc(_auth.currentUser!.uid)
                             .set({'contactsList': _contacts},
                                 SetOptions(merge: true));
                       },
-                      style: ElevatedButton.styleFrom(
-                          primary: Colors.blueGrey[800] ?? Colors.blueGrey),
                     ),
             ),
           Expanded(
@@ -163,27 +131,23 @@ class _ContactsScreenState extends State<ContactsScreen> {
               itemCount: _contacts.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  title: Text(_contacts[index]['displayName'] ?? '',
-                      style: TextStyle(
-                          color: Colors.blueGrey[700] ?? Colors.blueGrey)),
-                  subtitle: Text(_contacts[index]['email'] ?? '',
-                      style: TextStyle(
-                          color: Colors.blueGrey[500] ?? Colors.blueGrey)),
+                  title: Text(_contacts[index]['displayName'] ?? ''),
+                  subtitle: Text(_contacts[index]['email'] ?? ''),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.chat,
-                            color: Colors.blueGrey[500] ?? Colors.blueGrey),
+                        icon: Icon(Icons.chat),
                         onPressed: () {
                           Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) =>
-                                ChatHistoryScreen(contact: _contacts[index]),
+                            builder: (context) => ChatHistoryScreen(
+                                contact: _contacts[
+                                    index]), // Navigate to ChatHistoryScreen with the contact
                           ));
                         },
                       ),
                       IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red[400]),
+                        icon: Icon(Icons.delete),
                         onPressed: () {
                           _deleteContact(_contacts[index]);
                         },
@@ -196,7 +160,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
           ),
         ],
       ),
-      backgroundColor: Colors.blueGrey[100] ?? Colors.blueGrey,
     );
   }
 }

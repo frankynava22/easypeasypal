@@ -31,12 +31,10 @@ class IdentifyUserScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0.0,
-        backgroundColor: Colors.blueGrey[900],
         title: Text('Identification'),
         actions: [
           IconButton(
-            icon: Icon(Icons.settings, color: Colors.white60),
+            icon: Icon(Icons.settings),
             onPressed: () {
               Navigator.push(
                 context,
@@ -45,7 +43,7 @@ class IdentifyUserScreen extends StatelessWidget {
             },
           ),
           IconButton(
-            icon: Icon(Icons.logout, color: Colors.white60),
+            icon: Icon(Icons.logout),
             onPressed: () => _signOut(context),
           )
         ],
@@ -57,76 +55,103 @@ class IdentifyUserScreen extends StatelessWidget {
             Text(
               'Welcome',
               style: TextStyle(
-                fontSize: 32,
+                fontSize: 40,
                 fontWeight: FontWeight.bold,
-                color: Colors.blueGrey[800],
               ),
             ),
             Text(
               user.email != null ? '${extractFirstName(user.email!)}' : '',
               style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-                color: Colors.blueGrey[600],
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 40),
-            ..._buildButtons(context),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AppointmentsPage(),
+                  ),
+                );
+              },
+              child: Text(
+                "Appointments",
+                style: TextStyle(fontSize: 20),
+              ),
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(300, 60),
+              ),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CommunicationScreen(),
+                  ),
+                );
+              },
+              child: Text(
+                "Communication",
+                style: TextStyle(fontSize: 20),
+              ),
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(300, 60),
+              ),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MedicationScreen(),
+                  ),
+                );
+              },
+              child: Text(
+                "Medication",
+                style: TextStyle(fontSize: 20),
+              ),
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(300, 60),
+              ),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PersonalCareScreen(),
+                  ),
+                );
+              },
+              child: Text(
+                "Personal Care",
+                style: TextStyle(fontSize: 20),
+              ),
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(300, 60),
+              ),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                // Add your logic for the fifth button here
+              },
+              child: Text(
+                "Today's Events",
+                style: TextStyle(fontSize: 20),
+              ),
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(300, 60),
+              ),
+            ),
           ],
-        ),
-      ),
-    );
-  }
-
-  List<Widget> _buildButtons(BuildContext context) {
-    return [
-      _customElevatedButton("Appointments", () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => AppointmentsPage()),
-        );
-      }),
-      _customElevatedButton("Communication", () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => CommunicationScreen()),
-        );
-      }),
-      _customElevatedButton("Medication", () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => MedicationScreen()),
-        );
-      }),
-      _customElevatedButton("Personal Care", () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => PersonalCareScreen()),
-        );
-      }),
-      _customElevatedButton("Today's Events", () {
-        // Add your logic for the fifth button here
-      }),
-    ];
-  }
-
-  Widget _customElevatedButton(String text, VoidCallback onPressed) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: ElevatedButton(
-        onPressed: onPressed,
-        child: Text(
-          text,
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-        ),
-        style: ElevatedButton.styleFrom(
-          primary: Colors.blueGrey[200],
-          onPrimary: Colors.blueGrey[900],
-          minimumSize: Size(280, 50),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          elevation: 5.0,
         ),
       ),
     );

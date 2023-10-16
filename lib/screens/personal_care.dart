@@ -19,16 +19,35 @@ class _PersonalCareScreenState extends State<PersonalCareScreen> {
 
   Stream<DocumentSnapshot> _metricsStream() {
     final userId = _auth.currentUser!.uid;
-    return _firestore
+    final docReference = _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('personal_care')
+        .doc('metrics');
+
+    docReference.get().then((doc) {
+      if (!doc.exists) {
+        docReference.set({
+          'weight': 'Enter weight',
+          'height': 'Enter height',
+          'bloodPressure': 'Enter blood pressure',
+          'bloodSugar': 'Enter blood sugar',
+          'notes': 'Enter notes',
+        });
+      }
+    });
+
+    return docReference.snapshots();
+  }
+
+  Future<void> _saveMetricToFirestore(String field, String value) async {
+    final userId = _auth.currentUser!.uid;
+    await _firestore
         .collection('users')
         .doc(userId)
         .collection('personal_care')
         .doc('metrics')
-        .snapshots();
-  }
-
-  Future<void> _saveMetricToFirestore(String field, String value) async {
-    // ... [This method remains unchanged]
+        .update({field: value});
   }
 
   Future<void> _showMetricDialog({
@@ -38,7 +57,34 @@ class _PersonalCareScreenState extends State<PersonalCareScreen> {
     TextInputType inputType = TextInputType.text,
     int? maxLines,
   }) async {
-    // ... [This method remains unchanged]
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: TextField(
+          controller: controller,
+          keyboardType: inputType,
+          maxLines: maxLines,
+          decoration: InputDecoration(labelText: labelText),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: Text('Cancel'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          TextButton(
+            child: Text('Save'),
+            onPressed: () {
+              onValueChanged(controller.text.trim());
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildMetricCard(String title, String? value, VoidCallback onTap) {
@@ -50,16 +96,10 @@ class _PersonalCareScreenState extends State<PersonalCareScreen> {
       ),
       child: ListTile(
         contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        title: Text(title,
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.blueGrey[800] ?? Colors.blueGrey)),
-        subtitle: Text(value ?? "No data",
-            style: TextStyle(
-                fontSize: 16, color: Colors.blueGrey[500] ?? Colors.blueGrey)),
+        title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(value ?? "No data", style: TextStyle(fontSize: 16)),
         trailing: IconButton(
-          icon:
-              Icon(Icons.edit, color: Colors.blueGrey[500] ?? Colors.blueGrey),
+          icon: Icon(Icons.edit, color: Colors.blueGrey),
           onPressed: onTap,
         ),
       ),
@@ -71,15 +111,37 @@ class _PersonalCareScreenState extends State<PersonalCareScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Personal Care', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.blueGrey[900] ?? Colors.blueGrey,
+        backgroundColor: Colors.teal,
       ),
-      backgroundColor: Colors.blueGrey[100] ?? Colors.blueGrey,
+      backgroundColor: Colors.grey[100],
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          _showMetricDialog(
+            title: "Enter weight (lb)",
+            labelText: 'Weight (lb)',
+            inputType:
+                TextInputType.numberWithOptions(signed: false, decimal: false),
+            onValueChanged: (value) {
+              if (value != null) {
+                _saveMetricToFirestore('weight', value);
+              }
+            },
+          );
+        },
+      ),
       body: StreamBuilder<DocumentSnapshot>(
         stream: _metricsStream(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return CircularProgressIndicator();
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
 
-          final docData = snapshot.data!.data() as Map<String, dynamic>;
+          final docData = snapshot.data?.data() as Map<String, dynamic>?;
+
+          if (docData == null) {
+            return Center(child: Text('No data available.'));
+          }
 
           return ListView(
             padding: EdgeInsets.symmetric(vertical: 20),

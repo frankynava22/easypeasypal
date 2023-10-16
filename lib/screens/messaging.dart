@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'chat_history.dart';
-import 'contacts.dart';
+import 'chat_history.dart'; // Add this import for the ChatHistoryScreen
+import 'contacts.dart'; // Import the contacts.dart file
 
 class MessagingScreen extends StatefulWidget {
   @override
@@ -45,13 +45,10 @@ class _MessagingScreenState extends State<MessagingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0.0,
-        backgroundColor: Colors.blueGrey[900],
-        title: Text(_selectedHeader.isEmpty ? 'Messaging' : _selectedHeader,
-            style: TextStyle(color: Colors.white)),
+        title: Text(_selectedHeader.isEmpty ? 'Messaging' : _selectedHeader),
         leading: !_isOnMainScreen
             ? IconButton(
-                icon: Icon(Icons.arrow_back, color: Colors.white),
+                icon: Icon(Icons.arrow_back),
                 onPressed: () {
                   _toggleScreen('');
                 },
@@ -66,12 +63,10 @@ class _MessagingScreenState extends State<MessagingScreen> {
                   ElevatedButton.icon(
                     onPressed: () {
                       _toggleScreen('Chats');
-                      _fetchContacts();
+                      _fetchContacts(); // Fetch contacts when "Chats" is tapped
                     },
                     icon: Icon(Icons.chat),
                     label: Text('Chats'),
-                    style:
-                        ElevatedButton.styleFrom(primary: Colors.blueGrey[800]),
                   ),
                 ],
               )
@@ -83,24 +78,18 @@ class _MessagingScreenState extends State<MessagingScreen> {
                       Text(
                         _selectedHeader,
                         style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blueGrey[800]),
+                            fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                       Expanded(
                         child: ListView.builder(
                           itemCount: _contacts.length,
                           itemBuilder: (context, index) {
                             return ListTile(
-                              title: Text(_contacts[index]['displayName'] ?? '',
-                                  style:
-                                      TextStyle(color: Colors.blueGrey[700])),
-                              subtitle: Text(_contacts[index]['email'] ?? '',
-                                  style:
-                                      TextStyle(color: Colors.blueGrey[500])),
+                              title:
+                                  Text(_contacts[index]['displayName'] ?? ''),
+                              subtitle: Text(_contacts[index]['email'] ?? ''),
                               trailing: IconButton(
-                                icon: Icon(Icons.chat,
-                                    color: Colors.blueGrey[500]),
+                                icon: Icon(Icons.chat),
                                 onPressed: () {
                                   Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) => ChatHistoryScreen(
@@ -140,7 +129,6 @@ class _MessagingScreenState extends State<MessagingScreen> {
                     ],
                   ),
       ),
-      backgroundColor: Colors.blueGrey[100],
     );
   }
 }

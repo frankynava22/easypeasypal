@@ -27,19 +27,57 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
   }
 
   Future<void> _sendMessage() async {
-    // ... [same as before]
+    if (_messageController.text.isNotEmpty) {
+      var message = {
+        'text': _messageController.text,
+        'senderId': _auth.currentUser!.uid,
+        'timestamp': Timestamp.now(),
+      };
+
+      // Storing the message for the sender
+      await _firestore
+          .collection('chat_history')
+          .doc(_auth.currentUser!.uid)
+          .collection(widget.contact['uid'])
+          .add(message);
+
+      // Storing the message for the recipient
+      await _firestore
+          .collection('chat_history')
+          .doc(widget.contact['uid'])
+          .collection(_auth.currentUser!.uid)
+          .add(message);
+
+      _messageController.clear();
+    }
   }
 
   Future<void> _deleteSelectedMessages() async {
-    // ... [same as before]
+    for (String id in _selectedMessageIds) {
+      // Delete for the sender
+      await _firestore
+          .collection('chat_history')
+          .doc(_auth.currentUser!.uid)
+          .collection(widget.contact['uid'])
+          .doc(id)
+          .delete();
+
+      // Delete for the recipient
+      await _firestore
+          .collection('chat_history')
+          .doc(widget.contact['uid'])
+          .collection(_auth.currentUser!.uid)
+          .doc(id)
+          .delete();
+    }
+    _selectedMessageIds.clear();
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0.0,
-        backgroundColor: Colors.blueGrey[900],
         title: Text(widget.contact['displayName'] ?? 'Chat'),
         actions: _selectedMessageIds.isNotEmpty
             ? [
@@ -73,38 +111,48 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
                         .contains(snapshot.data!.docs[index].id);
 
                     return GestureDetector(
-                      // ... [same as before]
+                      onLongPress: isCurrentUser
+                          ? () {
+                              if (isSelected) {
+                                _selectedMessageIds
+                                    .remove(snapshot.data!.docs[index].id);
+                              } else {
+                                _selectedMessageIds
+                                    .add(snapshot.data!.docs[index].id);
+                              }
+                              setState(() {});
+                            }
+                          : null,
+                      onTap: isCurrentUser && isSelected
+                          ? () {
+                              _selectedMessageIds
+                                  .remove(snapshot.data!.docs[index].id);
+                              setState(() {});
+                            }
+                          : null,
                       child: Align(
                         alignment: isCurrentUser
                             ? Alignment.centerRight
                             : Alignment.centerLeft,
                         child: Container(
-                          padding: EdgeInsets.all(10.0),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 5.0, horizontal: 10.0),
                           margin: EdgeInsets.symmetric(
                               vertical: 5.0, horizontal: 10.0),
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? Colors.red[200]
                                 : (isCurrentUser
-                                    ? Colors.blue[300]
+                                    ? Colors.blue[200]
                                     : Colors.grey[300]),
-                            borderRadius: BorderRadius.circular(20.0),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.5),
-                                spreadRadius: 1,
-                                blurRadius: 2,
-                                offset: Offset(0, 3),
-                              ),
-                            ],
+                            borderRadius: BorderRadius.circular(15.0),
                           ),
                           child: Text(
                             messages[index]['text'],
                             style: TextStyle(
-                              color:
-                                  isCurrentUser ? Colors.white : Colors.black,
-                              fontSize: 16.0,
-                            ),
+                                color: isCurrentUser
+                                    ? Colors.white
+                                    : Colors.black),
                           ),
                         ),
                       ),
@@ -114,34 +162,21 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
               },
             ),
           ),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
-            color: Colors.blueGrey[900],
+          Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _messageController,
                     decoration: InputDecoration(
-                      fillColor: Colors.white,
-                      filled: true,
                       hintText: "Enter your message...",
-                      contentPadding: EdgeInsets.all(10.0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide.none,
-                      ),
                     ),
                   ),
                 ),
-                SizedBox(width: 10),
-                CircleAvatar(
-                  backgroundColor: Colors.blue[300],
-                  radius: 25,
-                  child: IconButton(
-                    icon: Icon(Icons.send, color: Colors.white),
-                    onPressed: _sendMessage,
-                  ),
+                IconButton(
+                  icon: Icon(Icons.send),
+                  onPressed: _sendMessage,
                 ),
               ],
             ),
