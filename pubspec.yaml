@@ -43,6 +43,7 @@ dependencies:
   provider: ^6.0.5
   firebase_storage: ^11.2.8
   image_picker: ^1.0.4
+  numberpicker: ^2.1.2
 
 
 dev_dependencies:

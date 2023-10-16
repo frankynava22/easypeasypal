@@ -9,6 +9,34 @@ class CommunicationScreen extends StatefulWidget {
 }
 
 class _CommunicationScreenState extends State<CommunicationScreen> {
+  void _showHelpModal() {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: Icon(Icons.chat, size: 40.0),
+                  title: Text("Chat"),
+                  subtitle: Text(
+                      "Click this to enter the chat room and start messaging."),
+                ),
+                SizedBox(height: 10),
+                ListTile(
+                  leading: Icon(Icons.contacts, size: 40.0),
+                  title: Text("Contacts"),
+                  subtitle:
+                      Text("Click this to view and manage your contacts."),
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,12 +74,9 @@ class _CommunicationScreenState extends State<CommunicationScreen> {
             Text("Help",
                 style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold)),
             IconButton(
-              icon: Icon(Icons.help_outline), // Question mark icon
+              icon: Icon(Icons.help_outline),
               iconSize: 60.0,
-              onPressed: () {
-                // Trigger when the help button is pressed
-                // For now, this does nothing, but you can later navigate to a help page
-              },
+              onPressed: _showHelpModal,
             ),
           ],
         ),
