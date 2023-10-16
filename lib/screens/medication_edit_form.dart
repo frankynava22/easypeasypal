@@ -3,23 +3,21 @@ import 'medication_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-
-class MedicationEditForm extends StatefulWidget { 
-
-  final Map<String, dynamic> existingData;  // to get map of medication 
-    final int index; 
-    //final _firestore = FirebaseFirestore.instance;
-    //final String userId; 
+class MedicationEditForm extends StatefulWidget {
+  final Map<String, dynamic> existingData; // to get map of medication
+  final int index;
+  //final _firestore = FirebaseFirestore.instance;
+  //final String userId;
 
   MedicationEditForm({
-    required this.existingData, 
+    required this.existingData,
     required this.index,
     //required this.userId,
   });
 
-  
   @override
-  _MedicationEditFormScreenState createState() => _MedicationEditFormScreenState();
+  _MedicationEditFormScreenState createState() =>
+      _MedicationEditFormScreenState();
 }
 
 class _MedicationEditFormScreenState extends State<MedicationEditForm> {
@@ -122,7 +120,7 @@ void editMedication(Map<String, dynamic> medication) {
   }
 */
 
-Future<void> addMedication(Map<String, dynamic> medicationData) async {
+  Future<void> addMedication(Map<String, dynamic> medicationData) async {
     final user = _auth.currentUser;
     final uId = user?.uid;
 
@@ -132,31 +130,45 @@ Future<void> addMedication(Map<String, dynamic> medicationData) async {
       });
     }
   }
- 
-Future<void> updateMedication(Map<String, dynamic> medicationData) async {
+
+
+  Future<void> updateMedication(Map<String, dynamic> medicationData) async {
     final user = _auth.currentUser;
     final uId = user?.uid;
 
-    if (uId != null) {
+    /*if (uId != null) {
       await _medsCollection.doc(uId).set({
         'medicationsList': FieldValue.arrayUnion([medicationData])
       }, SetOptions(merge:true));
+    }*/
+    if (uId != null) {
+          //final DocumentSnapshot document = await _medsCollection.doc(uId).get();
+      await _medsCollection.doc(uId).update({
+        'medicationsList': FieldValue.arrayUnion([medicationData])
+      }, );
+      
+
+
+
     }
+
+ 
   }
+  
+ 
+
 
   @override
   void initState() {
     super.initState();
     _nameController.text = widget.existingData['name'];
     selectedQuantity = widget.existingData['quantity'];
-    selectedFrequency = widget.existingData[
-      'frequency'
-    ];
-    selectedInstructions = List<String>.from(widget.existingData['intakeInstructions']);
-   
-      
+    selectedFrequency = widget.existingData['frequency'];
+    selectedInstructions =
+        List<String>.from(widget.existingData['intakeInstructions']);
   }
-@override
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -289,6 +301,7 @@ Future<void> updateMedication(Map<String, dynamic> medicationData) async {
                   'intakeInstructions': selectedInstructions
                 };
                 //addMedication(medicationData);
+                //currentMedsList.add(medicationData);
                 updateMedication(medicationData);
 
                 Navigator.pop(context, true);
