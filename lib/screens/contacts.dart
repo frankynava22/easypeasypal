@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'chat_history.dart'; // Import the ChatHistoryScreen
 
 class ContactsScreen extends StatefulWidget {
   @override
@@ -138,7 +139,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
                       IconButton(
                         icon: Icon(Icons.chat),
                         onPressed: () {
-                          // Placeholder for chat functionality
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => ChatHistoryScreen(
+                                contact: _contacts[
+                                    index]), // Navigate to ChatHistoryScreen with the contact
+                          ));
                         },
                       ),
                       IconButton(

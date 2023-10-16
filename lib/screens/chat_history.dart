@@ -1,4 +1,3 @@
-// chat_history.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,28 +15,15 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
   final TextEditingController _messageController = TextEditingController();
+  final Set<String> _selectedMessageIds = Set();
 
-  List<Map<String, dynamic>> messages = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchChatHistory();
-  }
-
-  Future<void> _fetchChatHistory() async {
-    QuerySnapshot querySnapshot = await _firestore
+  Stream<QuerySnapshot> get chatMessagesStream {
+    return _firestore
         .collection('chat_history')
         .doc(_auth.currentUser!.uid)
         .collection(widget.contact['uid'])
         .orderBy('timestamp', descending: true)
-        .get();
-
-    setState(() {
-      messages = querySnapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
-          .toList();
-    });
+        .snapshots();
   }
 
   Future<void> _sendMessage() async {
@@ -48,19 +34,44 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
         'timestamp': Timestamp.now(),
       };
 
-      // Storing the message in Firestore.
+      // Storing the message for the sender
       await _firestore
           .collection('chat_history')
           .doc(_auth.currentUser!.uid)
           .collection(widget.contact['uid'])
           .add(message);
 
-      // Optionally, clear the message input field.
-      _messageController.clear();
+      // Storing the message for the recipient
+      await _firestore
+          .collection('chat_history')
+          .doc(widget.contact['uid'])
+          .collection(_auth.currentUser!.uid)
+          .add(message);
 
-      // Refresh the chat history to display the new message.
-      _fetchChatHistory();
+      _messageController.clear();
     }
+  }
+
+  Future<void> _deleteSelectedMessages() async {
+    for (String id in _selectedMessageIds) {
+      // Delete for the sender
+      await _firestore
+          .collection('chat_history')
+          .doc(_auth.currentUser!.uid)
+          .collection(widget.contact['uid'])
+          .doc(id)
+          .delete();
+
+      // Delete for the recipient
+      await _firestore
+          .collection('chat_history')
+          .doc(widget.contact['uid'])
+          .collection(_auth.currentUser!.uid)
+          .doc(id)
+          .delete();
+    }
+    _selectedMessageIds.clear();
+    setState(() {});
   }
 
   @override
@@ -68,16 +79,85 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.contact['displayName'] ?? 'Chat'),
+        actions: _selectedMessageIds.isNotEmpty
+            ? [
+                IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: _deleteSelectedMessages,
+                )
+              ]
+            : [],
       ),
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              reverse: true, // New messages appear at the bottom
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(messages[index]['text']),
+            child: StreamBuilder<QuerySnapshot>(
+              stream: chatMessagesStream,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                final messages = snapshot.data!.docs
+                    .map((doc) => doc.data() as Map<String, dynamic>)
+                    .toList();
+
+                return ListView.builder(
+                  reverse: true,
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    bool isCurrentUser =
+                        messages[index]['senderId'] == _auth.currentUser!.uid;
+                    bool isSelected = _selectedMessageIds
+                        .contains(snapshot.data!.docs[index].id);
+
+                    return GestureDetector(
+                      onLongPress: isCurrentUser
+                          ? () {
+                              if (isSelected) {
+                                _selectedMessageIds
+                                    .remove(snapshot.data!.docs[index].id);
+                              } else {
+                                _selectedMessageIds
+                                    .add(snapshot.data!.docs[index].id);
+                              }
+                              setState(() {});
+                            }
+                          : null,
+                      onTap: isCurrentUser && isSelected
+                          ? () {
+                              _selectedMessageIds
+                                  .remove(snapshot.data!.docs[index].id);
+                              setState(() {});
+                            }
+                          : null,
+                      child: Align(
+                        alignment: isCurrentUser
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 5.0, horizontal: 10.0),
+                          margin: EdgeInsets.symmetric(
+                              vertical: 5.0, horizontal: 10.0),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? Colors.red[200]
+                                : (isCurrentUser
+                                    ? Colors.blue[200]
+                                    : Colors.grey[300]),
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          child: Text(
+                            messages[index]['text'],
+                            style: TextStyle(
+                                color: isCurrentUser
+                                    ? Colors.white
+                                    : Colors.black),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
             ),

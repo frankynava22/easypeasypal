@@ -40,6 +40,11 @@ dependencies:
   firebase_core: ^2.16.0
   cloud_firestore: ^4.9.3
   flutter_time_picker_spinner: ^2.0.0
+  provider: ^6.0.5
+  firebase_storage: ^11.2.8
+  image_picker: ^1.0.4
+  numberpicker: ^2.1.2
+
 
 dev_dependencies:
   flutter_test:

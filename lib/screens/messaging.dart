@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'chat_history.dart'; // Add this import for the ChatHistoryScreen
+import 'contacts.dart'; // Import the contacts.dart file
 
 class MessagingScreen extends StatefulWidget {
   @override
@@ -61,21 +62,15 @@ class _MessagingScreenState extends State<MessagingScreen> {
                 children: [
                   ElevatedButton.icon(
                     onPressed: () {
-                      _toggleScreen('New Chat');
-                      _fetchContacts(); // Fetch contacts when "New Chat" is tapped
+                      _toggleScreen('Chats');
+                      _fetchContacts(); // Fetch contacts when "Chats" is tapped
                     },
                     icon: Icon(Icons.chat),
-                    label: Text('New Chat'),
-                  ),
-                  SizedBox(height: 20.0),
-                  ElevatedButton.icon(
-                    onPressed: () => _toggleScreen('View Chats'),
-                    icon: Icon(Icons.view_list),
-                    label: Text('View Chats'),
+                    label: Text('Chats'),
                   ),
                 ],
               )
-            : _selectedHeader == 'New Chat'
+            : _selectedHeader == 'Chats'
                 ? Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -110,10 +105,15 @@ class _MessagingScreenState extends State<MessagingScreen> {
                         padding: const EdgeInsets.all(8.0),
                         child: GestureDetector(
                           onTap: () {
-                            // This will trigger the search action
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ContactsScreen(),
+                              ),
+                            );
                           },
                           child: Text(
-                            "Can't find a user? Search for them!",
+                            "Don't see who you're looking for? Add them to your contacts!",
                             style: TextStyle(
                               color: Colors.blue,
                               decoration: TextDecoration.underline,
@@ -125,7 +125,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
                   )
                 : Column(
                     children: [
-                      // ... [The rest of your original code remains unchanged]
+                      // ... [Your other code if any, for other headers]
                     ],
                   ),
       ),
