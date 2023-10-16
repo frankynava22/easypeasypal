@@ -50,14 +50,7 @@ void initState() {
       appBar: AppBar(
         leading: BackButton(),
         title: Text('Go Back'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.calendar_month),
-            onPressed: () {
-              // Implement SOS functionality
-            },
-          ),
-        ],
+      
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -66,7 +59,7 @@ void initState() {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              "Today's Medications",
+              "My Medications",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
