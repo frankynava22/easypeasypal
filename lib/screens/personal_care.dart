@@ -11,14 +11,15 @@ class _PersonalCareScreenState extends State<PersonalCareScreen> {
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
 
-  String _fullName = 'John Do';
-  String _bloodType = 'O+';
-  String _weight = '68kg';
-  String _bloodPressure = '120/80';
-  String _dietaryPreference = 'Vegan';
-  String _activityLevel = 'Active';
-  String _healthGoals = 'Lose 5kg in 2 months';
-  String _generalFeelings = 'Feeling great after starting my new diet!';
+  String _fullName = '';
+  String _bloodType = '';
+  String _weight = '';
+  String _bloodPressure = '';
+  String _allergies = '';
+  String _dietaryPreference = '';
+  String _activityLevel = '';
+  String _healthGoals = ' ';
+  String _generalFeelings = ' ';
 
   @override
   void initState() {
@@ -34,10 +35,30 @@ class _PersonalCareScreenState extends State<PersonalCareScreen> {
         title: Text('Personal Care', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.teal,
         actions: [
-          IconButton(
-            icon: Icon(Icons.save),
-            onPressed: _savePersonalCareData,
-          ),
+          Container(
+            margin: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(
+                color: Colors.teal,
+                width: 2,
+              ),
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: TextButton(
+              child: Text(
+                'Save changes',
+                style: TextStyle(
+                  color: Colors.teal,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              onPressed: () {
+                _savePersonalCareData();
+              },
+            ),
+          )
         ],
       ),
       body: Container(
@@ -70,6 +91,7 @@ class _PersonalCareScreenState extends State<PersonalCareScreen> {
                     _buildEditableCard('Blood Type', _bloodType, Icons.opacity),
                     _buildEditableCard('Weight', _weight, Icons.fitness_center),
                     _buildEditableCard('Blood Pressure', _bloodPressure, Icons.favorite),
+                    _buildLargeEditableCard('Allergies', _allergies, Icons.nature_people),
                     _buildSelectableCard('Dietary Preference', _dietaryPreference, Icons.restaurant, ['Vegan', 'Vegetarian', 'Non-Vegetarian']),
                     _buildSelectableCard('Activity Level', _activityLevel, Icons.run_circle, ['Active', 'Somewhat Active', 'Calm']),
                     _buildEditableCard('Health Goals', _healthGoals, Icons.track_changes),
@@ -200,6 +222,9 @@ class _PersonalCareScreenState extends State<PersonalCareScreen> {
                                     case 'General Feelings':
                                         _generalFeelings = _controller.text;
                                         break;
+                                    case 'Allergies':
+                                        _allergies = _controller.text;
+                                        break;
                                     
                                 }
                             });
@@ -257,6 +282,8 @@ Future<void> _savePersonalCareData() async {
       'activityLevel': _activityLevel,
       'healthGoals': _healthGoals,
       'generalFeelings': _generalFeelings,
+      'allergies': _allergies,
+  
      
     };
 
@@ -267,31 +294,23 @@ Future<void> _savePersonalCareData() async {
 
 
 
- Future<void> _fetchPersonalCareData() async {
-    final uid = _auth.currentUser?.uid;
-    if (uid != null) {
-        final userDocument = await _firestore.collection('users').doc(uid).get();
-        final personalCareData = userDocument.data()?['personal_care'];
+Future<void> _fetchPersonalCareData() async {
+  final uid = _auth.currentUser?.uid;
+  if (uid != null) {
+    final userDocument = await _firestore.collection('users').doc(uid).get();
+    final personalCareData = userDocument.data()?['personal_care'];
 
-        if (personalCareData != null) {
-            final metricsData = personalCareData['metrics'] ?? {};
-            setState(() {
-                _fullName = metricsData['fullName'] ?? _fullName;
-                _bloodType = metricsData['bloodType'] ?? _bloodType;
-                _weight = metricsData['weight'] ?? _weight;
-                _bloodPressure = metricsData['bloodPressure'] ?? _bloodPressure;
-                _dietaryPreference = metricsData['dietaryPreference'] ?? _dietaryPreference;
-                _activityLevel = metricsData['activityLevel'] ?? _activityLevel;
-                _healthGoals = metricsData['healthGoals'] ?? _healthGoals;
-                _generalFeelings = metricsData['generalFeelings'] ?? _generalFeelings;
-            });
-        }
-    }
-}
-
-
-
-
-
-
+    if (personalCareData != null) {
+      final metricsData = personalCareData['metrics'] ?? {};
+      setState(() {
+        _fullName = metricsData['fullName'] ?? '';
+        _bloodType = metricsData['bloodType'] ?? '';
+        _weight = metricsData['weight'] ?? '';
+        _bloodPressure = metricsData['bloodPressure'] ?? '';
+        _allergies = metricsData['allergies'] ?? '';
+        _dietaryPreference = metricsData['dietaryPreference'] ?? '';
+        _activityLevel = metricsData['activityLevel'] ?? '';
+        _healthGoals = metricsData['healthGoals'] ?? '';
+        _generalFeelings = metricsData['generalFeelings'] ?? '';
+      }); }}}
 }
