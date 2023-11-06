@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'chat_history.dart'; // Import the ChatHistoryScreen
+import 'manage_client.dart';
+import 'landing_screen.dart';
 
 class CaretakerDashboardScreen extends StatefulWidget {
   @override
@@ -42,8 +44,7 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
         .doc(_auth.currentUser!.uid)
         .get();
     if (snapshot.exists && snapshot.data() != null) {
-      List contactsFromDb =
-          (snapshot.data() as Map<String, dynamic>)['clientList'] ?? [];
+      List contactsFromDb = (snapshot.data() as Map<String, dynamic>)['clientList'] ?? [];
       setState(() {
         _clients = List<Map<String, dynamic>>.from(contactsFromDb);
       });
@@ -58,7 +59,18 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
     await _firestore
         .collection('Clients')
         .doc(_auth.currentUser!.uid)
-        .set({'clientList': _clients}, SetOptions(merge: true));
+        .set({
+          'clientList': _clients.map((client) {
+            // Include UID and other client data
+            return {
+              'uid': client['uid'],  // Add the UID here
+              'displayName': client['displayName'],
+              'email': client['email'],
+              // Add more fields as needed
+            };
+          }).toList()
+        },
+        SetOptions(merge: true));
   }
 
   @override
@@ -67,11 +79,23 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
     _fetchContacts();
   }
 
+  void _signOut(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => LandingScreen()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Clients'),
+        title: Text('Clients'),backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () => _signOut(context),
+          )
+        ],
       ),
       body: Column(
         children: [
@@ -100,6 +124,9 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
                       });
                     },
                     child: Text('Search'),
+                    style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 30, 71, 104)), // Set the background color of the button to blue
+                  ),
                   ),
           ),
           if (_foundUser != null)
@@ -121,8 +148,18 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
                         await _firestore
                             .collection('Clients')
                             .doc(_auth.currentUser!.uid)
-                            .set({'clientList': _clients},
-                                SetOptions(merge: true));
+                            .set({
+                              'clientList': _clients.map((client) {
+                                // Include UID and other client data
+                                return {
+                                  'uid': client['uid'],  // Add the UID here
+                                  'displayName': client['displayName'],
+                                  'email': client['email'],
+                                  // Add more fields as needed
+                                };
+                              }).toList()
+                            },
+                            SetOptions(merge: true));
                       },
                     ),
             ),
@@ -139,7 +176,15 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
                       IconButton(
                         icon: Icon(Icons.manage_accounts),
                         onPressed: () {
-                          
+                          // Access the UID using _clients[index]['uid']
+                          String clientUid = _clients[index]['uid'];
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ManageClientScreen(clientUid: clientUid),
+                              ),
+                            );
+                                                      // Use clientUid as needed
                         },
                       ),
                       IconButton(

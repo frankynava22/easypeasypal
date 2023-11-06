@@ -71,6 +71,7 @@ class IdentifyUserScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Identification'),
+        backgroundColor: const Color.fromARGB(255, 30, 71, 104),
         actions: [
           IconButton(
             icon: Icon(Icons.settings),
@@ -122,7 +123,7 @@ class IdentifyUserScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 20),
               ),
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60),
+                minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104),
               ),
             ),
             SizedBox(height: 10),
@@ -140,7 +141,7 @@ class IdentifyUserScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 20),
               ),
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60),
+                minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104),
               ),
             ),
             SizedBox(height: 10),
@@ -158,7 +159,7 @@ class IdentifyUserScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 20),
               ),
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60),
+                minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104),
               ),
             ),
             SizedBox(height: 10),
@@ -176,7 +177,7 @@ class IdentifyUserScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 20),
               ),
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60),
+                minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104),
               ),
             ),
             SizedBox(height: 10),
@@ -240,7 +241,7 @@ class IdentifyUserScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 20),
               ),
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60),
+                minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104),
               ),
             ),
           ],

@@ -109,7 +109,7 @@ class _LandingScreenState extends State<LandingScreen> {
             ),
             Text(
               "EasyPeasyPal",
-              style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold, color: Colors.blueGrey,),
+              style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold, color: const Color.fromARGB(255, 30, 71, 104),),
             ),
             SizedBox(height: 20),
             ElevatedButton(
@@ -127,6 +127,9 @@ class _LandingScreenState extends State<LandingScreen> {
                 }
               },
               child: const Text("Create Account"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 30, 71, 104), // Change the background color to blue
+              ),
             ),
             SizedBox(height: 10),
             TextButton(
@@ -143,7 +146,13 @@ class _LandingScreenState extends State<LandingScreen> {
                   // Handle login error or cancellation.
                 }
               },
-              child: const Text("Login"),
+              child: Text(
+                "Login",
+                style: TextStyle(
+                  fontSize: 22, // Change the font size to 18
+                  color: const Color.fromARGB(255, 30, 71, 104), // Change the text color to red
+                ),
+              ),
             ),
             Spacer(flex: 5),
             ElevatedButton(
@@ -161,7 +170,11 @@ class _LandingScreenState extends State<LandingScreen> {
                 }
               },
               child: const Text("CareTaker Access"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 30, 71, 104), // Change the background color to blue
+              ),
             ),
+
             Spacer(flex: 1),
           ],
         ),

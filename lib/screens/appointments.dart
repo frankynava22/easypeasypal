@@ -46,22 +46,22 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
     Widget build(BuildContext context) {
       return Scaffold(
         appBar: AppBar(
-  title: Text('Appointments'),
-  centerTitle: true,
-  backgroundColor: const Color.fromARGB(255, 30, 71, 104), // Center the title in the middle of the AppBar
-  actions: [
-    Padding(
-      padding: const EdgeInsets.only(top: 15, right: 15), // Add padding on top
-      child: Text(
-        DateFormat('MM-dd-yyyy').format(_selectedDate),
-        style: TextStyle(
-          fontSize: 20.0, // Set the font size to a larger value
-        ),
-      ),
-    ),
-  ],
-)
-,
+          title: Text('Appointments'),
+          centerTitle: true,
+          backgroundColor: const Color.fromARGB(255, 30, 71, 104), // Center the title in the middle of the AppBar
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(top: 15, right: 15), // Add padding on top
+              child: Text(
+                DateFormat('MM-dd-yyyy').format(_selectedDate),
+                style: TextStyle(
+                  fontSize: 20.0, // Set the font size to a larger value
+                ),
+              ),
+            ),
+          ],
+        )
+        ,
 
         body:  _loadUserEventsWidget(),
 
@@ -136,51 +136,63 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
               ? ListView.builder(
   itemCount: _events.length,
   itemBuilder: (context, index) {
-    final event = _events[index];
-    final eventTitle = event['title'] ?? '';
-    final eventDate = DateFormat('MM-dd-yyyy').format(event['date'].toDate());
+  final event = _events[index];
+  final eventTitle = event['title'] ?? '';
+  final eventDate = DateFormat('MM-dd-yyyy').format(event['date'].toDate());
 
-    return Dismissible(
-      key: Key(eventTitle),
-      onDismissed: (direction) {
-        _deleteEvent(eventTitle);
-      },
-      background: Container(
-        color: Colors.red,
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        alignment: Alignment.centerRight,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Icon(
-              Icons.delete,
+  return Dismissible(
+    key: Key(eventTitle),
+    onDismissed: (direction) {
+      _deleteEvent(eventTitle);
+    },
+    background: Container(
+      color: Colors.red,
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      alignment: Alignment.centerRight,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Icon(
+            Icons.delete,
+            color: Colors.white,
+            size: 36,
+          ),
+          Text(
+            "Delete",
+            style: TextStyle(
               color: Colors.white,
-              size: 36,
+              fontSize: 16,
             ),
-            Text(
-              "Delete",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
+          ),
+        ],
+      ),
+    ),
+    child: Card(
+      child: ListTile(
+        title: Text(eventTitle),
+        subtitle: Text(eventDate),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: Icon(Icons.edit),
+              onPressed: () {
+                _editEvent(event); // Call a function to edit the event
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: () {
+                _deleteEvent(eventTitle); // Call a function to delete the event
+              },
             ),
           ],
         ),
       ),
-      child: Card(
-        child: ListTile(
-          title: Text(eventTitle),
-          subtitle: Text(eventDate),
-          trailing: IconButton(
-            icon: Icon(Icons.edit), // Edit icon
-            onPressed: () {
-              _editEvent(event); // Call a function to edit the event
-            },
-          ),
-        ),
-      ),
-    );
-  },
+    ),
+  );
+},
+
 )
 
               : Center(
