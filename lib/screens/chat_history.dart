@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import 'font_size_notifier.dart'; // Import FontSizeNotifier
 
 class ChatHistoryScreen extends StatefulWidget {
   final Map<String, dynamic> contact;
@@ -76,9 +78,12 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final fontSizeNotifier = Provider.of<FontSizeNotifier>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.contact['displayName'] ?? 'Chat'),
+        title: Text(widget.contact['displayName'] ?? 'Chat',
+            style: TextStyle(fontSize: fontSizeNotifier.fontSize)),
         actions: _selectedMessageIds.isNotEmpty
             ? [
                 IconButton(
@@ -150,6 +155,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
                           child: Text(
                             messages[index]['text'],
                             style: TextStyle(
+                                fontSize: fontSizeNotifier.fontSize,
                                 color: isCurrentUser
                                     ? Colors.white
                                     : Colors.black),

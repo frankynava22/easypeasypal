@@ -1,31 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:chatbot/screens/landing_screen.dart';
 import 'package:provider/provider.dart';
-import 'screens/theme_notifier.dart'; // Don't forget to create this file as described in the previous response
+import 'screens/theme_notifier.dart';
+import 'screens/font_size_notifier.dart';
+import 'screens/font_weight_notifier.dart'; // Add this line for the FontWeightNotifier
+import 'screens/landing_screen.dart';
+import 'screens/identify_user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  double initialFontSize = await loadFontSize(); // Load the saved font size
+
   runApp(
-    ChangeNotifierProvider<ThemeNotifier>(
-      create: (_) => ThemeNotifier(ThemeData.light()),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<ThemeNotifier>(
+          create: (_) => ThemeNotifier(ThemeData.light()),
+        ),
+        ChangeNotifierProvider<FontSizeNotifier>(
+          create: (_) => FontSizeNotifier(initialFontSize),
+        ),
+        ChangeNotifierProvider<FontWeightNotifier>(
+          // Add the FontWeightNotifier provider
+          create: (_) => FontWeightNotifier(),
+        ),
+      ],
       child: MyApp(),
     ),
   );
 }
 
+Future<double> loadFontSize() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getDouble('fontSize') ?? 16.0; // Default value if not set
+}
+
 class MyApp extends StatelessWidget {
+  ThemeData _buildThemeData(double fontSize) {
+    return ThemeData(
+      primarySwatch: Colors.blue,
+      visualDensity: VisualDensity.adaptivePlatformDensity,
+      textTheme: TextTheme(
+        bodyText1: TextStyle(fontSize: fontSize),
+        bodyText2: TextStyle(fontSize: fontSize),
+        // Add other text styles as needed
+        button: TextStyle(fontSize: fontSize), // Apply to buttons
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final themeNotifier = Provider.of<ThemeNotifier>(context);
-    return MaterialApp(
-      initialRoute: '/',
-      theme: themeNotifier.getTheme(),
-      routes: {
-        '/': (context) => LandingScreen(),
+    return Consumer<FontSizeNotifier>(
+      builder: (context, fontSizeNotifier, child) {
+        return MaterialApp(
+          initialRoute: '/',
+          theme: _buildThemeData(fontSizeNotifier.fontSize),
+          routes: {
+            '/': (context) => LandingScreen(),
+            // Define other routes as needed
+          },
+        );
       },
     );
   }
@@ -53,7 +91,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
       body: Center(
@@ -65,7 +102,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Text(
               '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],
         ),

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import 'chat_history.dart'; // Add this import for the ChatHistoryScreen
 import 'contacts.dart'; // Import the contacts.dart file
+import 'font_size_notifier.dart'; // Import FontSizeNotifier
 
 class MessagingScreen extends StatefulWidget {
   @override
@@ -43,9 +45,12 @@ class _MessagingScreenState extends State<MessagingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final fontSizeNotifier = Provider.of<FontSizeNotifier>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(_selectedHeader.isEmpty ? 'Messaging' : _selectedHeader),
+        title: Text(_selectedHeader.isEmpty ? 'Messaging' : _selectedHeader,
+            style: TextStyle(fontSize: fontSizeNotifier.fontSize)),
         leading: !_isOnMainScreen
             ? IconButton(
                 icon: Icon(Icons.arrow_back),
@@ -66,7 +71,8 @@ class _MessagingScreenState extends State<MessagingScreen> {
                       _fetchContacts(); // Fetch contacts when "Chats" is tapped
                     },
                     icon: Icon(Icons.chat),
-                    label: Text('Chats'),
+                    label: Text('Chats',
+                        style: TextStyle(fontSize: fontSizeNotifier.fontSize)),
                   ),
                 ],
               )
@@ -78,16 +84,20 @@ class _MessagingScreenState extends State<MessagingScreen> {
                       Text(
                         _selectedHeader,
                         style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
+                            fontSize: fontSizeNotifier.fontSize,
+                            fontWeight: FontWeight.bold),
                       ),
                       Expanded(
                         child: ListView.builder(
                           itemCount: _contacts.length,
                           itemBuilder: (context, index) {
                             return ListTile(
-                              title:
-                                  Text(_contacts[index]['displayName'] ?? ''),
-                              subtitle: Text(_contacts[index]['email'] ?? ''),
+                              title: Text(_contacts[index]['displayName'] ?? '',
+                                  style: TextStyle(
+                                      fontSize: fontSizeNotifier.fontSize)),
+                              subtitle: Text(_contacts[index]['email'] ?? '',
+                                  style: TextStyle(
+                                      fontSize: fontSizeNotifier.fontSize)),
                               trailing: IconButton(
                                 icon: Icon(Icons.chat),
                                 onPressed: () {
@@ -115,6 +125,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
                           child: Text(
                             "Don't see who you're looking for? Add them to your contacts!",
                             style: TextStyle(
+                              fontSize: fontSizeNotifier.fontSize,
                               color: Colors.blue,
                               decoration: TextDecoration.underline,
                             ),

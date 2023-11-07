@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'font_size_notifier.dart';
+import 'font_weight_notifier.dart'; // Import FontWeightNotifier
 import 'landing_screen.dart';
 import 'communication.dart';
 import 'medication_screen.dart';
 import 'appointments.dart';
 import 'personal_care.dart';
-import 'settings.dart'; // Importing the new settings page
+import 'settings.dart';
 
 class IdentifyUserScreen extends StatelessWidget {
   final User user;
@@ -43,7 +46,6 @@ class IdentifyUserScreen extends StatelessWidget {
       List<dynamic> events = doc['events'] ?? [];
       for (var event in events) {
         DateTime eventDate = (event['date'] as Timestamp).toDate();
-
         if (eventDate.isAfter(startOfDay) && eventDate.isBefore(endOfDay)) {
           todayEvents.add(event);
         }
@@ -57,8 +59,8 @@ class IdentifyUserScreen extends StatelessWidget {
       String userId) async {
     CollectionReference meds =
         FirebaseFirestore.instance.collection('medications');
-
     DocumentSnapshot doc = await meds.doc(userId).get();
+
     if (doc['medicationsList'] != null) {
       return List<Map<String, dynamic>>.from(doc['medicationsList']);
     } else {
@@ -68,18 +70,26 @@ class IdentifyUserScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fontSize = Provider.of<FontSizeNotifier>(context)
+        .fontSize; // Get the current font size
+    final fontWeight = Provider.of<FontWeightNotifier>(context)
+        .fontWeight; // Get the current font weight
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Identification'),
+        title: Text(
+          'Identification',
+          style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: fontWeight), // Apply dynamic font size and weight
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        SettingsPage()), // NEW: Navigating to the SettingsPage
+                MaterialPageRoute(builder: (context) => SettingsPage()),
               );
             },
           ),
@@ -96,15 +106,15 @@ class IdentifyUserScreen extends StatelessWidget {
             Text(
               'Welcome',
               style: TextStyle(
-                fontSize: 40,
-                fontWeight: FontWeight.bold,
+                fontSize: fontSize * 1.5, // Scale font size
+                fontWeight: fontWeight, // Apply dynamic font weight
               ),
             ),
             Text(
               user.email != null ? '${extractFirstName(user.email!)}' : '',
               style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontSize: fontSize * 1.2, // Scale font size
+                fontWeight: fontWeight, // Apply dynamic font weight
               ),
             ),
             SizedBox(height: 20),
@@ -112,18 +122,12 @@ class IdentifyUserScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => AppointmentsPage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => AppointmentsPage()),
                 );
               },
-              child: Text(
-                "Appointments",
-                style: TextStyle(fontSize: 20),
-              ),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60),
-              ),
+              child: Text("Appointments",
+                  style: TextStyle(fontSize: fontSize, fontWeight: fontWeight)),
+              style: ElevatedButton.styleFrom(minimumSize: Size(300, 60)),
             ),
             SizedBox(height: 10),
             ElevatedButton(
@@ -131,53 +135,36 @@ class IdentifyUserScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CommunicationScreen(),
-                  ),
+                      builder: (context) => CommunicationScreen()),
                 );
               },
-              child: Text(
-                "Communication",
-                style: TextStyle(fontSize: 20),
-              ),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60),
-              ),
+              child: Text("Communication",
+                  style: TextStyle(fontSize: fontSize, fontWeight: fontWeight)),
+              style: ElevatedButton.styleFrom(minimumSize: Size(300, 60)),
             ),
             SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => MedicationScreen(),
-                  ),
+                  MaterialPageRoute(builder: (context) => MedicationScreen()),
                 );
               },
-              child: Text(
-                "Medication",
-                style: TextStyle(fontSize: 20),
-              ),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60),
-              ),
+              child: Text("Medication",
+                  style: TextStyle(fontSize: fontSize, fontWeight: fontWeight)),
+              style: ElevatedButton.styleFrom(minimumSize: Size(300, 60)),
             ),
             SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => PersonalCareScreen(),
-                  ),
+                  MaterialPageRoute(builder: (context) => PersonalCareScreen()),
                 );
               },
-              child: Text(
-                "Personal Care",
-                style: TextStyle(fontSize: 20),
-              ),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60),
-              ),
+              child: Text("Personal Care",
+                  style: TextStyle(fontSize: fontSize, fontWeight: fontWeight)),
+              style: ElevatedButton.styleFrom(minimumSize: Size(300, 60)),
             ),
             SizedBox(height: 10),
             ElevatedButton(
@@ -191,42 +178,55 @@ class IdentifyUserScreen extends StatelessWidget {
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
-                        title: Text('Today\'s Events'),
+                        title: Text('Today\'s Events',
+                            style: TextStyle(
+                                fontSize: fontSize, fontWeight: fontWeight)),
                         content: SingleChildScrollView(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start, // New
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 'Appointments:',
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
+                                    fontWeight: fontWeight, fontSize: fontSize),
                               ),
                               ...appointments.map((event) => ListTile(
-                                    title: Text(event['title']),
+                                    title: Text(event['title'],
+                                        style: TextStyle(
+                                            fontSize: fontSize,
+                                            fontWeight: fontWeight)),
                                     subtitle: Text(
-                                        '${event['date'].toDate().hour}:${event['date'].toDate().minute}'), // display the time too
+                                        '${event['date'].toDate().hour}:${event['date'].toDate().minute}',
+                                        style: TextStyle(
+                                            fontSize: fontSize,
+                                            fontWeight: fontWeight)),
                                   )),
                               SizedBox(height: 20),
                               Text(
                                 'Medications:',
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
+                                    fontWeight: fontWeight, fontSize: fontSize),
                               ),
                               ...medications.map((med) => ListTile(
-                                    title: Text(med['name']),
+                                    title: Text(med['name'],
+                                        style: TextStyle(
+                                            fontSize: fontSize,
+                                            fontWeight: fontWeight)),
                                     subtitle: Text(
-                                        'Frequency: ${med['frequency']} times a day'),
+                                        'Frequency: ${med['frequency']} times a day',
+                                        style: TextStyle(
+                                            fontSize: fontSize,
+                                            fontWeight: fontWeight)),
                                   ))
                             ],
                           ),
                         ),
                         actions: [
                           TextButton(
-                            child: Text('Close'),
+                            child: Text('Close',
+                                style: TextStyle(
+                                    fontSize: fontSize,
+                                    fontWeight: fontWeight)),
                             onPressed: () {
                               Navigator.of(context).pop();
                             },
@@ -235,13 +235,9 @@ class IdentifyUserScreen extends StatelessWidget {
                       );
                     });
               },
-              child: Text(
-                "Today's Events",
-                style: TextStyle(fontSize: 20),
-              ),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60),
-              ),
+              child: Text("Today's Events",
+                  style: TextStyle(fontSize: fontSize, fontWeight: fontWeight)),
+              style: ElevatedButton.styleFrom(minimumSize: Size(300, 60)),
             ),
           ],
         ),
