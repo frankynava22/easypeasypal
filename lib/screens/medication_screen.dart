@@ -128,7 +128,10 @@ void initState() {
                                       MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     Text(medications[index]['name'],
-                                        style: TextStyle(fontSize: 21)),
+                                        style: TextStyle(fontSize: 21)
+                                        
+                                        
+                                        ),
                                     IconButton(
                                       icon: Icon(Icons.edit),
                                       iconSize: 25,
