@@ -22,21 +22,21 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
     return _clients.any((client) => client['email'] == user?['email']);
   }
 
-  Future<void> _searchByEmail() async {
-    final querySnapshot = await _firestore
-        .collection('users')
-        .where('email', isEqualTo: _emailController.text)
-        .get();
-    if (querySnapshot.docs.isNotEmpty) {
-      setState(() {
-        _foundUser = querySnapshot.docs.first.data();
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No user found with this email.')),
-      );
-    }
-  }
+  //Future<void> _searchByEmail() async {
+  //  final querySnapshot = await _firestore
+  //      .collection('users')
+  //      .where('email', isEqualTo: _emailController.text)
+  //      .get();
+  //  if (querySnapshot.docs.isNotEmpty) {
+  //    setState(() {
+  //      _foundUser = querySnapshot.docs.first.data();
+  //    });
+  //  } else {
+  //    ScaffoldMessenger.of(context).showSnackBar(
+  //      SnackBar(content: Text('No user found with this email.')),
+  //    );
+  //  }
+  //}
 
   Future<void> _fetchContacts() async {
     DocumentSnapshot snapshot = await _firestore
@@ -99,36 +99,7 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: _isSearchBarVisible
-                ? Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _emailController,
-                          decoration:
-                              InputDecoration(hintText: "Search by email..."),
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.search),
-                        onPressed: _searchByEmail,
-                      ),
-                    ],
-                  )
-                : ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _isSearchBarVisible = true;
-                      });
-                    },
-                    child: Text('Search'),
-                    style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 30, 71, 104)), // Set the background color of the button to blue
-                  ),
-                  ),
-          ),
+          
           if (_foundUser != null)
             ListTile(
               title: Text(_foundUser!['displayName'] ?? ''),

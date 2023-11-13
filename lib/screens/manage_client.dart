@@ -15,6 +15,8 @@ class _ManageClientScreenState extends State<ManageClientScreen> {
   final _firestore = FirebaseFirestore.instance;
   List<Map<String, dynamic>> _clientAppointments = [];
 
+  bool _showAppointments = true; // To toggle between Appointments and Medications
+
   @override
   void initState() {
     super.initState();
@@ -22,12 +24,14 @@ class _ManageClientScreenState extends State<ManageClientScreen> {
   }
 
   void _loadClientAppointments() async {
-    final clientAppointmentsRef = _firestore.collection('Appointments').doc(widget.clientUid);
+    final clientAppointmentsRef =
+        _firestore.collection('Appointments').doc(widget.clientUid);
 
     final clientAppointmentsSnapshot = await clientAppointmentsRef.get();
     if (clientAppointmentsSnapshot.exists) {
       setState(() {
-        _clientAppointments = List<Map<String, dynamic>>.from(clientAppointmentsSnapshot.data()!['events']);
+        _clientAppointments = List<Map<String, dynamic>>.from(
+            clientAppointmentsSnapshot.data()!['events']);
       });
     }
   }
@@ -36,36 +40,68 @@ class _ManageClientScreenState extends State<ManageClientScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Manage Client Appointments'),backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+        title: Text('Manage Client'), backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.calendar_today),
+            onPressed: () {
+              setState(() {
+                _showAppointments = true;
+              });
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.medical_services),
+            onPressed: () {
+              setState(() {
+                _showAppointments = false;
+              });
+              // Navigate to MedicationsScreen or show medications content
+              // Replace the next line with your actual navigation or content
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => MedicationsScreen()),
+              // );
+            },
+          ),
+        ],
       ),
-      body: _clientAppointments.isEmpty
-          ? Center(
-              child: Text(
-                'No appointments found for this client.',
-                style: TextStyle(fontSize: 20),
-              ),
-            )
-          : ListView.builder(
-              itemCount: _clientAppointments.length,
-              itemBuilder: (context, index) {
-                final appointment = _clientAppointments[index];
-                final title = appointment['title'] ?? '';
-                final date = appointment['date'].toDate();
-
-                return Card(
-                  child: ListTile(
-                    title: Text(title),
-                    subtitle: Text('Date: ${DateFormat('MM-dd-yyyy').format(date)}'),
+      body: _showAppointments
+          ? (_clientAppointments.isEmpty
+              ? Center(
+                  child: Text(
+                    'No appointments found for this client.',
+                    style: TextStyle(fontSize: 20),
                   ),
-                );
-              },
+                )
+              : ListView.builder(
+                  itemCount: _clientAppointments.length,
+                  itemBuilder: (context, index) {
+                    final appointment = _clientAppointments[index];
+                    final title = appointment['title'] ?? '';
+                    final date = appointment['date'].toDate();
+
+                    return Card(
+                      child: ListTile(
+                        title: Text(title),
+                        subtitle: Text(
+                            'Date: ${DateFormat('MM-dd-yyyy').format(date)}'),
+                      ),
+                    );
+                  },
+                ))
+          : Container(
+              // This is where your Medications content will be displayed
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showAddAppointmentDialog(context);
-        },
-        child: Icon(Icons.add),backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-      ),
+      floatingActionButton: _showAppointments
+          ? FloatingActionButton(
+              onPressed: () {
+                _showAddAppointmentDialog(context);
+              },
+              child: Icon(Icons.add),
+              backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+            )
+          : null, // Hide FloatingActionButton when showing Medications
     );
   }
 
@@ -135,13 +171,15 @@ class _ManageClientScreenState extends State<ManageClientScreen> {
     );
   }
 
-  Future<void> _saveClientAppointmentToFirestore({required String title, required DateTime date}) async {
-    final clientAppointmentsRef = _firestore.collection('Appointments').doc(widget.clientUid);
+  Future<void> _saveClientAppointmentToFirestore(
+      {required String title, required DateTime date}) async {
+    final clientAppointmentsRef =
+        _firestore.collection('Appointments').doc(widget.clientUid);
     List<Map<String, dynamic>> clientAppointments = [];
     final clientAppointmentsSnapshot = await clientAppointmentsRef.get();
     if (clientAppointmentsSnapshot.exists) {
-      clientAppointments =
-          List<Map<String, dynamic>>.from(clientAppointmentsSnapshot.data()!['events']);
+      clientAppointments = List<Map<String, dynamic>>.from(
+          clientAppointmentsSnapshot.data()!['events']);
     }
     clientAppointments.add({'title': title, 'date': date.toUtc()});
     await clientAppointmentsRef.set({'events': clientAppointments});
