@@ -7,6 +7,7 @@ import 'medication_screen.dart';
 import 'appointments.dart';
 import 'personal_care.dart';
 import 'settings.dart'; // Importing the new settings page
+import 'caretaker_add.dart';
 
 class IdentifyUserScreen extends StatelessWidget {
   final User user;
@@ -74,6 +75,17 @@ class IdentifyUserScreen extends StatelessWidget {
         backgroundColor: const Color.fromARGB(255, 30, 71, 104),
         actions: [
           IconButton(
+            icon: Icon(Icons.manage_accounts),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        CaretakerAddScreen()), // NEW: Navigating to the SettingsPage
+              );
+            },
+          ),
+          IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
               Navigator.push(
@@ -88,6 +100,7 @@ class IdentifyUserScreen extends StatelessWidget {
             icon: Icon(Icons.logout),
             onPressed: () => _signOut(context),
           )
+
         ],
       ),
       body: Center(
@@ -244,6 +257,7 @@ class IdentifyUserScreen extends StatelessWidget {
                 minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104),
               ),
             ),
+            
           ],
         ),
       ),
