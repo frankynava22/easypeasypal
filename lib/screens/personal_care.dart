@@ -22,11 +22,40 @@ class _PersonalCareScreenState extends State<PersonalCareScreen> {
   String heightString = '';
   double _bmi = 0.0;
   String _bmiCategory = '';
-  @override
-  void initState() {
-    super.initState();
-    _fetchPersonalCareData();
-  }
+
+ @override
+void initState() {
+  super.initState();
+  _fetchPersonalCareData();
+  
+
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (_healthGoals.trim().isNotEmpty) {
+      _showHealthGoalsReminder();
+    }
+  });
+}
+
+void _showHealthGoalsReminder() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Reminder"),
+        content: Text("Don't forget your health goals:\n\n$_healthGoals"),
+        actions: <Widget>[
+          TextButton(
+            child: Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
  @override
 Widget build(BuildContext context) {
@@ -159,42 +188,50 @@ Widget build(BuildContext context) {
           TextButton(
             child: Text('Save'),
             onPressed: () {
-              if (title == 'Height') {
-                setState(() {
-                   _heightFeet = int.tryParse(_heightFeetController!.text) ?? 0;
-    _heightInches = int.tryParse(_heightInchesController!.text) ?? 0;
-    heightString = '${_heightFeet}\'${_heightInches}"'; 
-    _bmi = calculateBMI(_weightInPounds, _heightFeet, _heightInches);
-    _bmiCategory = getBMICategory(_bmi);
-                });
-              } else {
-                setState(() {
-                  switch (title) {
-                    case 'Blood Type':
-                      _bloodType = _controller.text;
-                      break;
-                    case 'Weight':
-                      double? newWeight = double.tryParse(_controller.text);
-                      if (newWeight != null) {
-                        _weightInPounds = newWeight;
-                        _weight = _weightInPounds.toString();
-                        _bmi = calculateBMI(_weightInPounds, _heightFeet, _heightInches);
-                        _bmiCategory = getBMICategory(_bmi);
-                      }
-                      break;
-                    case 'Blood Pressure':
-                      _bloodPressure = _controller.text;
-                      break;
-                    case 'Allergies':
-                      _allergies = _controller.text;
-                      break;
-                    case 'Health Goals':
-                      _healthGoals = _controller.text;
-                      break;
-                 
-                  }
-                });
+              String? warningMessage;
+              if (title == 'Blood Pressure') {
+                warningMessage = getBloodPressureTooltip(_controller.text);
               }
+              
+              setState(() {
+                switch (title) {
+                  case 'Blood Type':
+                    _bloodType = _controller.text;
+                    break;
+                  case 'Weight':
+                    double? newWeight = double.tryParse(_controller.text);
+                    if (newWeight != null) {
+                      _weightInPounds = newWeight;
+                      _weight = _weightInPounds.toString();
+                      _bmi = calculateBMI(_weightInPounds, _heightFeet, _heightInches);
+                      _bmiCategory = getBMICategory(_bmi);
+                    }
+                    break;
+                  case 'Blood Pressure':
+                    _bloodPressure = _controller.text;
+                    break;
+                  case 'Height':
+                    _heightFeet = int.tryParse(_heightFeetController!.text) ?? 0;
+                    _heightInches = int.tryParse(_heightInchesController!.text) ?? 0;
+                    heightString = '${_heightFeet}\'${_heightInches}"'; 
+                    _bmi = calculateBMI(_weightInPounds, _heightFeet, _heightInches);
+                    _bmiCategory = getBMICategory(_bmi);
+                    break;
+                  case 'Allergies':
+                    _allergies = _controller.text;
+                    break;
+                  case 'Health Goals':
+                    _healthGoals = _controller.text;
+                    break;
+                }
+              });
+
+              if (warningMessage != null) {
+                ScaffoldMessenger.of(context).showSnackBar( 
+                  SnackBar(content: Text(warningMessage))
+                );
+              }
+
               _savePersonalCareData();
               Navigator.of(context).pop();
             },
@@ -335,7 +372,8 @@ Widget _buildWeightAndHeightRow() {
       Map<String, dynamic> metricsData = {
         'bloodType': _bloodType,
         'weight': _weight,
-        'height': _heightFeet,
+        'heightFeet': _heightFeet,
+        'heightInches': _heightInches,
         'bloodPressure': _bloodPressure,
         'healthGoals': _healthGoals,
         'allergies': _allergies,
@@ -352,26 +390,41 @@ Widget _buildWeightAndHeightRow() {
     }
   }
 
-  Future<void> _fetchPersonalCareData() async {
-    final uid = _auth.currentUser?.uid;
-    if (uid != null) {
-      final userDocument = await _firestore.collection('users').doc(uid).get();
-      final personalCareData = userDocument.data()?['personal_care'];
+Future<void> _fetchPersonalCareData() async {
+  final uid = _auth.currentUser?.uid;
+  if (uid != null) {
+    try {
+      final userDocument = await _firestore.collection('users').doc(uid).collection('personal_care').doc('metrics').get();
+      final metricsData = userDocument.data() ?? {};
 
-      if (personalCareData != null) {
-        final metricsData = personalCareData['metrics'] ?? {};
-        setState(() {
-          _bloodType = metricsData['bloodType'] ?? '';
-          _weight = metricsData['weight'] ?? '';
-          _heightFeet = metricsData['heightFeet'] ?? 0;
-          _weightInPounds = double.tryParse(_weight) ?? 0.0;
-          _bloodPressure = metricsData['bloodPressure'] ?? '';
-          _allergies = metricsData['allergies'] ?? '';
-          _healthGoals = metricsData['healthGoals'] ?? '';
-          _bmi = metricsData['bmi'] ?? 0.0;
-          _bmiCategory = metricsData['bmiCategory'] ?? '';
-        });
-      }
+      setState(() {
+        _bloodType = metricsData['bloodType'] ?? '';
+        _weight = metricsData['weight'] ?? '';
+        
+        var heightFeet = metricsData['heightFeet'];
+        var heightInches = metricsData['heightInches'];
+        if (heightFeet is int && heightInches is int) {
+          _heightFeet = heightFeet;
+          _heightInches = heightInches;
+          heightString = "${_heightFeet}'${_heightInches}\"";
+        }
+
+        _weightInPounds = double.tryParse(_weight) ?? 0.0;
+        _bloodPressure = metricsData['bloodPressure'] ?? '';
+        _allergies = metricsData['allergies'] ?? '';
+        _healthGoals = metricsData['healthGoals'] ?? '';
+        _bmi = metricsData['bmi'] ?? 0.0;
+        _bmiCategory = metricsData['bmiCategory'] ?? '';
+      });
+    } catch (e, s) {
+      print("Error fetching data: $e");
+      print("Stack trace: $s");
     }
   }
 }
+
+
+
+
+}
+
