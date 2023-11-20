@@ -429,7 +429,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
 // x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
  
   void _editEvent(Map<String, dynamic> event) {
-    // Create a TextEditingController to edit the title
+    
     TextEditingController _editedTitleController = TextEditingController(text: event['title']);
 
     showDialog(

@@ -13,6 +13,7 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
   List<Map<String, dynamic>> _clients = [];
+  List<Map<String, dynamic>> _caretakersList = [];
   bool _isSearchBarVisible = false;
 
   Future<void> _searchByEmail() async {
@@ -75,13 +76,23 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
         ])
       }, SetOptions(merge: true));
 
+      // Add the caretaker to the user's CaretakerList
+      await _firestore.collection('CaretakerList').doc(currentUser.uid).set({
+        'caretakers': FieldValue.arrayUnion([
+          {
+            'uid': caretakerUid,
+            'displayName': _clients[0]['displayName'],
+            'email': _clients[0]['email'],
+          }
+        ])
+      }, SetOptions(merge: true));
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('User added successfully to caretaker\'s client list.'),backgroundColor: Colors.green),
       );
     }
   }
 }
-
 
   Future<void> _fetchContacts() async {
     DocumentSnapshot snapshot = await _firestore
@@ -102,7 +113,7 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
     Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => LandingScreen()));
   }
-
+  
   @override
   void initState() {
     super.initState();
@@ -112,67 +123,69 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-  appBar: AppBar(
-    title: Text('Find Caretaker'),
-    backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-    actions: [
-      IconButton(
-        icon: Icon(Icons.logout),
-        onPressed: () => _signOut(context),
-      )
-    ],
-  ),
-  body: Column(
-    children: [
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: _isSearchBarVisible
-            ? Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _emailController,
-                      decoration:
-                          InputDecoration(hintText: "Search by email..."),
+      appBar: AppBar(
+        title: Text('Find Caretaker'),
+        backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () => _signOut(context),
+          )
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: _isSearchBarVisible
+                  ? Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _emailController,
+                            decoration:
+                                InputDecoration(hintText: "Search by email..."),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.search),
+                          onPressed: () {
+                            // Trigger the search operation when clicking the icon
+                            _searchByEmail();
+                          },
+                        ),
+                      ],
+                    )
+                  : Align(
+                      alignment: Alignment.center,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _isSearchBarVisible = true;
+                          });
+                        },
+                        child: Text('Search'),
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                              const Color.fromARGB(255, 30, 71, 104)),
+                        ),
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.search),
-                    onPressed: () {
-                      // Trigger the search operation when clicking the icon
-                      _searchByEmail();
-                    },
-                  ),
-                ],
-              )
-            : Align(
-                alignment: Alignment.center,
-                child: ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _isSearchBarVisible = true;
-                    });
-                  },
-                  child: Text('Search'),
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(
-                        const Color.fromARGB(255, 30, 71, 104)),
-                  ),
+            ),
+            if (_clients.isNotEmpty)
+              ListTile(
+                title: Text(_clients[0]['displayName'] ?? ''),
+                subtitle: Text(_clients[0]['email'] ?? ''),
+                trailing: ElevatedButton(
+                  child: Text('Add'),
+                  onPressed: _addClient,
                 ),
               ),
-      ),
-      if (_clients.isNotEmpty)
-        ListTile(
-          title: Text(_clients[0]['displayName'] ?? ''),
-          subtitle: Text(_clients[0]['email'] ?? ''),
-          trailing: ElevatedButton(
-            child: Text('Add'),
-            onPressed: _addClient,
-          ),
+          ],
         ),
-    ],
-  ),
-);
-
+      ),
+    );
   }
 }

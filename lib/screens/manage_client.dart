@@ -222,6 +222,54 @@ class _MedicationsContentState extends State<MedicationsContent> {
     });
   }
 
+  Future<void> _deleteMedication(String medicationName) async {
+    final user = widget.clientUid;
+    
+    final userMedsRef = _medsCollection.doc(user);
+
+    final userMedsSnapshot = await userMedsRef.get();
+    if (userMedsSnapshot.exists) {
+      List<Map<String, dynamic>> userMedications =
+          List<Map<String, dynamic>>.from(userMedsSnapshot.data()!['medicationsList']);
+
+      // Remove the medication with the specified name
+      userMedications.removeWhere((medication) => medication['name'] == medicationName);
+
+      // Update Firestore with the updated list of medications
+      await userMedsRef.set({'medicationsList': userMedications});
+    }
+    
+    // Reload the medications list
+    
+  }
+  void _showDeleteMedicationDialog(BuildContext context, String title) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Appointment'),
+          content: Text('Are you sure you want to delete this appointment?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await _deleteMedication(title);
+                Navigator.of(context).pop();
+              },
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+ 
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Map<String, dynamic>>>(
@@ -262,6 +310,12 @@ class _MedicationsContentState extends State<MedicationsContent> {
                             Text('Instructions: $intakeInstructions'),
                           ],
                         ),
+                        trailing: IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () {
+                            _showDeleteMedicationDialog(context, name);
+                          },
+                        ),
                       ),
                     );
                   },
@@ -271,6 +325,7 @@ class _MedicationsContentState extends State<MedicationsContent> {
     );
   }
 }
+
 
 class AppointmentsContent extends StatefulWidget {
   final String clientUid;
@@ -475,3 +530,5 @@ class _AppointmentsContentState extends State<AppointmentsContent> {
     );
   }
 }
+
+
