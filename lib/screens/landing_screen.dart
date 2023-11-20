@@ -29,18 +29,29 @@ class _LandingScreenState extends State<LandingScreen> {
         final User? user = authResult.user;
 
         if (user != null) {
-          // Store the user's details in Firestore
-          final usersRef = FirebaseFirestore.instance.collection('users');
+          // Check if the user belongs to 'Susers' collection
+          final usersRef = FirebaseFirestore.instance.collection('Susers');
           final snapshot = await usersRef.doc(user.uid).get();
 
+          if (snapshot.exists) {
+            // User belongs to 'Susers' collection, show snackbar error
+            showSnackbarError("Logged in as Caretaker, please use Caretaker Access");
+            return null;
+          }
+
+          // Store the user's details in Firestore
+          final usersCollectionRef =
+              FirebaseFirestore.instance.collection('users');
+          final userSnapshot = await usersCollectionRef.doc(user.uid).get();
+
           // Check if user already exists, if not, add to Firestore
-          if (!snapshot.exists) {
-            usersRef.doc(user.uid).set({
+          if (!userSnapshot.exists) {
+            usersCollectionRef.doc(user.uid).set({
               'uid': user.uid,
               'displayName': user.displayName,
               'photoURL': user.photoURL,
               'email': user.email,
-              // Add any other necessary fields
+              
             });
           }
         }
@@ -68,18 +79,29 @@ class _LandingScreenState extends State<LandingScreen> {
         final User? suser = authResult.user;
 
         if (suser != null) {
-          // Store the user's details in Firestore
-          final usersRef = FirebaseFirestore.instance.collection('Susers');
-          final snapshot = await usersRef.doc(suser.uid).get();
+          // Check if the user already exists in 'users' collection
+          final usersCollectionRef =
+              FirebaseFirestore.instance.collection('users');
+          final userSnapshot = await usersCollectionRef.doc(suser.uid).get();
+
+          if (userSnapshot.exists) {
+            // User already exists in 'users' collection, show snackbar error
+            showSnackbarError("Logged in as User, please use Login");
+            return null;
+          }
+
+          // Store the user's details in Firestore for 'Susers' collection
+          final susersRef = FirebaseFirestore.instance.collection('Susers');
+          final snapshot = await susersRef.doc(suser.uid).get();
 
           // Check if user already exists, if not, add to Firestore
           if (!snapshot.exists) {
-            usersRef.doc(suser.uid).set({
+            susersRef.doc(suser.uid).set({
               'uid': suser.uid,
               'displayName': suser.displayName,
               'photoURL': suser.photoURL,
               'email': suser.email,
-              // Add any other necessary fields
+              
             });
           }
         }
@@ -90,10 +112,16 @@ class _LandingScreenState extends State<LandingScreen> {
       print(error);
     }
     return null;
-  }  
+  }
 
-
-
+  void showSnackbarError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -171,7 +199,7 @@ class _LandingScreenState extends State<LandingScreen> {
               },
               child: const Text("CareTaker Access"),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 30, 71, 104), // Change the background color to blue
+                backgroundColor: const Color.fromARGB(255, 30, 71, 104), 
               ),
             ),
 

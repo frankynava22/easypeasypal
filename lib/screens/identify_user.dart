@@ -29,30 +29,34 @@ class IdentifyUserScreen extends StatelessWidget {
         .join();
   }
 
-  Future<List<Map<String, dynamic>>> fetchTodaysAppointments(
-      String userId) async {
-    CollectionReference appointments =
-        FirebaseFirestore.instance.collection('Appointments');
-    DateTime now = DateTime.now();
-    DateTime startOfDay = DateTime(now.year, now.month, now.day);
-    DateTime endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
+  Future<List<Map<String, dynamic>>> fetchTodaysAppointments(String userId) async {
+  CollectionReference appointments =
+      FirebaseFirestore.instance.collection('Appointments');
+  DateTime now = DateTime.now();
+  DateTime startOfDay = DateTime(now.year, now.month, now.day);
+  DateTime endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
 
-    DocumentSnapshot doc = await appointments.doc(userId).get();
+  DocumentSnapshot doc = await appointments.doc(userId).get();
 
-    List<Map<String, dynamic>> todayEvents = [];
-    if (doc.exists) {
-      List<dynamic> events = doc['events'] ?? [];
-      for (var event in events) {
-        DateTime eventDate = (event['date'] as Timestamp).toDate();
+  List<Map<String, dynamic>> todayEvents = [];
+  if (doc.exists) {
+    List<dynamic> events = doc['events'] ?? [];
+    for (var event in events) {
+      DateTime eventDate = (event['date'] as Timestamp).toDate();
 
-        if (eventDate.isAfter(startOfDay) && eventDate.isBefore(endOfDay)) {
-          todayEvents.add(event);
-        }
+      if (eventDate.year == now.year &&
+          eventDate.month == now.month &&
+          eventDate.day == now.day) {
+        todayEvents.add({
+          'title': event['title'],
+          'date': eventDate,
+          
+        });
       }
     }
-
-    return todayEvents;
   }
+  return todayEvents;
+}
 
   Future<List<Map<String, dynamic>>> fetchTodaysMedications(
       String userId) async {
@@ -81,7 +85,7 @@ class IdentifyUserScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
-                        CaretakerAddScreen()), // NEW: Navigating to the SettingsPage
+                        CaretakerAddScreen()), // NEW: Navigate to Caretaker Add page
               );
             },
           ),
@@ -200,63 +204,65 @@ class IdentifyUserScreen extends StatelessWidget {
                     await fetchTodaysAppointments(user.uid);
                 List<Map<String, dynamic>> medications =
                     await fetchTodaysMedications(user.uid);
-
+            
                 showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text('Today\'s Events'),
-                        content: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start, // New
-                            children: [
-                              Text(
-                                'Appointments:',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text("Today's Events"),
+                      content: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Appointments:',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
                               ),
-                              ...appointments.map((event) => ListTile(
-                                    title: Text(event['title']),
-                                    subtitle: Text(
-                                        '${event['date'].toDate().hour}:${event['date'].toDate().minute}'), // display the time too
-                                  )),
-                              SizedBox(height: 20),
-                              Text(
-                                'Medications:',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
+                            ),
+                            ...appointments.map((event) => ListTile(
+                              title: Text(event['title']),
+                              subtitle: Text(
+                                  '${event['date'].hour}:${event['date'].minute}'),
+                            )),
+                            SizedBox(height: 20),
+                            Text(
+                              'Medications:',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
                               ),
-                              ...medications.map((med) => ListTile(
-                                    title: Text(med['name']),
-                                    subtitle: Text(
-                                        'Frequency: ${med['frequency']} times a day'),
-                                  ))
-                            ],
-                          ),
+                            ),
+                            ...medications.map((med) => ListTile(
+                              title: Text(med['name']),
+                              subtitle: Text('Frequency: ${med['frequency']} times a day'),
+                            ))
+                          ],
                         ),
-                        actions: [
-                          TextButton(
-                            child: Text('Close'),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ],
-                      );
-                    });
+                      ),
+                      actions: [
+                        TextButton(
+                          child: Text('Close'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
               child: Text(
                 "Today's Events",
                 style: TextStyle(fontSize: 20),
               ),
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+                minimumSize: Size(300, 60),
+                backgroundColor: const Color.fromARGB(255, 30, 71, 104),
               ),
             ),
+
             
           ],
         ),

@@ -239,7 +239,6 @@ class _MedicationsContentState extends State<MedicationsContent> {
       await userMedsRef.set({'medicationsList': userMedications});
     }
     
-    // Reload the medications list
     
   }
   void _showDeleteMedicationDialog(BuildContext context, String title) {

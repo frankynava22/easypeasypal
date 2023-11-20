@@ -205,9 +205,9 @@ class _SuperMedicationFormScreenState
             ),
             style: ButtonStyle(
               minimumSize:
-                  MaterialStateProperty.all(Size(150, 0)), // Set the width here
+                  MaterialStateProperty.all(Size(150, 0)), 
               padding: MaterialStateProperty.all(
-                  EdgeInsets.all(15.0)), // Optional: Adjust padding
+                  EdgeInsets.all(15.0)), 
             ),
           ),
         ),

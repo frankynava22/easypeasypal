@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:chatbot/screens/landing_screen.dart';
 import 'package:provider/provider.dart';
-import 'screens/theme_notifier.dart'; // Don't forget to create this file as described in the previous response
+import 'screens/theme_notifier.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,58 +22,82 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeNotifier = Provider.of<ThemeNotifier>(context);
     return MaterialApp(
-      initialRoute: '/',
+      home: SplashScreen(), // Show SplashScreen initially
       theme: themeNotifier.getTheme(),
       routes: {
-        '/': (context) => LandingScreen(),
+        '/landing': (context) => LandingScreen(),
       },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
+class SplashScreen extends StatefulWidget {
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Simulate a time-consuming task (e.g., initializing Firebase, loading data)
+    _initializeApp().then((_) {
+      // After the task is complete, navigate to the LandingScreen with a fade-out effect
+      Navigator.of(context).pushReplacement(_createRoute());
     });
+  }
+
+  Future<void> _initializeApp() async {
+    // Simulate initializing Firebase or other time-consuming tasks
+    await Future.delayed(Duration(seconds: 2));
+  }
+
+  PageRouteBuilder _createRoute() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => LandingScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = 0.0;
+        const end = 1.0;
+        const curve = Curves.easeInOut;
+
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var opacityAnimation = animation.drive(tween);
+
+        return FadeTransition(
+          opacity: opacityAnimation,
+          child: child,
+        );
+      },
+      transitionDuration: Duration(seconds: 1),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
+      backgroundColor:  const Color.fromARGB(255, 30, 71, 104), // Navy blue background
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
+          children: [
             Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+              'EasyPeasyPal',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 36,
+                
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Welcome',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+              ),
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ),
     );
   }

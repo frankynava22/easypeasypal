@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'chat_history.dart'; // Import the ChatHistoryScreen
+import 'chat_history.dart'; 
 import 'manage_client.dart';
 import 'landing_screen.dart';
 
@@ -22,22 +22,6 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
     return _clients.any((client) => client['email'] == user?['email']);
   }
 
-  //Future<void> _searchByEmail() async {
-  //  final querySnapshot = await _firestore
-  //      .collection('users')
-  //      .where('email', isEqualTo: _emailController.text)
-  //      .get();
-  //  if (querySnapshot.docs.isNotEmpty) {
-  //    setState(() {
-  //      _foundUser = querySnapshot.docs.first.data();
-  //    });
-  //  } else {
-  //    ScaffoldMessenger.of(context).showSnackBar(
-  //      SnackBar(content: Text('No user found with this email.')),
-  //    );
-  //  }
-  //}
-
   Future<void> _fetchContacts() async {
     DocumentSnapshot snapshot = await _firestore
         .collection('Clients')
@@ -52,26 +36,39 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
   }
 
   Future<void> _deleteContact(Map<String, dynamic> client) async {
-    setState(() {
-      _clients.remove(client);
-    });
+  // Remove from local list
+  setState(() {
+    _clients.remove(client);
+  });
 
-    await _firestore
-        .collection('Clients')
-        .doc(_auth.currentUser!.uid)
-        .set({
-          'clientList': _clients.map((client) {
-            // Include UID and other client data
-            return {
-              'uid': client['uid'],  // Add the UID here
-              'displayName': client['displayName'],
-              'email': client['email'],
-              // Add more fields as needed
-            };
-          }).toList()
-        },
-        SetOptions(merge: true));
-  }
+  // Remove from Firestore - Clients collection
+  await _firestore.collection('Clients').doc(_auth.currentUser!.uid).set(
+    {
+      'clientList': _clients.map((client) {
+        
+        return {
+          'uid': client['uid'],  // Add the UID here
+          'displayName': client['displayName'],
+          'email': client['email'],
+          
+        };
+      }).toList()
+    },
+    SetOptions(merge: true),
+  );
+
+  // Remove from Firestore - CaretakerList collection
+  await _firestore.collection('CaretakerList').doc(client['uid']).update({
+    'caretakers': FieldValue.arrayRemove([
+      {
+        'uid': _auth.currentUser!.uid,
+        'displayName': _auth.currentUser!.displayName,
+        'email': _auth.currentUser!.email,
+      }
+    ]),
+  });
+}
+
 
   @override
   void initState() {
@@ -121,12 +118,12 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
                             .doc(_auth.currentUser!.uid)
                             .set({
                               'clientList': _clients.map((client) {
-                                // Include UID and other client data
+                                
                                 return {
                                   'uid': client['uid'],  // Add the UID here
                                   'displayName': client['displayName'],
                                   'email': client['email'],
-                                  // Add more fields as needed
+                                 
                                 };
                               }).toList()
                             },
@@ -155,7 +152,7 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
                                 builder: (context) => ManageClientScreen(clientUid: clientUid),
                               ),
                             );
-                                                      // Use clientUid as needed
+                            
                         },
                       ),
                       IconButton(
