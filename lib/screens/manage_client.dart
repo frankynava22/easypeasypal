@@ -309,6 +309,24 @@ class _AppointmentsContentState extends State<AppointmentsContent> {
     });
   }
 
+  Future<void> _deleteAppointment(String title) async {
+    final clientAppointmentsRef =
+        _firestore.collection('Appointments').doc(widget.clientUid);
+
+    await clientAppointmentsRef.update({
+      'events': FieldValue.arrayRemove(
+        [_clientAppointments.firstWhere((appointment) => appointment['title'] == title)]
+      ),
+    });
+
+    // Reload the appointments list
+    _loadClientAppointments();
+  }
+
+  
+
+  
+
   @override
   Widget build(BuildContext context) {
     return _clientAppointments.isEmpty
@@ -328,12 +346,132 @@ class _AppointmentsContentState extends State<AppointmentsContent> {
               return Card(
                 child: ListTile(
                   title: Text(title),
-                  subtitle:
-                      Text('Date: ${DateFormat('MM-dd-yyyy').format(date)}'),
+                  subtitle: Text('Date: ${DateFormat('MM-dd-yyyy').format(date)}'),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: () {
+                          _showEditAppointmentDialog(context, appointment);
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          _showDeleteAppointmentDialog(context, title);
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
           );
   }
-}
 
+  void _showEditAppointmentDialog(BuildContext context, Map<String, dynamic> appointment) async {
+    TextEditingController _editedTitleController = TextEditingController(text: appointment['title']);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edit Appointment'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(
+                controller: _editedTitleController,
+                decoration: InputDecoration(labelText: 'Title'),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () async {
+                String editedTitle = _editedTitleController.text;
+                await _editAppointment(appointment, editedTitle);
+                Navigator.of(context).pop();
+              },
+              child: Text('Save'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _editAppointment(Map<String, dynamic> oldAppointment, String editedTitle) async {
+    final clientAppointmentsRef =
+        _firestore.collection('Appointments').doc(widget.clientUid);
+
+    List<Map<String, dynamic>> clientAppointments = [];
+    final clientAppointmentsSnapshot = await clientAppointmentsRef.get();
+
+    if (clientAppointmentsSnapshot.exists) {
+      clientAppointments = List<Map<String, dynamic>>.from(
+          clientAppointmentsSnapshot.data()!['events']);
+    }
+
+    // Find the index of the old appointment
+    final int index = clientAppointments.indexWhere(
+      (appointment) =>
+          appointment['title'] == oldAppointment['title'] &&
+          appointment['date'] == oldAppointment['date'],
+    );
+
+    if (index >= 0) {
+      // Remove the old appointment
+      clientAppointments.removeAt(index);
+
+      // Create a new appointment with the edited title and the same date as the original appointment
+      Map<String, dynamic> updatedAppointment = {
+        'title': editedTitle,
+        'date': oldAppointment['date'],
+      };
+
+      // Add the updated appointment to the list
+      clientAppointments.add(updatedAppointment);
+
+      // Update Firestore with the updated list of appointments
+      await clientAppointmentsRef.set({'events': clientAppointments});
+
+      // Reload the appointments list
+      _loadClientAppointments();
+    }
+  }
+
+  void _showDeleteAppointmentDialog(BuildContext context, String title) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Appointment'),
+          content: Text('Are you sure you want to delete this appointment?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await _deleteAppointment(title);
+                Navigator.of(context).pop();
+              },
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
