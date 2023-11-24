@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'theme_notifier.dart';
 import 'font_size_notifier.dart';
 import 'font_weight_notifier.dart';
@@ -12,15 +15,13 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final double defaultFontSize = 18.0;
+  bool isNotificationsEnabled = false;
 
-  void saveFontSize(double fontSize) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setDouble('fontSize', fontSize);
-  }
-
-  void saveFontWeight(bool isBold) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setBool('fontWeight', isBold);
+  @override
+  void initState() {
+    super.initState();
+    loadSettings();
+    loadNotificationSettings();
   }
 
   void loadSettings() async {
@@ -38,10 +39,49 @@ class _SettingsPageState extends State<SettingsPage> {
         isBold ? FontWeight.bold : FontWeight.normal;
   }
 
-  @override
-  void initState() {
-    super.initState();
-    loadSettings(); // Load settings on start
+  void loadNotificationSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isNotificationsEnabled = prefs.getBool('notifications') ?? false;
+    });
+  }
+
+  void saveFontSize(double fontSize) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setDouble('fontSize', fontSize);
+  }
+
+  void saveFontWeight(bool isBold) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('fontWeight', isBold);
+  }
+
+  void saveNotificationSettings(bool isEnabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('notifications', isEnabled);
+    if (isEnabled) {
+      enableNotifications();
+    } else {
+      disableNotifications();
+    }
+  }
+
+  void enableNotifications() async {
+    String? token = await FirebaseMessaging.instance.getToken();
+    if (token != null) {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId != null) {
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .update({'fcmToken': token});
+      }
+      FirebaseMessaging.instance.subscribeToTopic('chat_notifications');
+    }
+  }
+
+  void disableNotifications() {
+    FirebaseMessaging.instance.unsubscribeFromTopic('chat_notifications');
   }
 
   @override
@@ -117,6 +157,19 @@ class _SettingsPageState extends State<SettingsPage> {
                 fontWeightNotifier.fontWeight = FontWeight.normal;
                 saveFontSize(defaultFontSize);
                 saveFontWeight(false);
+              });
+            },
+          ),
+          SwitchListTile(
+            title: Text(
+              'Enable Notifications',
+              style: commonTextStyle,
+            ),
+            value: isNotificationsEnabled,
+            onChanged: (bool value) {
+              setState(() {
+                isNotificationsEnabled = value;
+                saveNotificationSettings(value);
               });
             },
           ),

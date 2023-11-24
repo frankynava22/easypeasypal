@@ -1,18 +1,70 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'screens/theme_notifier.dart';
 import 'screens/font_size_notifier.dart';
-import 'screens/font_weight_notifier.dart'; // Add this line for the FontWeightNotifier
+import 'screens/font_weight_notifier.dart';
 import 'screens/landing_screen.dart';
 import 'screens/identify_user.dart';
+import 'screens/communication.dart'; // Add this import for CommunicationScreen
 import 'package:shared_preferences/shared_preferences.dart';
+
+const String channelId = 'chat_messages_channel';
+const String channelName = 'Chat Messages';
+const String channelDescription = 'Notifications for new chat messages';
+
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print("Handling a background message: ${message.messageId}");
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  double initialFontSize = await loadFontSize(); // Load the saved font size
+  // Initialize local notifications
+  var initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+  var initializationSettings =
+      InitializationSettings(android: initializationSettingsAndroid);
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+  if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+    print('User granted permission');
+  } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+    print('User granted provisional permission');
+  } else {
+    print('User declined or has not accepted permission');
+  }
+
+  messaging.getInitialMessage().then((RemoteMessage? message) {
+    if (message != null) {
+      _navigateToCommunicationScreen();
+    }
+  });
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    showNotification(message.notification);
+  });
+
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    _navigateToCommunicationScreen();
+  });
+
+  double initialFontSize = await loadFontSize();
 
   runApp(
     MultiProvider(
@@ -24,7 +76,6 @@ void main() async {
           create: (_) => FontSizeNotifier(initialFontSize),
         ),
         ChangeNotifierProvider<FontWeightNotifier>(
-          // Add the FontWeightNotifier provider
           create: (_) => FontWeightNotifier(),
         ),
       ],
@@ -33,12 +84,32 @@ void main() async {
   );
 }
 
+void _navigateToCommunicationScreen() {
+  MyApp()
+      .navigatorKey
+      .currentState
+      ?.push(MaterialPageRoute(builder: (context) => CommunicationScreen()));
+}
+
 Future<double> loadFontSize() async {
   final prefs = await SharedPreferences.getInstance();
-  return prefs.getDouble('fontSize') ?? 16.0; // Default value if not set
+  return prefs.getDouble('fontSize') ?? 16.0;
+}
+
+void showNotification(RemoteNotification? notification) {
+  var androidDetails = AndroidNotificationDetails(channelId, channelName,
+      channelDescription: channelDescription,
+      importance: Importance.max,
+      priority: Priority.high,
+      showWhen: false);
+  var platformDetails = NotificationDetails(android: androidDetails);
+  flutterLocalNotificationsPlugin.show(
+      0, notification?.title, notification?.body, platformDetails);
 }
 
 class MyApp extends StatelessWidget {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   ThemeData _buildThemeData(double fontSize) {
     return ThemeData(
       primarySwatch: Colors.blue,
@@ -46,8 +117,7 @@ class MyApp extends StatelessWidget {
       textTheme: TextTheme(
         bodyText1: TextStyle(fontSize: fontSize),
         bodyText2: TextStyle(fontSize: fontSize),
-        // Add other text styles as needed
-        button: TextStyle(fontSize: fontSize), // Apply to buttons
+        button: TextStyle(fontSize: fontSize),
       ),
     );
   }
@@ -57,11 +127,14 @@ class MyApp extends StatelessWidget {
     return Consumer<FontSizeNotifier>(
       builder: (context, fontSizeNotifier, child) {
         return MaterialApp(
+          navigatorKey: navigatorKey,
           initialRoute: '/',
           theme: _buildThemeData(fontSizeNotifier.fontSize),
           routes: {
             '/': (context) => LandingScreen(),
-            // Define other routes as needed
+            '/communication': (context) =>
+                CommunicationScreen(), // Ensure this route is defined
+            // ... other routes ...
           },
         );
       },
