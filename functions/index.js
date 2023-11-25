@@ -2,28 +2,36 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
+// Function to send chat notification
 exports.sendChatNotification = functions.firestore
-    .document('chat_history/{userId}/{chatId}/{messageId}')
+    .document('chat_history/{userId1}/{userId2}/{messageId}')
     .onCreate(async (snapshot, context) => {
         const messageData = snapshot.data();
 
-        // Do not send a notification if the sender is the recipient
-        if (messageData.senderId === context.params.userId) {
+        // The sender should not receive a notification
+        if (messageData.senderId === context.params.userId1) {
             return null;
         }
 
-        // Fetch the recipient's FCM token or user info to send a notification
-        // Assuming you have a way to get the recipient's FCM token
-        const recipientId = context.params.userId; // or derive from your data model
+        // Determine the recipient's ID (the one who is not the sender)
+        const recipientId = messageData.senderId === context.params.userId1
+            ? context.params.userId2 : context.params.userId1;
+
+        // Fetch the recipient's FCM token
         const recipientToken = await getRecipientToken(recipientId);
+
+        // If no token is found, exit
+        if (!recipientToken) {
+            console.log('No FCM token for recipient:', recipientId);
+            return null;
+        }
 
         const payload = {
             notification: {
-                title: `New message`,
+                title: `New message from ${messageData.senderId}`, // Customize as needed
                 body: messageData.text,
-                // other notification options
             },
-            token: recipientToken, // FCM token of the recipient
+            token: recipientToken,
         };
 
         return admin.messaging().send(payload)
@@ -36,10 +44,54 @@ exports.sendChatNotification = functions.firestore
             });
     });
 
-async function getRecipientToken(userId) {
-    // Function to retrieve the recipient's FCM token
-    // Implement logic to fetch token from Firestore or your user model
-    // Example:
-    // const userDoc = await admin.firestore().collection('users').doc(userId).get();
-    // return userDoc.data().fcmToken;
+async function getRecipientToken(recipientId) {
+    try {
+        const userDoc = await admin.firestore().collection('users').doc(recipientId).get();
+        return userDoc.data()?.fcmToken;
+    } catch (error) {
+        console.log('Error fetching recipient token:', error);
+        return null;
+    }
 }
+
+// Function to increment unread message count
+exports.incrementUnreadCount = functions.firestore
+    .document('chat_history/{userId1}/{userId2}/{messageId}')
+    .onCreate((snapshot, context) => {
+        const messageData = snapshot.data();
+
+        // Skip if the message sender is viewing their own message
+        if (messageData.senderId === context.params.userId1) {
+            return null;
+        }
+
+        const recipientId = messageData.senderId === context.params.userId1
+            ? context.params.userId2 : context.params.userId1;
+
+        return admin.firestore().collection('users').doc(recipientId)
+            .update({ unreadMessagesCount: admin.firestore.FieldValue.increment(1) });
+    });
+
+// Function to decrement unread message count
+exports.markMessageAsRead = functions.firestore
+    .document('chat_history/{userId}/{chatId}/{messageId}')
+    .onUpdate((change, context) => {
+        const newValue = change.after.data();
+        const previousValue = change.before.data();
+
+        if (!previousValue.read && newValue.read) {
+            // Message was marked as read
+            return admin.firestore().collection('users').doc(context.params.userId)
+                .update({ unreadMessagesCount: admin.firestore.FieldValue.increment(-1) });
+        } else {
+            return null;
+        }
+    });
+
+// Function to initialize unreadMessagesCount for new users
+exports.createUserProfile = functions.auth.user().onCreate((user) => {
+    return admin.firestore().collection('users').doc(user.uid).set({
+        // Set other initial user profile values as needed
+        unreadMessagesCount: 0
+    }, { merge: true });
+});

@@ -19,6 +19,25 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
   final TextEditingController _messageController = TextEditingController();
   final Set<String> _selectedMessageIds = Set();
 
+  @override
+  void initState() {
+    super.initState();
+    markMessagesAsRead();
+  }
+
+  void markMessagesAsRead() async {
+    var querySnapshot = await _firestore
+        .collection('chat_history')
+        .doc(_auth.currentUser!.uid)
+        .collection(widget.contact['uid'])
+        .where('read', isEqualTo: false)
+        .get();
+
+    for (var doc in querySnapshot.docs) {
+      doc.reference.update({'read': true});
+    }
+  }
+
   Stream<QuerySnapshot> get chatMessagesStream {
     return _firestore
         .collection('chat_history')
@@ -33,22 +52,28 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
       var message = {
         'text': _messageController.text,
         'senderId': _auth.currentUser!.uid,
+        'recipientId': widget.contact['uid'],
         'timestamp': Timestamp.now(),
+        'read': false,
       };
 
-      // Storing the message for the sender
       await _firestore
           .collection('chat_history')
           .doc(_auth.currentUser!.uid)
           .collection(widget.contact['uid'])
           .add(message);
 
-      // Storing the message for the recipient
       await _firestore
           .collection('chat_history')
           .doc(widget.contact['uid'])
           .collection(_auth.currentUser!.uid)
           .add(message);
+
+      // Increment unread message count for the recipient
+      _firestore
+          .collection('users')
+          .doc(widget.contact['uid'])
+          .update({'unreadMessagesCount': FieldValue.increment(1)});
 
       _messageController.clear();
     }

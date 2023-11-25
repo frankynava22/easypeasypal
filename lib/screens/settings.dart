@@ -71,10 +71,11 @@ class _SettingsPageState extends State<SettingsPage> {
     if (token != null) {
       final userId = FirebaseAuth.instance.currentUser?.uid;
       if (userId != null) {
-        FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .update({'fcmToken': token});
+        FirebaseFirestore.instance.collection('users').doc(userId).set({
+          'fcmToken': token,
+          // Initialize unreadMessagesCount to 0 if it doesn't exist
+          'unreadMessagesCount': FieldValue.increment(0)
+        }, SetOptions(merge: true));
       }
       FirebaseMessaging.instance.subscribeToTopic('chat_notifications');
     }
