@@ -10,6 +10,7 @@ import 'medication_screen.dart';
 import 'appointments.dart';
 import 'personal_care.dart';
 import 'settings.dart';
+import 'personal_menu.dart';
 
 class IdentifyUserScreen extends StatefulWidget {
   final User user;
@@ -190,7 +191,7 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                 onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => PersonalCareScreen())),
+                        builder: (context) => PersonalMenuScreen())),
                 child: Text("Personal Care",
                     style: TextStyle(
                         fontSize: fontSizeNotifier.fontSize,
