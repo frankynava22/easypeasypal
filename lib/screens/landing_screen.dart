@@ -29,15 +29,15 @@ class _LandingScreenState extends State<LandingScreen> {
         final User? user = authResult.user;
 
         if (user != null) {
-          // Check if the user belongs to 'Susers' collection
-          final usersRef = FirebaseFirestore.instance.collection('Susers');
-          final snapshot = await usersRef.doc(user.uid).get();
+          // Check if the user belongs to 'Susers' collection   ***DISABLED FEATURE***
+          //final usersRef = FirebaseFirestore.instance.collection('Susers');
+          //final snapshot = await usersRef.doc(user.uid).get();
 
-          if (snapshot.exists) {
-            // User belongs to 'Susers' collection, show snackbar error
-            showSnackbarError("Logged in as Caretaker, please use Caretaker Access");
-            return null;
-          }
+          //if (snapshot.exists) {
+          //  // User belongs to 'Susers' collection, show snackbar error
+          //  showSnackbarError("Logged in as Caretaker, please use Caretaker Access");   
+          //  return null;
+          //}
 
           // Store the user's details in Firestore
           final usersCollectionRef =
@@ -79,16 +79,16 @@ class _LandingScreenState extends State<LandingScreen> {
         final User? suser = authResult.user;
 
         if (suser != null) {
-          // Check if the user already exists in 'users' collection
-          final usersCollectionRef =
-              FirebaseFirestore.instance.collection('users');
-          final userSnapshot = await usersCollectionRef.doc(suser.uid).get();
-
-          if (userSnapshot.exists) {
-            // User already exists in 'users' collection, show snackbar error
-            showSnackbarError("Logged in as User, please use Login");
-            return null;
-          }
+          // Check if the user already exists in 'users' collection     ***DISABLED FEATURE***
+          //final usersCollectionRef =
+          //    FirebaseFirestore.instance.collection('users');
+          //final userSnapshot = await usersCollectionRef.doc(suser.uid).get();
+//
+         //if (userSnapshot.exists) {
+         //  // User already exists in 'users' collection, show snackbar error
+         //  showSnackbarError("Logged in as User, please use Login");
+         //  return null;
+         //}
 
           // Store the user's details in Firestore for 'Susers' collection
           final susersRef = FirebaseFirestore.instance.collection('Susers');
