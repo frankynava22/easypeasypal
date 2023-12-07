@@ -97,11 +97,17 @@ Future<double> loadFontSize() async {
 }
 
 void showNotification(RemoteNotification? notification) {
-  var androidDetails = AndroidNotificationDetails(channelId, channelName,
-      channelDescription: channelDescription,
-      importance: Importance.max,
-      priority: Priority.high,
-      showWhen: false);
+  var androidDetails = AndroidNotificationDetails(
+    channelId,
+    channelName,
+    channelDescription: channelDescription,
+    importance: Importance.high, // Set importance to high
+    priority: Priority.high, // Set priority to high
+    showWhen: true, // Change this to true
+    playSound: true, // Enable sound to enhance visibility
+    visibility: NotificationVisibility.public, // Ensure visibility is public
+    // Optionally, you can add more properties like vibration pattern, light color etc.
+  );
   var platformDetails = NotificationDetails(android: androidDetails);
   flutterLocalNotificationsPlugin.show(
       0, notification?.title, notification?.body, platformDetails);
