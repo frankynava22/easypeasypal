@@ -13,19 +13,14 @@ exports.sendChatNotification = functions.firestore
             return null;
         }
 
-        // Fetch sender's display name
-        const senderDisplayName = await getSenderDisplayName(messageData.senderId);
-        if (!senderDisplayName) {
-            console.log('Could not fetch sender display name:', messageData.senderId);
-            return null;
-        }
-
         // Determine the recipient's ID (the one who is not the sender)
         const recipientId = messageData.senderId === context.params.userId1
             ? context.params.userId2 : context.params.userId1;
 
         // Fetch the recipient's FCM token
         const recipientToken = await getRecipientToken(recipientId);
+
+        // If no token is found, exit
         if (!recipientToken) {
             console.log('No FCM token for recipient:', recipientId);
             return null;
@@ -33,7 +28,7 @@ exports.sendChatNotification = functions.firestore
 
         const payload = {
             notification: {
-                title: `New message from ${senderDisplayName}`, // Use the sender's display name
+                title: `New message from ${messageData.senderId}`, // Customize as needed
                 body: messageData.text,
             },
             token: recipientToken,
@@ -48,16 +43,6 @@ exports.sendChatNotification = functions.firestore
                 console.log('Error sending notification:', error);
             });
     });
-
-async function getSenderDisplayName(senderId) {
-    try {
-        const senderDoc = await admin.firestore().collection('users').doc(senderId).get();
-        return senderDoc.data()?.displayName;
-    } catch (error) {
-        console.log('Error fetching sender display name:', error);
-        return null;
-    }
-}
 
 async function getRecipientToken(recipientId) {
     try {
@@ -106,6 +91,7 @@ exports.markMessageAsRead = functions.firestore
 // Function to initialize unreadMessagesCount for new users
 exports.createUserProfile = functions.auth.user().onCreate((user) => {
     return admin.firestore().collection('users').doc(user.uid).set({
+        // Set other initial user profile values as needed
         unreadMessagesCount: 0
     }, { merge: true });
 });
