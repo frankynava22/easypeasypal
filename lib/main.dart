@@ -20,7 +20,7 @@ FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print("Handling a background message: ${message.messageId}");
+  showNotification(message.notification);
 }
 
 void main() async {
@@ -103,12 +103,8 @@ void showNotification(RemoteNotification? notification) {
       priority: Priority.high,
       showWhen: false);
   var platformDetails = NotificationDetails(android: androidDetails);
-
-  // Use current timestamp as unique ID for each notification
-  int notificationId = DateTime.now().millisecondsSinceEpoch;
-
   flutterLocalNotificationsPlugin.show(
-      notificationId, notification?.title, notification?.body, platformDetails);
+      0, notification?.title, notification?.body, platformDetails);
 }
 
 class MyApp extends StatelessWidget {
@@ -136,9 +132,7 @@ class MyApp extends StatelessWidget {
           theme: _buildThemeData(fontSizeNotifier.fontSize),
           routes: {
             '/': (context) => LandingScreen(),
-            '/communication': (context) =>
-                CommunicationScreen(), // Ensure this route is defined
-            // ... other routes ...
+            '/communication': (context) => CommunicationScreen(),
           },
         );
       },
