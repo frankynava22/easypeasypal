@@ -103,8 +103,12 @@ void showNotification(RemoteNotification? notification) {
       priority: Priority.high,
       showWhen: false);
   var platformDetails = NotificationDetails(android: androidDetails);
+
+  // Use current timestamp as unique ID for each notification
+  int notificationId = DateTime.now().millisecondsSinceEpoch;
+
   flutterLocalNotificationsPlugin.show(
-      0, notification?.title, notification?.body, platformDetails);
+      notificationId, notification?.title, notification?.body, platformDetails);
 }
 
 class MyApp extends StatelessWidget {
