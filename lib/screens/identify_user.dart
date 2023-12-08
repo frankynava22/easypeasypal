@@ -9,13 +9,8 @@ import 'communication.dart';
 import 'medication_screen.dart';
 import 'appointments.dart';
 import 'personal_care.dart';
-
 import 'settings.dart';
 import 'personal_menu.dart';
-
-import 'settings.dart'; // Importing the new settings page
-import 'caretaker_add.dart';
-
 
 class IdentifyUserScreen extends StatefulWidget {
   final User user;
@@ -61,15 +56,15 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
         .join();
   }
 
-  Future<List<Map<String, dynamic>>> fetchTodaysAppointments(String userId) async {
-  CollectionReference appointments =
-      FirebaseFirestore.instance.collection('Appointments');
-  DateTime now = DateTime.now();
-  DateTime startOfDay = DateTime(now.year, now.month, now.day);
-  DateTime endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
+  Future<List<Map<String, dynamic>>> fetchTodaysAppointments(
+      String userId) async {
+    CollectionReference appointments =
+        FirebaseFirestore.instance.collection('Appointments');
+    DateTime now = DateTime.now();
+    DateTime startOfDay = DateTime(now.year, now.month, now.day);
+    DateTime endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
 
-  DocumentSnapshot doc = await appointments.doc(userId).get();
-
+    DocumentSnapshot doc = await appointments.doc(userId).get();
 
     List<Map<String, dynamic>> todayEvents = [];
     if (doc.exists) {
@@ -79,27 +74,11 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
         if (eventDate.isAfter(startOfDay) && eventDate.isBefore(endOfDay)) {
           todayEvents.add(event);
         }
-
-  List<Map<String, dynamic>> todayEvents = [];
-  if (doc.exists) {
-    List<dynamic> events = doc['events'] ?? [];
-    for (var event in events) {
-      DateTime eventDate = (event['date'] as Timestamp).toDate();
-
-      if (eventDate.year == now.year &&
-          eventDate.month == now.month &&
-          eventDate.day == now.day) {
-        todayEvents.add({
-          'title': event['title'],
-          'date': eventDate,
-          
-        });
-
       }
     }
+
+    return todayEvents;
   }
-  return todayEvents;
-}
 
   Future<List<Map<String, dynamic>>> fetchTodaysMedications(
       String userId) async {
@@ -155,7 +134,6 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
 
     return Scaffold(
       appBar: AppBar(
-
         title: Text('Identification',
             style: TextStyle(
                 fontSize: fontSizeNotifier.fontSize,
@@ -167,38 +145,6 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                   MaterialPageRoute(builder: (context) => SettingsPage()))),
           IconButton(
               icon: Icon(Icons.logout), onPressed: () => _signOut(context))
-
-        title: Text('Identification'),
-        backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.manage_accounts),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        CaretakerAddScreen()), // NEW: Navigate to Caretaker Add page
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        SettingsPage()), // NEW: Navigating to the SettingsPage
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () => _signOut(context),
-          )
-
-
         ],
       ),
       body: Center(
@@ -218,7 +164,6 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                     fontWeight: fontWeightNotifier.fontWeight)),
             SizedBox(height: 20),
             ElevatedButton(
-
                 onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -252,85 +197,12 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                         fontSize: fontSizeNotifier.fontSize,
                         fontWeight: fontWeightNotifier.fontWeight)),
                 style: ElevatedButton.styleFrom(minimumSize: Size(300, 60))),
-
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AppointmentsPage(),
-                  ),
-                );
-              },
-              child: Text(
-                "Appointments",
-                style: TextStyle(fontSize: 20),
-              ),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-              ),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CommunicationScreen(),
-                  ),
-                );
-              },
-              child: Text(
-                "Communication",
-                style: TextStyle(fontSize: 20),
-              ),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-              ),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MedicationScreen(),
-                  ),
-                );
-              },
-              child: Text(
-                "Medication",
-                style: TextStyle(fontSize: 20),
-              ),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-              ),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PersonalCareScreen(),
-                  ),
-                );
-              },
-              child: Text(
-                "Personal Care",
-                style: TextStyle(fontSize: 20),
-              ),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-              ),
-            ),
-
             SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
                 List<Map<String, dynamic>> appointments =
                     await fetchTodaysAppointments(widget.user.uid);
                 List<Map<String, dynamic>> medications =
-
                     await fetchTodaysMedications(widget.user.uid);
 
                 showDialog(
@@ -398,69 +270,7 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                       fontSize: fontSizeNotifier.fontSize,
                       fontWeight: fontWeightNotifier.fontWeight)),
               style: ElevatedButton.styleFrom(minimumSize: Size(300, 60)),
-
-                    await fetchTodaysMedications(user.uid);
-            
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text("Today's Events"),
-                      content: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Appointments:',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            ),
-                            ...appointments.map((event) => ListTile(
-                              title: Text(event['title']),
-                              subtitle: Text(
-                                  '${event['date'].hour}:${event['date'].minute}'),
-                            )),
-                            SizedBox(height: 20),
-                            Text(
-                              'Medications:',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            ),
-                            ...medications.map((med) => ListTile(
-                              title: Text(med['name']),
-                              subtitle: Text('Frequency: ${med['frequency']} times a day'),
-                            ))
-                          ],
-                        ),
-                      ),
-                      actions: [
-                        TextButton(
-                          child: Text('Close'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              child: Text(
-                "Today's Events",
-                style: TextStyle(fontSize: 20),
-              ),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(300, 60),
-                backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-              ),
-
             ),
-
-            
           ],
         ),
       ),
