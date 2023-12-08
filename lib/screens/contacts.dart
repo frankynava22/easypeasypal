@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'chat_history.dart'; // Import the ChatHistoryScreen
+import 'package:provider/provider.dart';
+import 'font_size_notifier.dart'; // Import FontSizeNotifier
 
 class ContactsScreen extends StatefulWidget {
   @override
@@ -69,9 +71,12 @@ class _ContactsScreenState extends State<ContactsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final fontSizeNotifier = Provider.of<FontSizeNotifier>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Contacts'),
+        title: Text('Contacts',
+            style: TextStyle(fontSize: fontSizeNotifier.fontSize)),
       ),
       body: Column(
         children: [
@@ -85,6 +90,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
                           controller: _emailController,
                           decoration:
                               InputDecoration(hintText: "Search by email..."),
+                          style: TextStyle(fontSize: fontSizeNotifier.fontSize),
                         ),
                       ),
                       IconButton(
@@ -99,17 +105,25 @@ class _ContactsScreenState extends State<ContactsScreen> {
                         _isSearchBarVisible = true;
                       });
                     },
-                    child: Text('Search'),
+                    child: Text('Search',
+                        style: TextStyle(fontSize: fontSizeNotifier.fontSize)),
                   ),
           ),
           if (_foundUser != null)
             ListTile(
-              title: Text(_foundUser!['displayName'] ?? ''),
-              subtitle: Text(_foundUser!['email'] ?? ''),
+              title: Text(_foundUser!['displayName'] ?? '',
+                  style: TextStyle(fontSize: fontSizeNotifier.fontSize)),
+              subtitle: Text(_foundUser!['email'] ?? '',
+                  style: TextStyle(fontSize: fontSizeNotifier.fontSize)),
               trailing: isUserAlreadyAdded(_foundUser)
-                  ? Text("Added", style: TextStyle(color: Colors.grey))
+                  ? Text("Added",
+                      style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: fontSizeNotifier.fontSize))
                   : ElevatedButton(
-                      child: Text('Add'),
+                      child: Text('Add',
+                          style:
+                              TextStyle(fontSize: fontSizeNotifier.fontSize)),
                       onPressed: () async {
                         // Add to local list
                         setState(() {
@@ -131,8 +145,10 @@ class _ContactsScreenState extends State<ContactsScreen> {
               itemCount: _contacts.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  title: Text(_contacts[index]['displayName'] ?? ''),
-                  subtitle: Text(_contacts[index]['email'] ?? ''),
+                  title: Text(_contacts[index]['displayName'] ?? '',
+                      style: TextStyle(fontSize: fontSizeNotifier.fontSize)),
+                  subtitle: Text(_contacts[index]['email'] ?? '',
+                      style: TextStyle(fontSize: fontSizeNotifier.fontSize)),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -141,8 +157,9 @@ class _ContactsScreenState extends State<ContactsScreen> {
                         onPressed: () {
                           Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => ChatHistoryScreen(
-                                contact: _contacts[
-                                    index]), // Navigate to ChatHistoryScreen with the contact
+                              contact: _contacts[
+                                  index], // Navigate to ChatHistoryScreen with the contact
+                            ),
                           ));
                         },
                       ),

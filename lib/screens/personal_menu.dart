@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'contacts.dart';
-import 'messaging.dart';
-import 'chat_history.dart';
 import 'font_size_notifier.dart'; // Import FontSizeNotifier
 import 'font_weight_notifier.dart'; // Import FontWeightNotifier
+import 'personal_care.dart';
+import 'websites.dart';
 
-class CommunicationScreen extends StatefulWidget {
+class PersonalMenuScreen extends StatefulWidget {
   @override
-  _CommunicationScreenState createState() => _CommunicationScreenState();
+  _PersonalMenuScreenState createState() => _PersonalMenuScreenState();
 }
 
-class _CommunicationScreenState extends State<CommunicationScreen> {
+class _PersonalMenuScreenState extends State<PersonalMenuScreen> {
   void _showHelpModal() {
     showModalBottomSheet(
         context: context,
@@ -26,18 +25,17 @@ class _CommunicationScreenState extends State<CommunicationScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _helpTile(
-                    icon: Icons.chat,
-                    title: "Chat",
-                    subtitle:
-                        "Click this to enter the chat room and start messaging.",
+                    icon: Icons.favorite,
+                    title: "Health",
+                    subtitle: "This button takes you to the health section.",
                     fontSize: fontSizeNotifier.fontSize,
                     fontWeight:
                         fontWeightNotifier.fontWeight), // Apply font weight
                 SizedBox(height: 20),
                 _helpTile(
-                    icon: Icons.contacts,
-                    title: "Contacts",
-                    subtitle: "Click this to view and manage your contacts.",
+                    icon: Icons.person,
+                    title: "Websites",
+                    subtitle: "This button lets you access various websites.",
                     fontSize: fontSizeNotifier.fontSize,
                     fontWeight:
                         fontWeightNotifier.fontWeight), // Apply font weight
@@ -53,56 +51,45 @@ class _CommunicationScreenState extends State<CommunicationScreen> {
       String? subtitle,
       required double fontSize,
       required FontWeight fontWeight}) {
-    // Add fontWeight parameter
     return ListTile(
       leading: Icon(icon, size: 35.0, color: Colors.blueGrey[800]),
       title: Text(title,
-          style: TextStyle(
-              fontWeight: fontWeight, fontSize: fontSize)), // Apply font weight
+          style: TextStyle(fontWeight: fontWeight, fontSize: fontSize)),
       subtitle: Text(subtitle ?? '',
-          style: TextStyle(
-              fontSize: fontSize, fontWeight: fontWeight)), // Apply font weight
+          style: TextStyle(fontSize: fontSize, fontWeight: fontWeight)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final fontSizeNotifier = Provider.of<FontSizeNotifier>(context);
-    final fontWeightNotifier =
-        Provider.of<FontWeightNotifier>(context); // Get the current font weight
+    final fontWeightNotifier = Provider.of<FontWeightNotifier>(context);
 
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
         backgroundColor: Colors.blueGrey[900],
-        title: Text('Chat Room',
+        title: Text('Personal Menu',
             style: TextStyle(
                 fontSize: fontSizeNotifier.fontSize,
-                fontWeight:
-                    fontWeightNotifier.fontWeight)), // Apply font weight
+                fontWeight: fontWeightNotifier.fontWeight)),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            _menuOption("Chat", Icons.chat, () {
+            _menuOption("Health", Icons.favorite, () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => MessagingScreen()),
+                MaterialPageRoute(builder: (context) => PersonalCareScreen()),
               );
-            }, fontSizeNotifier.fontSize,
-                fontWeightNotifier.fontWeight), // Apply font weight
-            _menuOption("Contacts", Icons.contacts, () {
+            }, fontSizeNotifier.fontSize, fontWeightNotifier.fontWeight),
+            _menuOption("Websites", Icons.person, () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => ContactsScreen()),
+                MaterialPageRoute(builder: (context) => WebsitesScreen()),
               );
-            }, fontSizeNotifier.fontSize,
-                fontWeightNotifier.fontWeight), // Apply font weight
-            _menuOption(
-                "Help",
-                Icons.help_outline,
-                _showHelpModal,
-                fontSizeNotifier.fontSize,
-                fontWeightNotifier.fontWeight), // Apply font weight
+            }, fontSizeNotifier.fontSize, fontWeightNotifier.fontWeight),
+            _menuOption("Help", Icons.help_outline, _showHelpModal,
+                fontSizeNotifier.fontSize, fontWeightNotifier.fontWeight),
           ],
         ),
       ),
@@ -111,7 +98,6 @@ class _CommunicationScreenState extends State<CommunicationScreen> {
 
   Widget _menuOption(String title, IconData icon, VoidCallback onTap,
       double fontSize, FontWeight fontWeight) {
-    // Add fontWeight parameter
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 15.0),
       child: Column(
@@ -119,7 +105,7 @@ class _CommunicationScreenState extends State<CommunicationScreen> {
           Text(title,
               style: TextStyle(
                   fontSize: fontSize,
-                  fontWeight: fontWeight, // Apply font weight
+                  fontWeight: fontWeight,
                   color: Colors.blueGrey[800])),
           SizedBox(height: 10.0),
           InkWell(

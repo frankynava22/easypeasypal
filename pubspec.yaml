@@ -44,6 +44,10 @@ dependencies:
   firebase_storage: ^11.2.8
   image_picker: ^1.0.4
   numberpicker: ^2.1.2
+  shared_preferences: ^2.2.2
+  firebase_messaging: ^14.7.5
+  flutter_local_notifications: ^16.1.0
+  url_launcher: ^6.2.1
 
 
 dev_dependencies:
