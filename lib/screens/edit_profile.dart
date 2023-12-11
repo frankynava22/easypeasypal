@@ -3,6 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class EditProfilePage extends StatefulWidget {
+  final VoidCallback onProfileUpdated;
+
+  EditProfilePage({required this.onProfileUpdated});
+
   @override
   _EditProfilePageState createState() => _EditProfilePageState();
 }
@@ -46,6 +50,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         'displayName': _nameController.text,
         'photoURL': selectedPhotoURL ?? photoURL,
       });
+      widget.onProfileUpdated(); // Call the callback function
       Navigator.pop(context);
     }
   }
@@ -111,7 +116,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       appBar: AppBar(
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text('Cancel', style: TextStyle(color: Colors.white)),
+          child: Text('Back', style: TextStyle(color: Colors.white)),
         ),
         title: Text(
           'Edit Profile',

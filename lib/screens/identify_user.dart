@@ -24,6 +24,7 @@ class IdentifyUserScreen extends StatefulWidget {
 
 class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
   int unreadMessagesCount = 0;
+  String? displayName;
 
   @override
   void initState() {
@@ -39,6 +40,7 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
 
     setState(() {
       unreadMessagesCount = userDoc.data()?['unreadMessagesCount'] ?? 0;
+      displayName = userDoc.data()?['displayName'] ?? '';
     });
   }
 
@@ -177,10 +179,7 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                 style: TextStyle(
                     fontSize: fontSizeNotifier.fontSize * 1.5,
                     fontWeight: fontWeightNotifier.fontWeight)),
-            Text(
-                widget.user.email != null
-                    ? extractFirstName(widget.user.email!)
-                    : '',
+            Text(displayName ?? '',
                 style: TextStyle(
                     fontSize: fontSizeNotifier.fontSize * 1.2,
                     fontWeight: fontWeightNotifier.fontWeight)),
