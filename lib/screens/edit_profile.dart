@@ -79,6 +79,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       setState(() {
                         selectedPhotoURL = imageUrl;
                       });
+                      Navigator.of(context).pop(); // Close the modal sheet
                     },
                     child: Container(
                       padding: EdgeInsets.all(5),
@@ -153,7 +154,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
             ),
           ),
-          // ... other fields as needed ...
         ],
       ),
     );
