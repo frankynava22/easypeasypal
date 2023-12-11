@@ -18,7 +18,7 @@ class _ManageClientScreenState extends State<ManageClientScreen> {
   final _auth = FirebaseAuth.instance;
 
   Stream<List<Map<String, dynamic>>?> medicationsStream = Stream.value([]);
-  bool _showAppointments = true; // To toggle between Appointments and Medications
+  bool _showAppointments = true; // Boolean used to toggle between Appointments and Medications
 
   @override
   void initState() {
