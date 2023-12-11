@@ -20,6 +20,12 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
   List<Map<String, dynamic>> _clients = [];
   bool _isSearchBarVisible = false;
 
+
+
+// x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
+// x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=   F  U N C T I O N S   x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
+// x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
+
   bool isUserAlreadyAdded(Map<String, dynamic>? user) {
     return _clients.any((client) => client['email'] == user?['email']);
   }
@@ -104,6 +110,12 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
         MaterialPageRoute(builder: (context) => LandingScreen()));
   }
 
+
+// x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
+// x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=     W I D G E T S      x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
+// x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,7 +153,7 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
                             .set({
                           'clientList': _clients.map((client) {
                             return {
-                              'uid': client['uid'], // Add the UID here
+                              'uid': client['uid'],
                               'displayName': client['displayName'],
                               'email': client['email'],
                             };

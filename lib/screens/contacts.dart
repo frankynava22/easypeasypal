@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'chat_history.dart'; // Import the ChatHistoryScreen
+import 'chat_history.dart'; 
 import 'package:provider/provider.dart';
-import 'font_size_notifier.dart'; // Import FontSizeNotifier
+import 'font_size_notifier.dart'; 
 
 class ContactsScreen extends StatefulWidget {
   @override
@@ -158,7 +158,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
                           Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => ChatHistoryScreen(
                               contact: _contacts[
-                                  index], // Navigate to ChatHistoryScreen with the contact
+                                  index], 
                             ),
                           ));
                         },

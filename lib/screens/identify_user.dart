@@ -10,6 +10,7 @@ import 'medication_screen.dart';
 import 'appointments.dart';
 import 'personal_care.dart';
 import 'settings.dart';
+import 'notes.dart';
 import 'personal_menu.dart';
 import 'caretaker_add.dart';
 
@@ -141,6 +142,17 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                 fontWeight: fontWeightNotifier.fontWeight)),
         backgroundColor: const Color.fromARGB(255, 30, 71, 104),
         actions: [
+          IconButton(
+            icon: Icon(Icons.book),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        NotesScreen()), // NEW: Navigate to Caretaker Add page
+              );
+            },
+          ),
           IconButton(
             icon: Icon(Icons.manage_accounts),
             onPressed: () {

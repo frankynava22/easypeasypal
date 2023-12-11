@@ -47,98 +47,73 @@ class _MessagingScreenState extends State<MessagingScreen> {
   Widget build(BuildContext context) {
     final fontSizeNotifier = Provider.of<FontSizeNotifier>(context);
 
+    // Fetch contacts when the screen is built
+    _fetchContacts();
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(_selectedHeader.isEmpty ? 'Messaging' : _selectedHeader,
-            style: TextStyle(fontSize: fontSizeNotifier.fontSize)),
-        leading: !_isOnMainScreen
-            ? IconButton(
-                icon: Icon(Icons.arrow_back),
-                onPressed: () {
-                  _toggleScreen('');
-                },
-              )
-            : null,
+        title: Text('Chats', style: TextStyle(fontSize: fontSizeNotifier.fontSize)),
       ),
       body: Center(
-        child: _isOnMainScreen
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      _toggleScreen('Chats');
-                      _fetchContacts(); // Fetch contacts when "Chats" is tapped
-                    },
-                    icon: Icon(Icons.chat),
-                    label: Text('Chats',
-                        style: TextStyle(fontSize: fontSizeNotifier.fontSize)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SizedBox(height: 20.0),
+            Text(
+              'Chats',
+              style: TextStyle(
+                fontSize: fontSizeNotifier.fontSize,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _contacts.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(
+                      _contacts[index]['displayName'] ?? '',
+                      style: TextStyle(fontSize: fontSizeNotifier.fontSize),
+                    ),
+                    subtitle: Text(
+                      _contacts[index]['email'] ?? '',
+                      style: TextStyle(fontSize: fontSizeNotifier.fontSize),
+                    ),
+                    trailing: IconButton(
+                      icon: Icon(Icons.chat),
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => ChatHistoryScreen(contact: _contacts[index]),
+                        ));
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ContactsScreen(),
+                    ),
+                  );
+                },
+                child: Text(
+                  "Don't see who you're looking for? Add them to your contacts!",
+                  style: TextStyle(
+                    fontSize: fontSizeNotifier.fontSize,
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
                   ),
-                ],
-              )
-            : _selectedHeader == 'Chats'
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 20.0),
-                      Text(
-                        _selectedHeader,
-                        style: TextStyle(
-                            fontSize: fontSizeNotifier.fontSize,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: _contacts.length,
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              title: Text(_contacts[index]['displayName'] ?? '',
-                                  style: TextStyle(
-                                      fontSize: fontSizeNotifier.fontSize)),
-                              subtitle: Text(_contacts[index]['email'] ?? '',
-                                  style: TextStyle(
-                                      fontSize: fontSizeNotifier.fontSize)),
-                              trailing: IconButton(
-                                icon: Icon(Icons.chat),
-                                onPressed: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => ChatHistoryScreen(
-                                        contact: _contacts[index]),
-                                  ));
-                                },
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ContactsScreen(),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            "Don't see who you're looking for? Add them to your contacts!",
-                            style: TextStyle(
-                              fontSize: fontSizeNotifier.fontSize,
-                              color: Colors.blue,
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                : Column(
-                    children: [
-                      // ... [Your other code if any, for other headers]
-                    ],
-                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
