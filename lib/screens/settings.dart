@@ -15,12 +15,33 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   final double defaultFontSize = 18.0;
   bool isNotificationsEnabled = false;
+  String? displayName;
+  String? email;
+  String? photoURL;
 
   @override
   void initState() {
     super.initState();
     loadSettings();
     loadNotificationSettings();
+    loadUserProfile();
+  }
+
+  void loadUserProfile() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      var userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+      if (userDoc.exists) {
+        setState(() {
+          displayName = userDoc.data()?['displayName'];
+          email = userDoc.data()?['email'];
+          photoURL = userDoc.data()?['photoURL'];
+        });
+      }
+    }
   }
 
   void loadSettings() async {
@@ -108,10 +129,29 @@ class _SettingsPageState extends State<SettingsPage> {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: NetworkImage(photoURL ?? ''),
+                    backgroundColor: Colors.grey[200],
+                  ),
+                  SizedBox(height: 8),
+                  Text(displayName ?? '',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 4),
+                  Text(email ?? '', style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 20),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Container(
                 decoration: BoxDecoration(
                   color: Color(0xFFF9F9F9),
-                  borderRadius: BorderRadius.circular(10), // Rounded corners
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Column(
                   children: [
