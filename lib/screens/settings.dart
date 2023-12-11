@@ -4,9 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'theme_notifier.dart';
 import 'font_size_notifier.dart';
 import 'font_weight_notifier.dart';
+import 'edit_profile.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -16,12 +16,33 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   final double defaultFontSize = 18.0;
   bool isNotificationsEnabled = false;
+  String? displayName;
+  String? email;
+  String? photoURL;
 
   @override
   void initState() {
     super.initState();
     loadSettings();
     loadNotificationSettings();
+    loadUserProfile();
+  }
+
+  void loadUserProfile() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      var userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+      if (userDoc.exists) {
+        setState(() {
+          displayName = userDoc.data()?['displayName'];
+          email = userDoc.data()?['email'];
+          photoURL = userDoc.data()?['photoURL'];
+        });
+      }
+    }
   }
 
   void loadSettings() async {
@@ -71,11 +92,9 @@ class _SettingsPageState extends State<SettingsPage> {
     if (token != null) {
       final userId = FirebaseAuth.instance.currentUser?.uid;
       if (userId != null) {
-        FirebaseFirestore.instance.collection('users').doc(userId).set({
-          'fcmToken': token,
-          // Initialize unreadMessagesCount to 0 if it doesn't exist
-          'unreadMessagesCount': FieldValue.increment(0)
-        }, SetOptions(merge: true));
+        FirebaseFirestore.instance.collection('users').doc(userId).set(
+            {'fcmToken': token, 'unreadMessagesCount': FieldValue.increment(0)},
+            SetOptions(merge: true));
       }
       FirebaseMessaging.instance.subscribeToTopic('chat_notifications');
     }
@@ -98,84 +117,134 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Settings',
-          style: commonTextStyle,
+          'SETTINGS',
+          style: commonTextStyle.copyWith(fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
         ),
-      ),
-      body: ListView(
-        children: <Widget>[
-          ListTile(
-            title: Text(
-              'Theme',
-              style: commonTextStyle,
+        backgroundColor: Color.fromARGB(255, 30, 71, 104),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => EditProfilePage()),
             ),
-            trailing: Icon(Icons.palette),
-            onTap: () {
-              // Implement theme change logic
-            },
+            child: Text('Edit', style: TextStyle(color: Colors.white)),
           ),
-          ListTile(
-            title: Text(
-              'Font Size',
-              style: commonTextStyle,
-            ),
-            subtitle: Slider(
-              min: 12.0,
-              max: 24.0,
-              divisions: 12,
-              value: fontSizeNotifier.fontSize,
-              onChanged: (newSize) {
-                setState(() {
-                  fontSizeNotifier.fontSize = newSize;
-                  saveFontSize(newSize);
-                });
-              },
-            ),
-          ),
-          SwitchListTile(
-            title: Text(
-              'Bold Text',
-              style: commonTextStyle,
-            ),
-            value: fontWeightNotifier.fontWeight == FontWeight.bold,
-            onChanged: (bool isBold) {
-              setState(() {
-                fontWeightNotifier.fontWeight =
-                    isBold ? FontWeight.bold : FontWeight.normal;
-                saveFontWeight(isBold);
-              });
-            },
-          ),
-          ListTile(
-            title: Text(
-              'Reset Font Size',
-              style: commonTextStyle,
-            ),
-            trailing: Icon(Icons.restore),
-            onTap: () {
-              setState(() {
-                fontSizeNotifier.fontSize = defaultFontSize;
-                fontWeightNotifier.fontWeight = FontWeight.normal;
-                saveFontSize(defaultFontSize);
-                saveFontWeight(false);
-              });
-            },
-          ),
-          SwitchListTile(
-            title: Text(
-              'Enable Notifications',
-              style: commonTextStyle,
-            ),
-            value: isNotificationsEnabled,
-            onChanged: (bool value) {
-              setState(() {
-                isNotificationsEnabled = value;
-                saveNotificationSettings(value);
-              });
-            },
-          ),
-          // Add other settings options here
         ],
+      ),
+      backgroundColor: Colors.white,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20.0),
+        child: ListView(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: NetworkImage(photoURL ?? ''),
+                    backgroundColor: Colors.grey[200],
+                  ),
+                  SizedBox(height: 8),
+                  Text(displayName ?? '',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 4),
+                  Text(email ?? '', style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 20),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFFF9F9F9),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  children: [
+                    SwitchListTile(
+                      title: Text(
+                        'Enable Notifications',
+                        style: commonTextStyle,
+                      ),
+                      value: isNotificationsEnabled,
+                      onChanged: (bool value) {
+                        setState(() {
+                          isNotificationsEnabled = value;
+                          saveNotificationSettings(value);
+                        });
+                      },
+                      activeColor: Color(0xFFA3EBB1),
+                      inactiveThumbColor: Colors.grey,
+                      inactiveTrackColor: Colors.grey[300],
+                      activeTrackColor: Color(0xFFA3EBB1),
+                    ),
+                    const Divider(),
+                    SwitchListTile(
+                      title: Text(
+                        'Bold Text',
+                        style: commonTextStyle,
+                      ),
+                      value: fontWeightNotifier.fontWeight == FontWeight.bold,
+                      onChanged: (bool isBold) {
+                        setState(() {
+                          fontWeightNotifier.fontWeight =
+                              isBold ? FontWeight.bold : FontWeight.normal;
+                          saveFontWeight(isBold);
+                        });
+                      },
+                      activeColor: Color(0xFFA3EBB1),
+                      inactiveThumbColor: Colors.grey,
+                      inactiveTrackColor: Colors.grey[300],
+                      activeTrackColor: Color(0xFFA3EBB1),
+                    ),
+                    const Divider(),
+                    ListTile(
+                      title: Text(
+                        'Reset Font Size',
+                        style: commonTextStyle,
+                      ),
+                      trailing: Icon(Icons.refresh,
+                          color: Color.fromARGB(255, 30, 71, 104)),
+                      onTap: () {
+                        setState(() {
+                          fontSizeNotifier.fontSize = defaultFontSize;
+                          fontWeightNotifier.fontWeight = FontWeight.normal;
+                          saveFontSize(defaultFontSize);
+                          saveFontWeight(false);
+                        });
+                      },
+                    ),
+                    const Divider(),
+                    ListTile(
+                      title: Text(
+                        'Font Size',
+                        style: commonTextStyle,
+                      ),
+                      subtitle: Slider(
+                        activeColor: Color.fromARGB(255, 30, 71, 104),
+                        inactiveColor: Colors.grey[300],
+                        min: 12.0,
+                        max: 24.0,
+                        divisions: 12,
+                        value: fontSizeNotifier.fontSize,
+                        onChanged: (newSize) {
+                          setState(() {
+                            fontSizeNotifier.fontSize = newSize;
+                            saveFontSize(newSize);
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

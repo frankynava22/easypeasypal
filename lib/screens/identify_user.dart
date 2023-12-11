@@ -11,6 +11,7 @@ import 'appointments.dart';
 import 'personal_care.dart';
 import 'settings.dart';
 import 'personal_menu.dart';
+import 'caretaker_add.dart';
 
 class IdentifyUserScreen extends StatefulWidget {
   final User user;
@@ -138,13 +139,34 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
             style: TextStyle(
                 fontSize: fontSizeNotifier.fontSize,
                 fontWeight: fontWeightNotifier.fontWeight)),
+        backgroundColor: const Color.fromARGB(255, 30, 71, 104),
         actions: [
           IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => SettingsPage()))),
+            icon: Icon(Icons.manage_accounts),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        CaretakerAddScreen()), // NEW: Navigate to Caretaker Add page
+              );
+            },
+          ),
           IconButton(
-              icon: Icon(Icons.logout), onPressed: () => _signOut(context))
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        SettingsPage()), // NEW: Navigating to the SettingsPage
+              );
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () => _signOut(context),
+          )
         ],
       ),
       body: Center(
@@ -191,7 +213,7 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                 onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => PersonalMenuScreen())),
+                        builder: (context) => PersonalCareScreen())),
                 child: Text("Personal Care",
                     style: TextStyle(
                         fontSize: fontSizeNotifier.fontSize,

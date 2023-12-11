@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'chat_history.dart'; 
+import 'chat_history.dart';
 import 'manage_client.dart';
 import 'landing_screen.dart';
+import 'communication.dart';
 
 class CaretakerDashboardScreen extends StatefulWidget {
   @override
-  _CaretakerDashboardScreenState createState() => _CaretakerDashboardScreenState();
+  _CaretakerDashboardScreenState createState() =>
+      _CaretakerDashboardScreenState();
 }
 
 class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
@@ -28,7 +30,8 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
         .doc(_auth.currentUser!.uid)
         .get();
     if (snapshot.exists && snapshot.data() != null) {
-      List contactsFromDb = (snapshot.data() as Map<String, dynamic>)['clientList'] ?? [];
+      List contactsFromDb =
+          (snapshot.data() as Map<String, dynamic>)['clientList'] ?? [];
       setState(() {
         _clients = List<Map<String, dynamic>>.from(contactsFromDb);
       });
@@ -36,39 +39,58 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
   }
 
   Future<void> _deleteContact(Map<String, dynamic> client) async {
-  // Remove from local list
-  setState(() {
-    _clients.remove(client);
-  });
+    // Remove from local list
+    setState(() {
+      _clients.remove(client);
+    });
 
-  // Remove from Firestore - Clients collection
-  await _firestore.collection('Clients').doc(_auth.currentUser!.uid).set(
-    {
-      'clientList': _clients.map((client) {
-        
-        return {
-          'uid': client['uid'],  // Add the UID here
+    // Remove from Firestore - Clients collection
+    await _firestore.collection('Clients').doc(_auth.currentUser!.uid).set(
+      {
+        'clientList': _clients.map((client) {
+          return {
+            'uid': client['uid'], // Add the UID here
+            'displayName': client['displayName'],
+            'email': client['email'],
+          };
+        }).toList()
+      },
+      SetOptions(merge: true),
+    );
+
+    // Remove from Firestore - CaretakerList collection
+    await _firestore.collection('CaretakerList').doc(client['uid']).update({
+      'caretakers': FieldValue.arrayRemove([
+        {
+          'uid': _auth.currentUser!.uid,
+          'displayName': _auth.currentUser!.displayName,
+          'email': _auth.currentUser!.email,
+        }
+      ]),
+    });
+
+    // Remove from Firestore - Contacts collection (Caretaker's side)
+    await _firestore.collection('contacts').doc(_auth.currentUser!.uid).update({
+      'contactsList': FieldValue.arrayRemove([
+        {
+          'uid': client['uid'],
           'displayName': client['displayName'],
           'email': client['email'],
-          
-        };
-      }).toList()
-    },
-    SetOptions(merge: true),
-  );
+        }
+      ]),
+    });
 
-  // Remove from Firestore - CaretakerList collection
-  await _firestore.collection('CaretakerList').doc(client['uid']).update({
-    'caretakers': FieldValue.arrayRemove([
-      {
-        'uid': _auth.currentUser!.uid,
-        'displayName': _auth.currentUser!.displayName,
-        'email': _auth.currentUser!.email,
-      }
-    ]),
-  });
-}
-
+    // Remove from Firestore - Contacts collection (Client's side)
+    await _firestore.collection('contacts').doc(client['uid']).update({
+      'contactsList': FieldValue.arrayRemove([
+        {
+          'uid': _auth.currentUser!.uid,
+          'displayName': _auth.currentUser!.displayName,
+          'email': _auth.currentUser!.email,
+        }
+      ]),
+    });
+  }
 
   @override
   void initState() {
@@ -86,7 +108,8 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Clients'),backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+        title: Text('Clients'),
+        backgroundColor: const Color.fromARGB(255, 30, 71, 104),
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
@@ -96,7 +119,6 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
       ),
       body: Column(
         children: [
-          
           if (_foundUser != null)
             ListTile(
               title: Text(_foundUser!['displayName'] ?? ''),
@@ -117,17 +139,14 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
                             .collection('Clients')
                             .doc(_auth.currentUser!.uid)
                             .set({
-                              'clientList': _clients.map((client) {
-                                
-                                return {
-                                  'uid': client['uid'],  // Add the UID here
-                                  'displayName': client['displayName'],
-                                  'email': client['email'],
-                                 
-                                };
-                              }).toList()
-                            },
-                            SetOptions(merge: true));
+                          'clientList': _clients.map((client) {
+                            return {
+                              'uid': client['uid'], // Add the UID here
+                              'displayName': client['displayName'],
+                              'email': client['email'],
+                            };
+                          }).toList()
+                        }, SetOptions(merge: true));
                       },
                     ),
             ),
@@ -147,12 +166,12 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
                           // Access the UID using _clients[index]['uid']
                           String clientUid = _clients[index]['uid'];
                           Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ManageClientScreen(clientUid: clientUid),
-                              ),
-                            );
-                            
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ManageClientScreen(clientUid: clientUid),
+                            ),
+                          );
                         },
                       ),
                       IconButton(
@@ -166,6 +185,17 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
                 );
               },
             ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CommunicationScreen(),
+                ),
+              );
+            },
+            child: Text('Communication'),
           ),
         ],
       ),

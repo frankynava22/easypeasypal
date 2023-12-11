@@ -52,21 +52,20 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
       final caretakerUid = _clients[0]['uid'];
 
       // Check if the user is already in the caretaker's clientList
-      final clientListSnapshot = await _firestore
-          .collection('Clients')
-          .doc(caretakerUid)
-          .get();
+      final clientListSnapshot =
+          await _firestore.collection('Clients').doc(caretakerUid).get();
 
       final clientList =
-          (clientListSnapshot.data() as Map<String, dynamic>)['clientList'] ?? [];
-      final isAlreadyAdded = clientList
-          .any((client) => client['uid'] == currentUser.uid);
+          (clientListSnapshot.data() as Map<String, dynamic>)['clientList'] ??
+              [];
+      final isAlreadyAdded =
+          clientList.any((client) => client['uid'] == currentUser.uid);
 
       if (isAlreadyAdded) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-                'You are already added to this caretaker\'s client list.'),
+            content:
+                Text('You are already added to this caretaker\'s client list.'),
             backgroundColor: Colors.red,
           ),
         );
@@ -99,10 +98,37 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
           SetOptions(merge: true),
         );
 
+        // Add the client user to the caretaker's contacts
+        await _firestore.collection('contacts').doc(caretakerUid).set(
+          {
+            'contactsList': FieldValue.arrayUnion([
+              {
+                'uid': currentUser.uid,
+                'displayName': currentUser.displayName,
+                'email': currentUser.email,
+              }
+            ])
+          },
+          SetOptions(merge: true),
+        );
+
+        await _firestore.collection('contacts').doc(currentUser.uid).set(
+          {
+            'contactsList': FieldValue.arrayUnion([
+              {
+                'uid': caretakerUid,
+                'displayName': caretakerUid.displayName,
+                'email': caretakerUid.email,
+              }
+            ])
+          },
+          SetOptions(merge: true),
+        );
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-                'User added successfully to caretaker\'s client list.'),
+            content:
+                Text('User added successfully to caretaker\'s client list.'),
             backgroundColor: Colors.green,
           ),
         );
@@ -135,9 +161,9 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
         await _firestore.collection('CaretakerList').doc(currentUser.uid).get();
 
     if (caretakerListSnapshot.exists) {
-      final caretakersFromDb =
-          (caretakerListSnapshot.data() as Map<String, dynamic>)['caretakers'] ??
-              [];
+      final caretakersFromDb = (caretakerListSnapshot.data()
+              as Map<String, dynamic>)['caretakers'] ??
+          [];
       setState(() {
         _caretakersList = List<Map<String, dynamic>>.from(caretakersFromDb);
       });

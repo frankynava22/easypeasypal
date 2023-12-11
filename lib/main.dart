@@ -8,7 +8,7 @@ import 'screens/font_size_notifier.dart';
 import 'screens/font_weight_notifier.dart';
 import 'screens/landing_screen.dart';
 import 'screens/identify_user.dart';
-import 'screens/communication.dart'; // Add this import for CommunicationScreen
+import 'screens/communication.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const String channelId = 'chat_messages_channel';
@@ -27,7 +27,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  // Initialize local notifications
   var initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');
   var initializationSettings =
@@ -101,12 +100,11 @@ void showNotification(RemoteNotification? notification) {
     channelId,
     channelName,
     channelDescription: channelDescription,
-    importance: Importance.high, // Set importance to high
-    priority: Priority.high, // Set priority to high
-    showWhen: true, // Change this to true
-    playSound: true, // Enable sound to enhance visibility
-    visibility: NotificationVisibility.public, // Ensure visibility is public
-    // Optionally, you can add more properties like vibration pattern, light color etc.
+    importance: Importance.high,
+    priority: Priority.high,
+    showWhen: true,
+    playSound: true,
+    visibility: NotificationVisibility.public,
   );
   var platformDetails = NotificationDetails(android: androidDetails);
   flutterLocalNotificationsPlugin.show(
@@ -130,14 +128,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<FontSizeNotifier>(
-      builder: (context, fontSizeNotifier, child) {
+    return Consumer<ThemeNotifier>(
+      builder: (context, themeNotifier, child) {
         return MaterialApp(
           navigatorKey: navigatorKey,
           initialRoute: '/',
-          theme: _buildThemeData(fontSizeNotifier.fontSize),
+          theme: themeNotifier.getTheme(),
           routes: {
-            '/': (context) => LandingScreen(),
+            '/': (context) => SplashScreen(),
+            '/landing': (context) => LandingScreen(),
             '/communication': (context) => CommunicationScreen(),
           },
         );
@@ -146,47 +145,72 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
+class SplashScreen extends StatefulWidget {
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _initializeApp().then((_) {
+      Navigator.of(context).pushReplacement(_createRoute());
     });
+  }
+
+  Future<void> _initializeApp() async {
+    await Future.delayed(Duration(seconds: 2));
+  }
+
+  PageRouteBuilder _createRoute() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => LandingScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = 0.0;
+        const end = 1.0;
+        const curve = Curves.easeInOut;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var opacityAnimation = animation.drive(tween);
+
+        return FadeTransition(
+          opacity: opacityAnimation,
+          child: child,
+        );
+      },
+      transitionDuration: Duration(seconds: 1),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
+      backgroundColor: const Color.fromARGB(255, 30, 71, 104),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
+          children: [
+            Spacer(),
             Text(
-              '$_counter',
+              'EasyPeasyPal',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 36,
+              ),
             ),
+            SizedBox(height: 8),
+            Text(
+              'Welcome',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+              ),
+            ),
+            Spacer(),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ),
     );
   }
