@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'font_size_notifier.dart';
 import 'font_weight_notifier.dart';
+import 'edit_profile.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -121,6 +122,15 @@ class _SettingsPageState extends State<SettingsPage> {
           textAlign: TextAlign.center,
         ),
         backgroundColor: Color.fromARGB(255, 30, 71, 104),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => EditProfilePage()),
+            ),
+            child: Text('Edit', style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
       backgroundColor: Colors.white,
       body: Padding(
