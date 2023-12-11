@@ -25,6 +25,7 @@ class IdentifyUserScreen extends StatefulWidget {
 
 class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
   int unreadMessagesCount = 0;
+  String? displayName;
 
   @override
   void initState() {
@@ -40,6 +41,7 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
 
     setState(() {
       unreadMessagesCount = userDoc.data()?['unreadMessagesCount'] ?? 0;
+      displayName = userDoc.data()?['displayName'] ?? '';
     });
   }
 
@@ -95,6 +97,21 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
     }
   }
 
+  Future<void> fetchUserProfile() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      var userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+      if (userDoc.exists) {
+        setState(() {
+          displayName = userDoc.data()?['displayName'];
+        });
+      }
+    }
+  }
+
   Widget messagesButton(BuildContext context, FontSizeNotifier fontSizeNotifier,
       FontWeightNotifier fontWeightNotifier) {
     return ElevatedButton(
@@ -131,6 +148,7 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
 
   @override
   Widget build(BuildContext context) {
+    fetchUserProfile();
     final fontSizeNotifier = Provider.of<FontSizeNotifier>(context);
     final fontWeightNotifier = Provider.of<FontWeightNotifier>(context);
 
@@ -189,10 +207,7 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                 style: TextStyle(
                     fontSize: fontSizeNotifier.fontSize * 1.5,
                     fontWeight: fontWeightNotifier.fontWeight)),
-            Text(
-                widget.user.email != null
-                    ? extractFirstName(widget.user.email!)
-                    : '',
+            Text(displayName ?? '',
                 style: TextStyle(
                     fontSize: fontSizeNotifier.fontSize * 1.2,
                     fontWeight: fontWeightNotifier.fontWeight)),

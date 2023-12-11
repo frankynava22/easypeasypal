@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import 'font_size_notifier.dart';
+import 'font_weight_notifier.dart';
 
 class EditProfilePage extends StatefulWidget {
+  final VoidCallback onProfileUpdated;
+
+  EditProfilePage({required this.onProfileUpdated});
+
   @override
   _EditProfilePageState createState() => _EditProfilePageState();
 }
@@ -46,6 +53,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         'displayName': _nameController.text,
         'photoURL': selectedPhotoURL ?? photoURL,
       });
+      widget.onProfileUpdated(); // Call the callback function
       Navigator.pop(context);
     }
   }
@@ -107,11 +115,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final fontSizeNotifier = Provider.of<FontSizeNotifier>(context);
+    final fontWeightNotifier = Provider.of<FontWeightNotifier>(context);
+
+    TextStyle dynamicTextStyle = TextStyle(
+      fontSize: fontSizeNotifier.fontSize,
+      fontWeight: fontWeightNotifier.fontWeight,
+    );
+
     return Scaffold(
       appBar: AppBar(
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text('Cancel', style: TextStyle(color: Colors.white)),
+          child: Text('Back', style: TextStyle(color: Colors.white)),
         ),
         title: Text(
           'Edit Profile',
@@ -140,16 +156,27 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
           ),
           SizedBox(height: 8),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            color: Color(0xFFF9F9F9),
-            child: TextField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: 'Name',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Color(0xFFF9F9F9),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: TextField(
+                controller: _nameController,
+                style: TextStyle(
+                  fontSize: Provider.of<FontSizeNotifier>(context).fontSize,
+                  fontWeight:
+                      Provider.of<FontWeightNotifier>(context).fontWeight,
+                ),
+                decoration: InputDecoration(
+                  labelText: 'Name',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
             ),

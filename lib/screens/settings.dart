@@ -45,6 +45,17 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  void navigateToEditProfile() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditProfilePage(
+          onProfileUpdated: loadUserProfile,
+        ),
+      ),
+    );
+  }
+
   void loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     final fontSizeNotifier =
@@ -114,6 +125,11 @@ class _SettingsPageState extends State<SettingsPage> {
       fontWeight: fontWeightNotifier.fontWeight,
     );
 
+    TextStyle nameEmailStyle = TextStyle(
+      fontSize: fontSizeNotifier.fontSize, // Use the dynamic font size
+      fontWeight: fontWeightNotifier.fontWeight, // Use the dynamic font weight
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -124,11 +140,9 @@ class _SettingsPageState extends State<SettingsPage> {
         backgroundColor: Color.fromARGB(255, 30, 71, 104),
         actions: [
           TextButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => EditProfilePage()),
-            ),
-            child: Text('Edit', style: TextStyle(color: Colors.white)),
+            onPressed: navigateToEditProfile,
+            child: Text('Edit',
+                style: commonTextStyle.copyWith(color: Colors.white)),
           ),
         ],
       ),
@@ -143,15 +157,24 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: NetworkImage(photoURL ?? ''),
                     backgroundColor: Colors.grey[200],
+                    backgroundImage: photoURL?.isNotEmpty == true
+                        ? NetworkImage(photoURL!)
+                        : null,
+                    child: photoURL == null || photoURL!.isEmpty
+                        ? Icon(Icons.person, size: 50)
+                        : null,
                   ),
                   SizedBox(height: 8),
-                  Text(displayName ?? '',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    displayName ?? '',
+                    style: nameEmailStyle, // Apply dynamic style
+                  ),
                   SizedBox(height: 4),
-                  Text(email ?? '', style: TextStyle(fontSize: 16)),
+                  Text(
+                    email ?? '',
+                    style: nameEmailStyle, // Apply dynamic style
+                  ),
                   SizedBox(height: 20),
                 ],
               ),
