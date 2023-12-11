@@ -117,13 +117,14 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
             'contactsList': FieldValue.arrayUnion([
               {
                 'uid': caretakerUid,
-                'displayName': caretakerUid.displayName,
-                'email': caretakerUid.email,
+                'displayName': _clients[0]['displayName'],
+                'email': _clients[0]['email'],
               }
             ])
           },
           SetOptions(merge: true),
         );
+
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
