@@ -96,6 +96,21 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
     }
   }
 
+  Future<void> fetchUserProfile() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      var userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+      if (userDoc.exists) {
+        setState(() {
+          displayName = userDoc.data()?['displayName'];
+        });
+      }
+    }
+  }
+
   Widget messagesButton(BuildContext context, FontSizeNotifier fontSizeNotifier,
       FontWeightNotifier fontWeightNotifier) {
     return ElevatedButton(
@@ -132,6 +147,7 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
 
   @override
   Widget build(BuildContext context) {
+    fetchUserProfile();
     final fontSizeNotifier = Provider.of<FontSizeNotifier>(context);
     final fontWeightNotifier = Provider.of<FontWeightNotifier>(context);
 
