@@ -9,7 +9,9 @@ import 'screens/font_weight_notifier.dart';
 import 'screens/landing_screen.dart';
 import 'screens/identify_user.dart';
 import 'screens/communication.dart';
+import 'screens/chat_history.dart'; // Import ChatHistoryScreen
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
 
 const String channelId = 'chat_messages_channel';
 const String channelName = 'Chat Messages';
@@ -50,8 +52,10 @@ void main() async {
   }
 
   messaging.getInitialMessage().then((RemoteMessage? message) {
-    if (message != null) {
-      _navigateToCommunicationScreen();
+    if (message != null &&
+        message.data.containsKey('senderId') &&
+        message.data.containsKey('recipientId')) {
+      _navigateToChatHistoryScreen(message.data);
     }
   });
 
@@ -60,7 +64,10 @@ void main() async {
   });
 
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    _navigateToCommunicationScreen();
+    if (message.data.containsKey('senderId') &&
+        message.data.containsKey('recipientId')) {
+      _navigateToChatHistoryScreen(message.data);
+    }
   });
 
   double initialFontSize = await loadFontSize();
@@ -83,11 +90,17 @@ void main() async {
   );
 }
 
-void _navigateToCommunicationScreen() {
-  MyApp()
-      .navigatorKey
-      .currentState
-      ?.push(MaterialPageRoute(builder: (context) => CommunicationScreen()));
+void _navigateToChatHistoryScreen(Map<String, dynamic> data) {
+  FirebaseAuth _auth = FirebaseAuth.instance;
+  String chatPartnerId = _auth.currentUser!.uid == data['senderId']
+      ? data['recipientId']
+      : data['senderId'];
+
+  MyApp.navigatorKey.currentState?.push(MaterialPageRoute(
+    builder: (context) => ChatHistoryScreen(
+      contact: {'uid': chatPartnerId}, // Add other necessary details as needed
+    ),
+  ));
 }
 
 Future<double> loadFontSize() async {
@@ -112,7 +125,8 @@ void showNotification(RemoteNotification? notification) {
 }
 
 class MyApp extends StatelessWidget {
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
 
   ThemeData _buildThemeData(double fontSize) {
     return ThemeData(
@@ -138,6 +152,7 @@ class MyApp extends StatelessWidget {
             '/': (context) => SplashScreen(),
             '/landing': (context) => LandingScreen(),
             '/communication': (context) => CommunicationScreen(),
+            '/chat_history': (context) => ChatHistoryScreen(contact: {}),
           },
         );
       },

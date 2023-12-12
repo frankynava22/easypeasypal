@@ -34,8 +34,13 @@ exports.sendChatNotification = functions.firestore
                 title: `${senderName} Says`, 
                 body: messageData.text,
             },
+            data: {
+                senderId: messageData.senderId,
+                recipientId: recipientId,
+            },
             token: recipientToken,
         };
+        
 
         return admin.messaging().send(payload)
             .then(response => {
