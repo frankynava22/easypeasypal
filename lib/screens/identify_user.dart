@@ -211,49 +211,52 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
           ),
         ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Animated Text
-            Container(
-              height: 100, // Adjust the height as needed
-              child: DefaultTextStyle(
-                style: const TextStyle(
-                  fontSize: 40.0,
-                  fontFamily: 'Horizon',
-                  color: Color(0xFF1E4768), // Text color
-                ),
-                child: AnimatedTextKit(
-                  animatedTexts: [
-                    RotateAnimatedText('EasyPeasyPal'),
-                    RotateAnimatedText('Health'),
-                    RotateAnimatedText('Wellness'),
-                    RotateAnimatedText('All-In-One'),
-                  ],
-                  onTap: () {}, // No action on tap
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Animated Text
+              Container(
+                height: 100, // Fixed height for the rotating text
+                child: DefaultTextStyle(
+                  style: const TextStyle(
+                    fontSize: 40.0,
+                    fontFamily: 'Horizon',
+                    color: Color(0xFF1E4768), // Text color
+                  ),
+                  child: AnimatedTextKit(
+                    animatedTexts: [
+                      RotateAnimatedText('EasyPeasyPal'),
+                      RotateAnimatedText('Health'),
+                      RotateAnimatedText('Wellness'),
+                      RotateAnimatedText('All-In-One'),
+                    ],
+                    onTap: () {}, // No action on tap
+                  ),
                 ),
               ),
-            ),
 
-            Image.asset(
-              'assets/logo.png',
-              height: 200,
-            ),
-            Text('Welcome',
-                style: TextStyle(
-                    fontSize: fontSizeNotifier.fontSize * 1.5,
-                    fontWeight: fontWeightNotifier.fontWeight)),
-            Text(displayName ?? '',
-                style: TextStyle(
-                    fontSize: fontSizeNotifier.fontSize * 1.2,
-                    fontWeight: fontWeightNotifier.fontWeight)),
-            SizedBox(height: 20),
-            ElevatedButton(
+              Image.asset(
+                'assets/logo.png',
+                height: 200,
+              ),
+              Text('Welcome',
+                  style: TextStyle(
+                      fontSize: fontSizeNotifier.fontSize * 1.5,
+                      fontWeight: fontWeightNotifier.fontWeight)),
+              Text(displayName ?? '',
+                  style: TextStyle(
+                      fontSize: fontSizeNotifier.fontSize * 1.2,
+                      fontWeight: fontWeightNotifier.fontWeight)),
+              SizedBox(height: 20),
+              ElevatedButton(
                 onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => AppointmentsPage())),
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AppointmentsPage(),
+                  ),
+                ),
                 child: Text("Appointments",
                     style: TextStyle(
                         fontSize: fontSizeNotifier.fontSize,
@@ -264,15 +267,18 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
                           30.0), // Adjust the radius as needed
-                    ))),
-            SizedBox(height: 10),
-            messagesButton(context, fontSizeNotifier, fontWeightNotifier),
-            SizedBox(height: 10),
-            ElevatedButton(
+                    )),
+              ),
+              SizedBox(height: 10),
+              messagesButton(context, fontSizeNotifier, fontWeightNotifier),
+              SizedBox(height: 10),
+              ElevatedButton(
                 onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => MedicationScreen())),
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MedicationScreen(),
+                  ),
+                ),
                 child: Text("Medication",
                     style: TextStyle(
                         fontSize: fontSizeNotifier.fontSize,
@@ -283,13 +289,16 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
                           30.0), // Adjust the radius as needed
-                    ))),
-            SizedBox(height: 10),
-            ElevatedButton(
+                    )),
+              ),
+              SizedBox(height: 10),
+              ElevatedButton(
                 onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => PersonalCareScreen())),
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PersonalCareScreen(),
+                  ),
+                ),
                 child: Text("Personal Care",
                     style: TextStyle(
                         fontSize: fontSizeNotifier.fontSize,
@@ -300,16 +309,17 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
                           30.0), // Adjust the radius as needed
-                    ))),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                List<Map<String, dynamic>> appointments =
-                    await fetchTodaysAppointments(widget.user.uid);
-                List<Map<String, dynamic>> medications =
-                    await fetchTodaysMedications(widget.user.uid);
+                    )),
+              ),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () async {
+                  List<Map<String, dynamic>> appointments =
+                      await fetchTodaysAppointments(widget.user.uid);
+                  List<Map<String, dynamic>> medications =
+                      await fetchTodaysMedications(widget.user.uid);
 
-                showDialog(
+                  showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
@@ -367,21 +377,23 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                               onPressed: () => Navigator.of(context).pop())
                         ],
                       );
-                    });
-              },
-              child: Text("Today's Events",
-                  style: TextStyle(
-                      fontSize: fontSizeNotifier.fontSize,
-                      fontWeight: fontWeightNotifier.fontWeight)),
-              style: ElevatedButton.styleFrom(
-                  minimumSize: Size(300, 60),
-                  backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                        30.0), // Adjust the radius as needed
-                  )),
-            ),
-          ],
+                    },
+                  );
+                },
+                child: Text("Today's Events",
+                    style: TextStyle(
+                        fontSize: fontSizeNotifier.fontSize,
+                        fontWeight: fontWeightNotifier.fontWeight)),
+                style: ElevatedButton.styleFrom(
+                    minimumSize: Size(300, 60),
+                    backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          30.0), // Adjust the radius as needed
+                    )),
+              ),
+            ],
+          ),
         ),
       ),
     );
