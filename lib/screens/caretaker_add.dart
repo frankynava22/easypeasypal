@@ -20,30 +20,46 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
 // x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
 // x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=   F  U N C T I O N S   x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
 // x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
+  void _clearClientsList() {
+  setState(() {
+    _clients = [];
+  });
+}
+  
+  
   Future<void> _searchByEmail() async {
-    final currentUser = _auth.currentUser;
-    if (currentUser == null) {
-      // Handle the case where the user is not signed in
-      return;
-    }
-
-    final querySnapshot = await _firestore
-        .collection('Susers')
-        .where('email', isEqualTo: _emailController.text)
-        .get();
-
-    if (querySnapshot.docs.isNotEmpty) {
-      final foundUser = querySnapshot.docs.first.data();
-      // Update the state to show the found user
-      setState(() {
-        _clients = [foundUser];
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No caretaker found with this email.')),
-      );
-    }
+  final currentUser = _auth.currentUser;
+  if (currentUser == null) {
+    // Handle the case where the user is not signed in
+    return;
   }
+
+  if (_emailController.text.isEmpty) {
+    // Clear the _clients list when no search is performed
+    setState(() {
+      _clients = [];
+    });
+    return;
+  }
+
+  final querySnapshot = await _firestore
+      .collection('Susers')
+      .where('email', isEqualTo: _emailController.text)
+      .get();
+
+  setState(() {
+    _clients = querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+  });
+
+  if (_clients.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('No caretaker found with this email.')),
+    );
+  }
+}
+
+
+
 
   Future<void> _addClient() async {
   if (_clients.isNotEmpty && _clients[0] != null) {
@@ -189,15 +205,16 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchContacts();
+    
     _fetchCaretakers(); // Call the method to load caretakers
+    _clearClientsList();
   }
 
 
 // x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
 // x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=     W I D G E T S      x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
 // x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
-  @override
+   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -250,6 +267,15 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
                             ),
                           ),
                         ),
+                  if (_clients.isNotEmpty)
+                    ListTile(
+                      title: Text(_clients[0]['displayName'] ?? ''),
+                      subtitle: Text(_clients[0]['email'] ?? ''),
+                      trailing: ElevatedButton(
+                        child: Text('Add'),
+                        onPressed: _addClient,
+                      ),
+                    ),
                   if (_caretakersList.isNotEmpty)
                     Column(
                       children: [
@@ -274,15 +300,7 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
                         ),
                       ],
                     ),
-                  if (_clients.isNotEmpty)
-                    ListTile(
-                      title: Text(_clients[0]['displayName'] ?? ''),
-                      subtitle: Text(_clients[0]['email'] ?? ''),
-                      trailing: ElevatedButton(
-                        child: Text('Add'),
-                        onPressed: _addClient,
-                      ),
-                    ),
+
                 ],
               ),
             ),

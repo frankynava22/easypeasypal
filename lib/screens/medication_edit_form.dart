@@ -89,7 +89,7 @@ class _MedicationEditFormScreenState extends State<MedicationEditForm> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit a Medication', style: TextStyle(fontSize: fontSize)),
+        title: Text('Edit a Medication', style: TextStyle(fontSize: fontSize)), backgroundColor: const Color.fromARGB(255, 30, 71, 104),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -120,9 +120,10 @@ class _MedicationEditFormScreenState extends State<MedicationEditForm> {
               }
             },
             child: Text('Save', style: TextStyle(fontSize: fontSize)),
-            style: ButtonStyle(
-              minimumSize: MaterialStateProperty.all(Size(150, 0)),
-              padding: MaterialStateProperty.all(EdgeInsets.all(15.0)),
+            style: ElevatedButton.styleFrom(
+              primary: const Color.fromARGB(255, 30, 71, 104), // Set the background color
+              minimumSize: Size(150, 0),
+              padding: EdgeInsets.all(15.0),
             ),
           ),
         ),
@@ -242,7 +243,7 @@ class _MedicationEditFormScreenState extends State<MedicationEditForm> {
                         selectedInstructions.remove(instruction);
                       }
                     });
-                  },
+                  }, activeColor: const Color.fromARGB(255, 30, 71, 104), // Set the color of the check icon,
                 );
               }).toList(),
             ),

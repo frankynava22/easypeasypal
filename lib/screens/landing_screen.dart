@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:chatbot/screens/identify_user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chatbot/screens/caretaker_start.dart';
+import 'package:animations/animations.dart';
 
 class LandingScreen extends StatefulWidget {
   @override
@@ -35,7 +36,7 @@ class _LandingScreenState extends State<LandingScreen> {
 
           //if (snapshot.exists) {
           //  // User belongs to 'Susers' collection, show snackbar error
-          //  showSnackbarError("Logged in as Caretaker, please use Caretaker Access");   
+          //  showSnackbarError("Logged in as Caretaker, please use Caretaker Access");
           //  return null;
           //}
 
@@ -51,7 +52,6 @@ class _LandingScreenState extends State<LandingScreen> {
               'displayName': user.displayName,
               'photoURL': user.photoURL,
               'email': user.email,
-              
             });
           }
         }
@@ -84,11 +84,11 @@ class _LandingScreenState extends State<LandingScreen> {
           //    FirebaseFirestore.instance.collection('users');
           //final userSnapshot = await usersCollectionRef.doc(suser.uid).get();
 //
-         //if (userSnapshot.exists) {
-         //  // User already exists in 'users' collection, show snackbar error
-         //  showSnackbarError("Logged in as User, please use Login");
-         //  return null;
-         //}
+          //if (userSnapshot.exists) {
+          //  // User already exists in 'users' collection, show snackbar error
+          //  showSnackbarError("Logged in as User, please use Login");
+          //  return null;
+          //}
 
           // Store the user's details in Firestore for 'Susers' collection
           final susersRef = FirebaseFirestore.instance.collection('Susers');
@@ -101,7 +101,6 @@ class _LandingScreenState extends State<LandingScreen> {
               'displayName': suser.displayName,
               'photoURL': suser.photoURL,
               'email': suser.email,
-              
             });
           }
         }
@@ -123,6 +122,19 @@ class _LandingScreenState extends State<LandingScreen> {
     );
   }
 
+  void _navigateToScreen(Widget screen) {
+    Navigator.of(context).push(PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => screen,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeThroughTransition(
+          animation: animation,
+          secondaryAnimation: secondaryAnimation,
+          child: child,
+        );
+      },
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -133,30 +145,32 @@ class _LandingScreenState extends State<LandingScreen> {
             Spacer(flex: 6),
             const Text(
               "Welcome to ",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black),
             ),
+            Image.asset('assets/logo.png', height: 100), // Logo added here
             Text(
               "EasyPeasyPal",
-              style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold, color: const Color.fromARGB(255, 30, 71, 104),),
+              style: TextStyle(
+                  fontSize: 35,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(255, 30, 71, 104)),
             ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
                 final User? user = await _handleSignIn();
                 if (user != null) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => IdentifyUserScreen(user: user),
-                    ),
-                  );
+                  _navigateToScreen(IdentifyUserScreen(user: user));
                 } else {
                   // Handle sign-in error or cancellation.
                 }
               },
               child: const Text("Create Account"),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 30, 71, 104), // Change the background color to blue
+                backgroundColor: Color.fromARGB(255, 30, 71, 104),
               ),
             ),
             SizedBox(height: 10),
@@ -164,12 +178,7 @@ class _LandingScreenState extends State<LandingScreen> {
               onPressed: () async {
                 final User? user = await _handleSignIn();
                 if (user != null) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => IdentifyUserScreen(user: user),
-                    ),
-                  );
+                  _navigateToScreen(IdentifyUserScreen(user: user));
                 } else {
                   // Handle login error or cancellation.
                 }
@@ -177,9 +186,7 @@ class _LandingScreenState extends State<LandingScreen> {
               child: Text(
                 "Login",
                 style: TextStyle(
-                  fontSize: 22, // Change the font size to 18
-                  color: const Color.fromARGB(255, 30, 71, 104), // Change the text color to red
-                ),
+                    fontSize: 22, color: Color.fromARGB(255, 30, 71, 104)),
               ),
             ),
             Spacer(flex: 5),
@@ -187,22 +194,16 @@ class _LandingScreenState extends State<LandingScreen> {
               onPressed: () async {
                 final User? user = await _superHandleSignIn();
                 if (user != null) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CaretakerStartScreen(user: user),
-                    ),
-                  );
+                  _navigateToScreen(CaretakerStartScreen(user: user));
                 } else {
                   // Handle sign-in error or cancellation.
                 }
               },
               child: const Text("CareTaker Access"),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 30, 71, 104), 
+                backgroundColor: Color.fromARGB(255, 30, 71, 104),
               ),
             ),
-
             Spacer(flex: 1),
           ],
         ),
