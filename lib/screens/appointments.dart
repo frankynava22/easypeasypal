@@ -1,7 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:animations/animations.dart'; // Import the animations package
 
 void main() => runApp(MyApp());
 
@@ -22,207 +23,237 @@ class AppointmentsPage extends StatefulWidget {
 }
 
 class _AppointmentsPageState extends State<AppointmentsPage> {
-    TextEditingController _eventTitleController = TextEditingController();
-    bool _isWeekView = true;
-    DateTime _selectedDate = DateTime.now();
-    final _firestore = FirebaseFirestore.instance; // Initialize Firestore
-    final _auth = FirebaseAuth.instance;
-    List<Map<String, dynamic>> _events = [];
-    List<Map<String, dynamic>> _allEvents = [];
-    List<Map<String, dynamic>> _filteredEvents = [];
+  TextEditingController _eventTitleController = TextEditingController();
+  bool _isWeekView = true;
+  DateTime _selectedDate = DateTime.now();
+  final _firestore = FirebaseFirestore.instance;
+  final _auth = FirebaseAuth.instance;
+  List<Map<String, dynamic>> _events = [];
+  List<Map<String, dynamic>> _allEvents = [];
+  List<Map<String, dynamic>> _filteredEvents = [];
+  double _opacity = 0.0;
 
-
-    @override
-    void initState() {
-      super.initState();
-      _loadUserEvents();
-    }
-
-// x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
-// x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=   W I D G E T S   =x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
-// x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
-
-    @override
-    Widget build(BuildContext context) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('Appointments'),
-          centerTitle: true,
-          backgroundColor: const Color.fromARGB(255, 30, 71, 104), // Center the title in the middle of the AppBar
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(top: 15, right: 15), // Add padding on top
-              child: Text(
-                DateFormat('MM-dd-yyyy').format(_selectedDate),
-                style: TextStyle(
-                  fontSize: 20.0, // Set the font size to a larger value
-                ),
-              ),
-            ),
-          ],
-        )
-        ,
-
-        body:  _loadUserEventsWidget(),
-
-        floatingActionButton: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _isWeekView = false;
-                    });
-                    _loadUserEvents(); // Reload events when switching to the Events view
-                  },
-                  child: Text('ALL Events',),
-                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 30, 71, 104)), // Set the background color of the button to blue
-                  ),
-                ),
-                FloatingActionButton(
-                  onPressed: () async{
-                    _showEventSetupDialog(context);
-                  },
-                  child: Icon(Icons.add),
-                  backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-                  
-                ),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 32.0), // Add padding under the calendar button
-                    child: IconButton(
-                      icon: Icon( Icons.calendar_today,
-                                  color: const Color.fromARGB(255, 30, 71, 104), size: 60.0,
-                      ),// Set the icon color
-                      onPressed: () => _selectDate(context), // Open DatePicker dialog
-                      tooltip: 'Select Date',
-                    ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
+  @override
+  void initState() {
+    super.initState();
+    _loadUserEvents();
+    _animateIn();
   }
 
-// x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
+  void _animateIn() {
+    Future.delayed(Duration(milliseconds: 100), () {
+      setState(() {
+        _opacity = 1.0;
+      });
+    });
+  }
 
-  Widget _loadUserEventsWidget() {
-    return Column(
-      children: [
-        Text('Events for ${DateFormat('MMMM yyyy').format(_selectedDate)}', 
-              style: TextStyle(fontSize: 24.0,), // Set the font size to a larger value
-            ),
-        Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 8.0,
-          children: [
-            // Create buttons to filter events by day of the week
-            _buildDayFilterButton('Mon', DateTime.monday),
-            _buildDayFilterButton('Tue', DateTime.tuesday),
-            _buildDayFilterButton('Wed', DateTime.wednesday),
-            _buildDayFilterButton('Thu', DateTime.thursday),
-            _buildDayFilterButton('Fri', DateTime.friday),
-            _buildDayFilterButton('Sat', DateTime.saturday),
-            _buildDayFilterButton('Sun', DateTime.sunday),
-          ],
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Appointments',
+          style: TextStyle(color: const Color.fromARGB(255, 30, 71, 104), fontSize: 18),
         ),
-        Expanded(
-          child: _events.isNotEmpty
-              ? ListView.builder(
-  itemCount: _events.length,
-  itemBuilder: (context, index) {
-  final event = _events[index];
-  final eventTitle = event['title'] ?? '';
-  final eventDate = DateFormat('MM-dd-yyyy').format(event['date'].toDate());
-
-  return Dismissible(
-    key: Key(eventTitle),
-    onDismissed: (direction) {
-      _deleteEvent(eventTitle);
-    },
-    background: Container(
-      color: Colors.red,
-      padding: EdgeInsets.symmetric(horizontal: 20),
-      alignment: Alignment.centerRight,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Icon(
-            Icons.delete,
-            color: Colors.white,
-            size: 36,
-          ),
-          Text(
-            "Delete",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: const Color.fromARGB(255, 30, 71, 104)),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(top: 15, right: 15),
+            child: Text(
+              DateFormat('dd-MM-yyyy').format(_selectedDate),
+              style: TextStyle(fontSize: 20.0, color: const Color.fromARGB(255, 30, 71, 104)),
             ),
           ),
         ],
       ),
-    ),
-    child: Card(
-      child: ListTile(
-        title: Text(eventTitle),
-        subtitle: Text(eventDate),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: () {
-                _editEvent(event); // Call a function to edit the event
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.delete),
-              onPressed: () {
-                _deleteEvent(eventTitle); // Call a function to delete the event
-              },
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-},
-
-)
-
-              : Center(
-                  child: Text(
-                    'No events found',  // Display message when no events found
-                    style: TextStyle(
-                      color: const Color.fromARGB(255, 30, 71, 104), // Change the text color to blue
-                      fontSize: 20,
+      body: _loadUserEventsWidget(),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _isWeekView = false;
+                  });
+                  _loadUserEvents(); // Reload events when switching to the Events view
+                },
+                child: Text('ALL Events'),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 30, 71, 104)),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
                     ),
                   ),
                 ),
-        ),
-      ],
+              ),
+              FloatingActionButton(
+                onPressed: () async {
+                  _showEventSetupDialog(context);
+                },
+                child: Icon(Icons.add),
+                backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+              ),
+              Padding(
+                padding: EdgeInsets.only(bottom: 32.0),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.calendar_today,
+                    color: const Color.fromARGB(255, 30, 71, 104),
+                    size: 60.0,
+                  ),
+                  onPressed: () => _selectDate(context),
+                  tooltip: 'Select Date',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
-// x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
+  Widget _loadUserEventsWidget() {
+    return AnimatedOpacity(
+      opacity: _opacity,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: 16.0, bottom: 8.0),
+            child: Text(
+              'Events for ${DateFormat('MMMM yyyy').format(_selectedDate)}',
+              style: TextStyle(
+                fontSize: 20.0,
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(bottom: 8.0),
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 8.0,
+              children: [
+                _buildDayFilterButton('Mon', DateTime.monday),
+                _buildDayFilterButton('Tue', DateTime.tuesday),
+                _buildDayFilterButton('Wed', DateTime.wednesday),
+                _buildDayFilterButton('Thu', DateTime.thursday),
+                _buildDayFilterButton('Fri', DateTime.friday),
+                _buildDayFilterButton('Sat', DateTime.saturday),
+                _buildDayFilterButton('Sun', DateTime.sunday),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(top: 8.0),
+              child: _events.isNotEmpty
+                  ? ListView.builder(
+                      itemCount: _events.length,
+                      itemBuilder: (context, index) {
+                        final event = _events[index];
+                        final eventTitle = event['title'] ?? '';
+                        final eventDate =
+                            DateFormat('MM-dd-yyyy').format(event['date'].toDate());
+
+                        return Dismissible(
+                          key: Key(eventTitle),
+                          onDismissed: (direction) {
+                            _deleteEvent(eventTitle);
+                          },
+                          background: Container(
+                            color: Colors.red,
+                            padding: EdgeInsets.symmetric(horizontal: 20),
+                            alignment: Alignment.centerRight,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Icon(
+                                  Icons.delete,
+                                  color: Colors.white,
+                                  size: 36,
+                                ),
+                                Text(
+                                  "Delete",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          child: Card(
+                            color: Color.fromARGB(255, 234, 242, 250),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                            child: ListTile(
+                              title: Text(eventTitle),
+                              subtitle: Text(eventDate),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.edit),
+                                    color: const Color.fromARGB(255, 30, 71, 104),
+                                    onPressed: () {
+                                      _editEvent(event);
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.delete),
+                                    color: const Color.fromARGB(255, 30, 71, 104),
+                                    onPressed: () {
+                                      _deleteEvent(eventTitle);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  : Center(
+                      child: Text(
+                        'No events found',
+                        style: TextStyle(
+                          color: const Color.fromARGB(255, 30, 71, 104),
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildDayFilterButton(String day, int dayOfWeek) {
-  return ElevatedButton(
-    onPressed: () {
-      _filterEventsByDay(dayOfWeek);
-    },
-    child: Text(day),
-    style: ElevatedButton.styleFrom(
-      primary: Color.fromARGB(255, 30, 71, 104),
-      padding: EdgeInsets.symmetric(horizontal: 10),
-    ),
-  );
-}
+    return ElevatedButton(
+      onPressed: () {
+        _filterEventsByDay(dayOfWeek);
+      },
+      child: Text(day),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Color.fromARGB(255, 30, 71, 104),
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+      ),
+    );
+  }
+
 
 
 // x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=>>
