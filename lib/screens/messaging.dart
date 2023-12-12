@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-import 'chat_history.dart'; // Add this import for the ChatHistoryScreen
-import 'contacts.dart'; // Import the contacts.dart file
-import 'font_size_notifier.dart'; // Import FontSizeNotifier
+import 'chat_history.dart';
+import 'contacts.dart';
+import 'font_size_notifier.dart';
 
 class MessagingScreen extends StatefulWidget {
   @override
@@ -21,6 +21,8 @@ class _MessagingScreenState extends State<MessagingScreen> {
 
   bool _isOnMainScreen = true;
   String _selectedHeader = '';
+
+  bool _buttonClicked = false;
 
   void _toggleScreen(String header) {
     setState(() {
@@ -52,70 +54,122 @@ class _MessagingScreenState extends State<MessagingScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chats', style: TextStyle(fontSize: fontSizeNotifier.fontSize)),
-        backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+        title: Center(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 60.0), // Add left padding
+            child: Text('Chat History',
+                style: TextStyle(
+                  fontSize: fontSizeNotifier.fontSize,
+                  color: Color(0xFF1E4768), // Change text color
+                )),
+          ),
+        ),
+        backgroundColor: Colors.white, // Change background color to ARGB
+        iconTheme:
+            IconThemeData(color: Color(0xFF1E4768)), // Change back button color
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             SizedBox(height: 20.0),
-            Text(
-              'Chats',
-              style: TextStyle(
-                fontSize: fontSizeNotifier.fontSize,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
             Expanded(
               child: ListView.builder(
                 itemCount: _contacts.length,
                 itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(
-                      _contacts[index]['displayName'] ?? '',
-                      style: TextStyle(fontSize: fontSizeNotifier.fontSize),
+                  return Card(
+                    // Wrap ListTile in Card
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(12.0), // Add border radius
                     ),
-                    subtitle: Text(
-                      _contacts[index]['email'] ?? '',
-                      style: TextStyle(fontSize: fontSizeNotifier.fontSize),
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(Icons.chat),
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => ChatHistoryScreen(contact: _contacts[index]),
-                        ));
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ContactsScreen(),
+                    margin: EdgeInsets.all(8.0), // Add margin
+                    color: Color(0xFFEAF2FA), // Set background color
+                    child: ListTile(
+                      title: Text(
+                        _contacts[index]['displayName'] ?? '',
+                        style: TextStyle(fontSize: fontSizeNotifier.fontSize),
+                      ),
+                      subtitle: Text(
+                        _contacts[index]['email'] ?? '',
+                        style: TextStyle(fontSize: fontSizeNotifier.fontSize),
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(Icons.chat),
+                        color: Color(0xFF1E4768), // Change chat icon color
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) =>
+                                ChatHistoryScreen(contact: _contacts[index]),
+                          ));
+                        },
+                      ),
                     ),
                   );
                 },
-                child: Text(
-                  "Don't see who you're looking for? Add them to your contacts!",
-                  style: TextStyle(
-                    fontSize: fontSizeNotifier.fontSize,
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
               ),
             ),
           ],
         ),
       ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 20.0),
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: _buttonClicked
+                ? Colors.white // Background color when clicked
+                : const Color.fromARGB(
+                    255, 30, 71, 104), // Default background color
+          ),
+          child: InkWell(
+            onTap: () {
+              setState(() {
+                _buttonClicked = !_buttonClicked;
+              });
+              Future.delayed(Duration(milliseconds: 300), () {
+                Navigator.of(context).push(_createRoute());
+                // Reset the button to default colors after the page transition
+                Future.delayed(Duration(milliseconds: 300), () {
+                  setState(() {
+                    _buttonClicked = false;
+                  });
+                });
+              });
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Icon(
+                Icons.add,
+                size: 32.0,
+                color: _buttonClicked
+                    ? const Color.fromARGB(
+                        255, 30, 71, 104) // Icon color when clicked
+                    : Colors.white, // Default icon color
+              ),
+            ),
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    );
+  }
+
+  // Function to create a custom route with Hero animation
+  Route _createRoute() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => ContactsScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(0.0, 1.0);
+        const end = Offset.zero;
+        const curve = Curves.easeInOut;
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(position: offsetAnimation, child: child);
+      },
     );
   }
 }

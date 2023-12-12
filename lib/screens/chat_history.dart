@@ -108,7 +108,8 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.contact['displayName'] ?? 'Chat',
-            style: TextStyle(fontSize: fontSizeNotifier.fontSize)), backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+            style: TextStyle(fontSize: fontSizeNotifier.fontSize)),
+        backgroundColor: const Color.fromARGB(255, 30, 71, 104),
         actions: _selectedMessageIds.isNotEmpty
             ? [
                 IconButton(
