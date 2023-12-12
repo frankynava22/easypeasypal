@@ -8,6 +8,7 @@ import 'screens/font_size_notifier.dart';
 import 'screens/font_weight_notifier.dart';
 import 'screens/landing_screen.dart';
 import 'screens/identify_user.dart';
+import 'dart:convert';
 import 'screens/communication.dart';
 import 'screens/chat_history.dart'; // Import ChatHistoryScreen
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,7 +23,7 @@ FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  showNotification(message.notification);
+  showNotification(message.notification, message.data);
 }
 
 void main() async {
@@ -52,22 +53,17 @@ void main() async {
   }
 
   messaging.getInitialMessage().then((RemoteMessage? message) {
-    if (message != null &&
-        message.data.containsKey('senderId') &&
-        message.data.containsKey('recipientId')) {
-      _navigateToChatHistoryScreen(message.data);
+    if (message != null) {
+      _handleNotificationTap(message.data);
     }
   });
 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    showNotification(message.notification);
+    showNotification(message.notification, message.data);
   });
 
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    if (message.data.containsKey('senderId') &&
-        message.data.containsKey('recipientId')) {
-      _navigateToChatHistoryScreen(message.data);
-    }
+    _handleNotificationTap(message.data);
   });
 
   double initialFontSize = await loadFontSize();
@@ -90,15 +86,24 @@ void main() async {
   );
 }
 
+void _handleNotificationTap(Map<String, dynamic> data) {
+  if (data.containsKey('senderId') && data.containsKey('recipientId')) {
+    _navigateToChatHistoryScreen(data);
+  }
+}
+
 void _navigateToChatHistoryScreen(Map<String, dynamic> data) {
   FirebaseAuth _auth = FirebaseAuth.instance;
-  String chatPartnerId = _auth.currentUser!.uid == data['senderId']
+  String chatPartnerId = data['senderId'] == _auth.currentUser!.uid
       ? data['recipientId']
       : data['senderId'];
 
   MyApp.navigatorKey.currentState?.push(MaterialPageRoute(
     builder: (context) => ChatHistoryScreen(
-      contact: {'uid': chatPartnerId}, // Add other necessary details as needed
+      contact: {
+        'uid': chatPartnerId,
+        'displayName': 'Chat Partner'
+      }, // Add displayName if available
     ),
   ));
 }
@@ -108,7 +113,8 @@ Future<double> loadFontSize() async {
   return prefs.getDouble('fontSize') ?? 16.0;
 }
 
-void showNotification(RemoteNotification? notification) {
+void showNotification(
+    RemoteNotification? notification, Map<String, dynamic> data) {
   var androidDetails = AndroidNotificationDetails(
     channelId,
     channelName,
@@ -121,7 +127,8 @@ void showNotification(RemoteNotification? notification) {
   );
   var platformDetails = NotificationDetails(android: androidDetails);
   flutterLocalNotificationsPlugin.show(
-      0, notification?.title, notification?.body, platformDetails);
+      0, notification?.title, notification?.body, platformDetails,
+      payload: jsonEncode(data));
 }
 
 class MyApp extends StatelessWidget {
