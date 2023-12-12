@@ -62,7 +62,7 @@ Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
       title: Text('Personal Care', style: TextStyle(color: Colors.white)),
-      backgroundColor: Colors.teal,
+      backgroundColor: const Color.fromARGB(255, 30, 71, 104),
     
     ),
     body: Container(
