@@ -79,9 +79,10 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
               }
             },
             child: Text('Save', style: TextStyle(fontSize: fontSize)),
-            style: ButtonStyle(
-              minimumSize: MaterialStateProperty.all(Size(150, 0)),
-              padding: MaterialStateProperty.all(EdgeInsets.all(15.0)),
+            style: ElevatedButton.styleFrom(
+              primary: const Color.fromARGB(255, 30, 71, 104), // Set the background color
+              minimumSize: Size(150, 0),
+              padding: EdgeInsets.all(15.0),
             ),
           ),
         ),
@@ -198,7 +199,7 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
                         selectedInstructions.remove(instruction);
                       }
                     });
-                  },
+                  }, activeColor: const Color.fromARGB(255, 30, 71, 104),
                 );
               }).toList(),
             ),

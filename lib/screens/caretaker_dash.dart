@@ -208,6 +208,7 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
               );
             },
             child: Text('Communication'),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 30, 71, 104)), // Change this color to your desired background color
           ),
         ],
       ),

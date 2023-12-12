@@ -67,7 +67,7 @@ class _SuperMedicationFormScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Medication for User'),
+        title: Text('Add Medication for User'), backgroundColor: const Color.fromARGB(255, 30, 71, 104),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -171,7 +171,7 @@ class _SuperMedicationFormScreenState
                               selectedInstructions.remove(instruction);
                             }
                           });
-                        },
+                        }, activeColor: const Color.fromARGB(255, 30, 71, 104),
                       );
                     }).toList(),
                   ),
@@ -203,11 +203,10 @@ class _SuperMedicationFormScreenState
               'Save',
               style: TextStyle(fontSize: 18),
             ),
-            style: ButtonStyle(
-              minimumSize:
-                  MaterialStateProperty.all(Size(150, 0)), 
-              padding: MaterialStateProperty.all(
-                  EdgeInsets.all(15.0)), 
+            style: ElevatedButton.styleFrom(
+              primary: const Color.fromARGB(255, 30, 71, 104), // Set the background color
+              minimumSize: Size(150, 0),
+              padding: EdgeInsets.all(15.0),
             ),
           ),
         ),
