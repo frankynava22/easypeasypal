@@ -50,6 +50,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
       appBar: AppBar(
         leading: BackButton(),
         title: Text('Go Back', style: TextStyle(fontSize: fontSize)),
+        backgroundColor: const Color.fromARGB(255, 30, 71, 104),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -101,7 +102,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
       child: Text("Add a Medication", style: TextStyle(fontSize: fontSize)),
       style: ElevatedButton.styleFrom(
         padding: EdgeInsets.all(16),
-        textStyle: TextStyle(fontSize: fontSize),
+        textStyle: TextStyle(fontSize: fontSize), primary: const Color.fromARGB(255, 30, 71, 104),
       ),
     );
   }
@@ -141,7 +142,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
           const SizedBox(height: 12),
           ListTile(
             leading: Icon(Icons.medication_outlined,
-                color: Colors.blue, size: 30 * fontSize / 16),
+                color: const Color.fromARGB(255, 30, 71, 104), size: 30 * fontSize / 16),
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[

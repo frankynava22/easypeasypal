@@ -50,7 +50,7 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add a Medication', style: TextStyle(fontSize: fontSize)),
+        title: Text('Add a Medication', style: TextStyle(fontSize: fontSize)), backgroundColor: const Color.fromARGB(255, 30, 71, 104),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),

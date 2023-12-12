@@ -74,7 +74,7 @@ class _CommunicationScreenState extends State<CommunicationScreen> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
-        backgroundColor: Colors.blueGrey[900],
+        backgroundColor: const Color.fromARGB(255, 30, 71, 104),
         title: Text('Chat Room',
             style: TextStyle(
                 fontSize: fontSizeNotifier.fontSize,
@@ -120,11 +120,11 @@ class _CommunicationScreenState extends State<CommunicationScreen> {
               style: TextStyle(
                   fontSize: fontSize,
                   fontWeight: fontWeight, // Apply font weight
-                  color: Colors.blueGrey[800])),
+                  color: const Color.fromARGB(255, 30, 71, 104))),
           SizedBox(height: 10.0),
           InkWell(
             onTap: onTap,
-            child: Icon(icon, size: 50.0, color: Colors.blueGrey[500]),
+            child: Icon(icon, size: 50.0, color: const Color.fromARGB(255, 30, 71, 104)),
           ),
         ],
       ),

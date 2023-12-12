@@ -76,7 +76,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Contacts',
-            style: TextStyle(fontSize: fontSizeNotifier.fontSize)),
+            style: TextStyle(fontSize: fontSizeNotifier.fontSize)), backgroundColor: const Color.fromARGB(255, 30, 71, 104),
       ),
       body: Column(
         children: [
@@ -106,7 +106,9 @@ class _ContactsScreenState extends State<ContactsScreen> {
                       });
                     },
                     child: Text('Search',
-                        style: TextStyle(fontSize: fontSizeNotifier.fontSize)),
+                        style: TextStyle(fontSize: fontSizeNotifier.fontSize)),style: ElevatedButton.styleFrom(
+    primary:  const Color.fromARGB(255, 30, 71, 104), // Change the text color
+  ),
                   ),
           ),
           if (_foundUser != null)

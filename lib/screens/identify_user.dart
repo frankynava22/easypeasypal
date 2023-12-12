@@ -142,7 +142,7 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
             ),
         ],
       ),
-      style: ElevatedButton.styleFrom(minimumSize: Size(300, 60)),
+      style: ElevatedButton.styleFrom(minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104)),
     );
   }
 
@@ -221,7 +221,7 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                     style: TextStyle(
                         fontSize: fontSizeNotifier.fontSize,
                         fontWeight: fontWeightNotifier.fontWeight)),
-                style: ElevatedButton.styleFrom(minimumSize: Size(300, 60))),
+                style: ElevatedButton.styleFrom(minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104))),
             SizedBox(height: 10),
             messagesButton(context, fontSizeNotifier, fontWeightNotifier),
             SizedBox(height: 10),
@@ -234,7 +234,7 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                     style: TextStyle(
                         fontSize: fontSizeNotifier.fontSize,
                         fontWeight: fontWeightNotifier.fontWeight)),
-                style: ElevatedButton.styleFrom(minimumSize: Size(300, 60))),
+                style: ElevatedButton.styleFrom(minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104))),
             SizedBox(height: 10),
             ElevatedButton(
                 onPressed: () => Navigator.push(
@@ -245,7 +245,7 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                     style: TextStyle(
                         fontSize: fontSizeNotifier.fontSize,
                         fontWeight: fontWeightNotifier.fontWeight)),
-                style: ElevatedButton.styleFrom(minimumSize: Size(300, 60))),
+                style: ElevatedButton.styleFrom(minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104))),
             SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
@@ -318,7 +318,7 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                   style: TextStyle(
                       fontSize: fontSizeNotifier.fontSize,
                       fontWeight: fontWeightNotifier.fontWeight)),
-              style: ElevatedButton.styleFrom(minimumSize: Size(300, 60)),
+              style: ElevatedButton.styleFrom(minimumSize: Size(300, 60), backgroundColor: const Color.fromARGB(255, 30, 71, 104) ),
             ),
           ],
         ),

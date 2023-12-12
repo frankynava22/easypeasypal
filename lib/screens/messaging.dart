@@ -53,6 +53,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Chats', style: TextStyle(fontSize: fontSizeNotifier.fontSize)),
+        backgroundColor: const Color.fromARGB(255, 30, 71, 104),
       ),
       body: Center(
         child: Column(
