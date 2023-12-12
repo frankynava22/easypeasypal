@@ -13,6 +13,7 @@ import 'settings.dart';
 import 'notes.dart';
 import 'personal_menu.dart';
 import 'caretaker_add.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 
 class IdentifyUserScreen extends StatefulWidget {
   final User user;
@@ -142,7 +143,13 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
             ),
         ],
       ),
-      style: ElevatedButton.styleFrom(minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104)),
+      style: ElevatedButton.styleFrom(
+          minimumSize: Size(300, 60),
+          backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(30.0), // Adjust the radius as needed
+          )),
     );
   }
 
@@ -154,31 +161,33 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Identification',
-            style: TextStyle(
-                fontSize: fontSizeNotifier.fontSize,
-                fontWeight: fontWeightNotifier.fontWeight)),
+        automaticallyImplyLeading: false,
         backgroundColor: const Color.fromARGB(255, 30, 71, 104),
         actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () => _signOut(context),
+          ),
           IconButton(
             icon: Icon(Icons.book),
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) =>
-                        NotesScreen()), // NEW: Navigate to Caretaker Add page
+                  builder: (context) => NotesScreen(),
+                ),
               );
             },
           ),
+          Spacer(),
           IconButton(
             icon: Icon(Icons.manage_accounts),
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) =>
-                        CaretakerAddScreen()), // NEW: Navigate to Caretaker Add page
+                  builder: (context) => CaretakerAddScreen(),
+                ),
               );
             },
           ),
@@ -188,21 +197,49 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) =>
-                        SettingsPage()), // NEW: Navigating to the SettingsPage
+                  builder: (context) => SettingsPage(),
+                ),
               );
             },
           ),
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () => _signOut(context),
-          )
         ],
+        title: Text(
+          'EasyPeasyPal',
+          style: TextStyle(
+            fontSize: fontSizeNotifier.fontSize,
+            fontFamily: 'Sacramento',
+          ),
+        ),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Animated Text
+            Container(
+              height: 100, // Adjust the height as needed
+              child: DefaultTextStyle(
+                style: const TextStyle(
+                  fontSize: 40.0,
+                  fontFamily: 'Horizon',
+                  color: Color(0xFF1E4768), // Text color
+                ),
+                child: AnimatedTextKit(
+                  animatedTexts: [
+                    RotateAnimatedText('EasyPeasyPal'),
+                    RotateAnimatedText('Health'),
+                    RotateAnimatedText('Wellness'),
+                    RotateAnimatedText('All-In-One'),
+                  ],
+                  onTap: () {}, // No action on tap
+                ),
+              ),
+            ),
+
+            Image.asset(
+              'assets/logo.png',
+              height: 200,
+            ),
             Text('Welcome',
                 style: TextStyle(
                     fontSize: fontSizeNotifier.fontSize * 1.5,
@@ -221,7 +258,13 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                     style: TextStyle(
                         fontSize: fontSizeNotifier.fontSize,
                         fontWeight: fontWeightNotifier.fontWeight)),
-                style: ElevatedButton.styleFrom(minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104))),
+                style: ElevatedButton.styleFrom(
+                    minimumSize: Size(300, 60),
+                    backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          30.0), // Adjust the radius as needed
+                    ))),
             SizedBox(height: 10),
             messagesButton(context, fontSizeNotifier, fontWeightNotifier),
             SizedBox(height: 10),
@@ -234,7 +277,13 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                     style: TextStyle(
                         fontSize: fontSizeNotifier.fontSize,
                         fontWeight: fontWeightNotifier.fontWeight)),
-                style: ElevatedButton.styleFrom(minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104))),
+                style: ElevatedButton.styleFrom(
+                    minimumSize: Size(300, 60),
+                    backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          30.0), // Adjust the radius as needed
+                    ))),
             SizedBox(height: 10),
             ElevatedButton(
                 onPressed: () => Navigator.push(
@@ -245,7 +294,13 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                     style: TextStyle(
                         fontSize: fontSizeNotifier.fontSize,
                         fontWeight: fontWeightNotifier.fontWeight)),
-                style: ElevatedButton.styleFrom(minimumSize: Size(300, 60),backgroundColor: const Color.fromARGB(255, 30, 71, 104))),
+                style: ElevatedButton.styleFrom(
+                    minimumSize: Size(300, 60),
+                    backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          30.0), // Adjust the radius as needed
+                    ))),
             SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
@@ -318,7 +373,13 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                   style: TextStyle(
                       fontSize: fontSizeNotifier.fontSize,
                       fontWeight: fontWeightNotifier.fontWeight)),
-              style: ElevatedButton.styleFrom(minimumSize: Size(300, 60), backgroundColor: const Color.fromARGB(255, 30, 71, 104) ),
+              style: ElevatedButton.styleFrom(
+                  minimumSize: Size(300, 60),
+                  backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                        30.0), // Adjust the radius as needed
+                  )),
             ),
           ],
         ),
