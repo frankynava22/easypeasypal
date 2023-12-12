@@ -211,188 +211,193 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Animated Text
-              Container(
-                height: 100, // Fixed height for the rotating text
-                child: DefaultTextStyle(
-                  style: const TextStyle(
-                    fontSize: 40.0,
-                    fontFamily: 'Horizon',
-                    color: Color(0xFF1E4768), // Text color
-                  ),
-                  child: AnimatedTextKit(
-                    animatedTexts: [
-                      RotateAnimatedText('EasyPeasyPal'),
-                      RotateAnimatedText('Health'),
-                      RotateAnimatedText('Wellness'),
-                      RotateAnimatedText('All-In-One'),
-                    ],
-                    onTap: () {}, // No action on tap
+      body: Padding(
+        padding: const EdgeInsets.only(bottom: 16.0), // Add bottom padding here
+        child: SingleChildScrollView(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Animated Text
+                Container(
+                  height: 100, // Fixed height for the rotating text
+                  child: DefaultTextStyle(
+                    style: const TextStyle(
+                      fontSize: 40.0,
+                      fontFamily: 'Horizon',
+                      color: Color(0xFF1E4768), // Text color
+                    ),
+                    child: AnimatedTextKit(
+                      animatedTexts: [
+                        RotateAnimatedText('EasyPeasyPal'),
+                        RotateAnimatedText('Health'),
+                        RotateAnimatedText('Wellness'),
+                        RotateAnimatedText('All-In-One'),
+                      ],
+                      onTap: () {}, // No action on tap
+                    ),
                   ),
                 ),
-              ),
 
-              Image.asset(
-                'assets/logo.png',
-                height: 200,
-              ),
-              Text('Welcome',
-                  style: TextStyle(
-                      fontSize: fontSizeNotifier.fontSize * 1.5,
-                      fontWeight: fontWeightNotifier.fontWeight)),
-              Text(displayName ?? '',
-                  style: TextStyle(
-                      fontSize: fontSizeNotifier.fontSize * 1.2,
-                      fontWeight: fontWeightNotifier.fontWeight)),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AppointmentsPage(),
-                  ),
+                Image.asset(
+                  'assets/logo.png',
+                  height: 200,
                 ),
-                child: Text("Appointments",
+                Text('Welcome',
                     style: TextStyle(
-                        fontSize: fontSizeNotifier.fontSize,
+                        fontSize: fontSizeNotifier.fontSize * 1.5,
                         fontWeight: fontWeightNotifier.fontWeight)),
-                style: ElevatedButton.styleFrom(
-                    minimumSize: Size(300, 60),
-                    backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          30.0), // Adjust the radius as needed
-                    )),
-              ),
-              SizedBox(height: 10),
-              messagesButton(context, fontSizeNotifier, fontWeightNotifier),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MedicationScreen(),
+                Text(displayName ?? '',
+                    style: TextStyle(
+                        fontSize: fontSizeNotifier.fontSize * 1.2,
+                        fontWeight: fontWeightNotifier.fontWeight)),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AppointmentsPage(),
+                    ),
                   ),
+                  child: Text("Appointments",
+                      style: TextStyle(
+                          fontSize: fontSizeNotifier.fontSize,
+                          fontWeight: fontWeightNotifier.fontWeight)),
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: Size(300, 60),
+                      backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Adjust the radius as needed
+                      )),
                 ),
-                child: Text("Medication",
-                    style: TextStyle(
-                        fontSize: fontSizeNotifier.fontSize,
-                        fontWeight: fontWeightNotifier.fontWeight)),
-                style: ElevatedButton.styleFrom(
-                    minimumSize: Size(300, 60),
-                    backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          30.0), // Adjust the radius as needed
-                    )),
-              ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PersonalCareScreen(),
+                SizedBox(height: 10),
+                messagesButton(context, fontSizeNotifier, fontWeightNotifier),
+                SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MedicationScreen(),
+                    ),
                   ),
+                  child: Text("Medication",
+                      style: TextStyle(
+                          fontSize: fontSizeNotifier.fontSize,
+                          fontWeight: fontWeightNotifier.fontWeight)),
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: Size(300, 60),
+                      backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Adjust the radius as needed
+                      )),
                 ),
-                child: Text("Personal Care",
-                    style: TextStyle(
-                        fontSize: fontSizeNotifier.fontSize,
-                        fontWeight: fontWeightNotifier.fontWeight)),
-                style: ElevatedButton.styleFrom(
-                    minimumSize: Size(300, 60),
-                    backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          30.0), // Adjust the radius as needed
-                    )),
-              ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () async {
-                  List<Map<String, dynamic>> appointments =
-                      await fetchTodaysAppointments(widget.user.uid);
-                  List<Map<String, dynamic>> medications =
-                      await fetchTodaysMedications(widget.user.uid);
+                SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PersonalCareScreen(),
+                    ),
+                  ),
+                  child: Text("Personal Care",
+                      style: TextStyle(
+                          fontSize: fontSizeNotifier.fontSize,
+                          fontWeight: fontWeightNotifier.fontWeight)),
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: Size(300, 60),
+                      backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Adjust the radius as needed
+                      )),
+                ),
+                SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () async {
+                    List<Map<String, dynamic>> appointments =
+                        await fetchTodaysAppointments(widget.user.uid);
+                    List<Map<String, dynamic>> medications =
+                        await fetchTodaysMedications(widget.user.uid);
 
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text("Today's Events",
-                            style: TextStyle(
-                                fontSize: fontSizeNotifier.fontSize,
-                                fontWeight: fontWeightNotifier.fontWeight)),
-                        content: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Appointments:',
-                                  style: TextStyle(
-                                      fontWeight: fontWeightNotifier.fontWeight,
-                                      fontSize: fontSizeNotifier.fontSize)),
-                              ...appointments.map((event) => ListTile(
-                                  title: Text(event['title'],
-                                      style: TextStyle(
-                                          fontSize: fontSizeNotifier.fontSize,
-                                          fontWeight:
-                                              fontWeightNotifier.fontWeight)),
-                                  subtitle: Text(
-                                      '${event['date'].toDate().hour}:${event['date'].toDate().minute}',
-                                      style: TextStyle(
-                                          fontSize: fontSizeNotifier.fontSize,
-                                          fontWeight:
-                                              fontWeightNotifier.fontWeight)))),
-                              SizedBox(height: 20),
-                              Text('Medications:',
-                                  style: TextStyle(
-                                      fontWeight: fontWeightNotifier.fontWeight,
-                                      fontSize: fontSizeNotifier.fontSize)),
-                              ...medications.map((med) => ListTile(
-                                  title: Text(med['name'],
-                                      style: TextStyle(
-                                          fontSize: fontSizeNotifier.fontSize,
-                                          fontWeight:
-                                              fontWeightNotifier.fontWeight)),
-                                  subtitle: Text(
-                                      'Frequency: ${med['frequency']} times a day',
-                                      style: TextStyle(
-                                          fontSize: fontSizeNotifier.fontSize,
-                                          fontWeight:
-                                              fontWeightNotifier.fontWeight))))
-                            ],
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text("Today's Events",
+                              style: TextStyle(
+                                  fontSize: fontSizeNotifier.fontSize,
+                                  fontWeight: fontWeightNotifier.fontWeight)),
+                          content: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Appointments:',
+                                    style: TextStyle(
+                                        fontWeight:
+                                            fontWeightNotifier.fontWeight,
+                                        fontSize: fontSizeNotifier.fontSize)),
+                                ...appointments.map((event) => ListTile(
+                                    title: Text(event['title'],
+                                        style: TextStyle(
+                                            fontSize: fontSizeNotifier.fontSize,
+                                            fontWeight:
+                                                fontWeightNotifier.fontWeight)),
+                                    subtitle: Text(
+                                        '${event['date'].toDate().hour}:${event['date'].toDate().minute}',
+                                        style: TextStyle(
+                                            fontSize: fontSizeNotifier.fontSize,
+                                            fontWeight: fontWeightNotifier
+                                                .fontWeight)))),
+                                SizedBox(height: 20),
+                                Text('Medications:',
+                                    style: TextStyle(
+                                        fontWeight:
+                                            fontWeightNotifier.fontWeight,
+                                        fontSize: fontSizeNotifier.fontSize)),
+                                ...medications.map((med) => ListTile(
+                                    title: Text(med['name'],
+                                        style: TextStyle(
+                                            fontSize: fontSizeNotifier.fontSize,
+                                            fontWeight:
+                                                fontWeightNotifier.fontWeight)),
+                                    subtitle: Text(
+                                        'Frequency: ${med['frequency']} times a day',
+                                        style: TextStyle(
+                                            fontSize: fontSizeNotifier.fontSize,
+                                            fontWeight: fontWeightNotifier
+                                                .fontWeight))))
+                              ],
+                            ),
                           ),
-                        ),
-                        actions: [
-                          TextButton(
-                              child: Text('Close',
-                                  style: TextStyle(
-                                      fontSize: fontSizeNotifier.fontSize,
-                                      fontWeight:
-                                          fontWeightNotifier.fontWeight)),
-                              onPressed: () => Navigator.of(context).pop())
-                        ],
-                      );
-                    },
-                  );
-                },
-                child: Text("Today's Events",
-                    style: TextStyle(
-                        fontSize: fontSizeNotifier.fontSize,
-                        fontWeight: fontWeightNotifier.fontWeight)),
-                style: ElevatedButton.styleFrom(
-                    minimumSize: Size(300, 60),
-                    backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          30.0), // Adjust the radius as needed
-                    )),
-              ),
-            ],
+                          actions: [
+                            TextButton(
+                                child: Text('Close',
+                                    style: TextStyle(
+                                        fontSize: fontSizeNotifier.fontSize,
+                                        fontWeight:
+                                            fontWeightNotifier.fontWeight)),
+                                onPressed: () => Navigator.of(context).pop())
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: Text("Today's Events",
+                      style: TextStyle(
+                          fontSize: fontSizeNotifier.fontSize,
+                          fontWeight: fontWeightNotifier.fontWeight)),
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: Size(300, 60),
+                      backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Adjust the radius as needed
+                      )),
+                ),
+              ],
+            ),
           ),
         ),
       ),
