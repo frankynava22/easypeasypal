@@ -12,6 +12,7 @@ import 'screens/communication.dart';
 import 'screens/chat_history.dart'; // Import ChatHistoryScreen
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
+import 'package:animated_text_kit/animated_text_kit.dart';
 
 const String channelId = 'chat_messages_channel';
 const String channelName = 'Chat Messages';
@@ -160,40 +161,77 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class DiagonalPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint();
+    // Draw the top half
+    paint.color = Color.fromARGB(255, 30, 71, 104);
+    var path = Path();
+    path.lineTo(0, size.height);
+    path.lineTo(size.width, 0);
+    path.close();
+    canvas.drawPath(path, paint);
+
+    // Draw the bottom half
+    paint.color = Colors.white;
+    path = Path();
+    path.moveTo(0, size.height);
+    path.lineTo(size.width, 0);
+    path.lineTo(size.width, size.height);
+    path.close();
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
 class SplashScreen extends StatefulWidget {
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  AnimationController? _animationController;
+  Animation<double>? _animation;
+
   @override
   void initState() {
     super.initState();
-    _initializeApp().then((_) {
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController!,
+      curve: Curves.easeInOut,
+    );
+
+    _animationController!.forward();
+    Future.delayed(Duration(seconds: 6), () {
       Navigator.of(context).pushReplacement(_createRoute());
     });
   }
 
-  Future<void> _initializeApp() async {
-    await Future.delayed(Duration(seconds: 2));
+  @override
+  void dispose() {
+    _animationController?.dispose();
+    super.dispose();
   }
 
   PageRouteBuilder _createRoute() {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => LandingScreen(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = 0.0;
-        const end = 1.0;
-        const curve = Curves.easeInOut;
-
+        var begin = 0.0;
+        var end = 1.0;
+        var curve = Curves.easeInOut;
         var tween =
             Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
         var opacityAnimation = animation.drive(tween);
-
-        return FadeTransition(
-          opacity: opacityAnimation,
-          child: child,
-        );
+        return FadeTransition(opacity: opacityAnimation, child: child);
       },
       transitionDuration: Duration(seconds: 1),
     );
@@ -202,29 +240,49 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Spacer(),
-            Text(
-              'EasyPeasyPal',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 36,
+      body: CustomPaint(
+        painter: DiagonalPainter(),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Spacer(),
+              Padding(
+                padding: EdgeInsets.only(right: 6.0),
+                child: Image.asset('assets/logo.png', width: 275),
               ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Welcome',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
+              SizedBox(height: 20),
+              Padding(
+                padding: EdgeInsets.only(left: 1.0), // Added left padding
+                child: SizedBox(
+                  width: 250.0,
+                  child: DefaultTextStyle(
+                    style: TextStyle(
+                      fontSize: 45.0,
+                      fontWeight: FontWeight.bold, // Added font weight
+                      color: Color(0xFF1f2e42),
+                      fontFamily: 'Sacramento',
+                    ),
+                    child: AnimatedTextKit(
+                      animatedTexts: [
+                        TypewriterAnimatedText(
+                          'EasyPeasyPal',
+                          speed: Duration(milliseconds: 300),
+                        ),
+                      ],
+                      totalRepeatCount: 1,
+                    ),
+                  ),
+                ),
               ),
-            ),
-            Spacer(),
-          ],
+              SizedBox(height: 8),
+              Text(
+                'Welcome',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+              Spacer(),
+            ],
+          ),
         ),
       ),
     );

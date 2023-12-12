@@ -48,6 +48,8 @@ dependencies:
   firebase_messaging: ^14.7.5
   flutter_local_notifications: ^16.1.0
   url_launcher: ^6.2.1
+  animated_text_kit: ^4.2.2
+  animations: ^2.0.8
 
 
 dev_dependencies:
@@ -72,6 +74,9 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  assets:
+    - assets/logo.png
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
@@ -88,10 +93,10 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
+  fonts:
+    - family: Sacramento
+      fonts:
+        - asset: fonts/Sacramento-Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro
