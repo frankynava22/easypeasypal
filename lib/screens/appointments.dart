@@ -32,6 +32,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
   List<Map<String, dynamic>> _allEvents = [];
   List<Map<String, dynamic>> _filteredEvents = [];
   double _opacity = 0.0;
+  int _selectedDay = 0;
 
   @override
   void initState() {
@@ -78,6 +79,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
             children: [
               ElevatedButton(
                 onPressed: () {
+                  _selectedDay = 0;
                   setState(() {
                     _isWeekView = false;
                   });
@@ -85,7 +87,13 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
                 },
                 child: Text('ALL Events'),
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 30, 71, 104)),
+                  backgroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                    if (_selectedDay == 0) {
+                      return const Color.fromARGB(255, 79, 132, 176); // Highlight
+                    } else {
+                      return const Color.fromARGB(255, 30, 71, 104); // Default
+                    }
+                  }),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0),
@@ -93,8 +101,10 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
                   ),
                 ),
               ),
+
               FloatingActionButton(
                 onPressed: () async {
+                  
                   _showEventSetupDialog(context);
                 },
                 child: Icon(Icons.add),
@@ -239,20 +249,32 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
   }
 
   Widget _buildDayFilterButton(String day, int dayOfWeek) {
-    return ElevatedButton(
-      onPressed: () {
-        _filterEventsByDay(dayOfWeek);
-      },
-      child: Text(day),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Color.fromARGB(255, 30, 71, 104),
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
+  return ElevatedButton(
+    onPressed: () {
+      setState(() {
+        if (dayOfWeek == -1) {
+          // -1 represents the "All Events" button
+          _selectedDay = -1;
+        } else {
+          _selectedDay = dayOfWeek;
+          _filterEventsByDay(dayOfWeek);
+        }
+      });
+    },
+    child: Text(day),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: dayOfWeek == _selectedDay || (dayOfWeek == -1 && _selectedDay == null)
+          ? Color.fromARGB(255, 79, 132, 176) // Highlighted color
+          : Color.fromARGB(255, 30, 71, 104), // Default color
+      padding: EdgeInsets.symmetric(horizontal: 10),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0),
       ),
-    );
-  }
+    ),
+  );
+}
+
+
 
 
 
@@ -309,7 +331,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text(DateFormat('MM-dd-yyyy').format(_selectedDate)),
+              Text(DateFormat('dd-MM-yyyy').format(_selectedDate)),
               TextField(
                 controller: _eventTitleController,
                 decoration: InputDecoration(labelText: 'Title'),
