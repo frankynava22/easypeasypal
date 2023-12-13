@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-import 'font_size_notifier.dart'; // Ensure this is correctly imported
+import 'font_size_notifier.dart'; 
 
 class MedicationEditForm extends StatefulWidget {
   Map<String, dynamic> existingData; // To get map of medication
@@ -85,11 +85,12 @@ class _MedicationEditFormScreenState extends State<MedicationEditForm> {
   @override
   Widget build(BuildContext context) {
     final fontSize =
-        Provider.of<FontSizeNotifier>(context).fontSize; // Fetch font size
+        Provider.of<FontSizeNotifier>(context).fontSize; 
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit a Medication', style: TextStyle(fontSize: fontSize)), backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+        centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -121,9 +122,12 @@ class _MedicationEditFormScreenState extends State<MedicationEditForm> {
             },
             child: Text('Save', style: TextStyle(fontSize: fontSize)),
             style: ElevatedButton.styleFrom(
-              primary: const Color.fromARGB(255, 30, 71, 104), // Set the background color
+              primary: const Color.fromARGB(255, 30, 71, 104), 
               minimumSize: Size(150, 0),
               padding: EdgeInsets.all(15.0),
+              shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
             ),
           ),
         ),
@@ -243,7 +247,7 @@ class _MedicationEditFormScreenState extends State<MedicationEditForm> {
                         selectedInstructions.remove(instruction);
                       }
                     });
-                  }, activeColor: const Color.fromARGB(255, 30, 71, 104), // Set the color of the check icon,
+                  }, activeColor: const Color.fromARGB(255, 30, 71, 104), 
                 );
               }).toList(),
             ),

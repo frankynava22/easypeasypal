@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:animations/animations.dart';
 
 class PersonalCareScreen extends StatefulWidget {
   @override
   _PersonalCareScreenState createState() => _PersonalCareScreenState();
 }
 
-class _PersonalCareScreenState extends State<PersonalCareScreen> {
+class _PersonalCareScreenState extends State<PersonalCareScreen>with TickerProviderStateMixin {
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
 
@@ -22,19 +23,34 @@ class _PersonalCareScreenState extends State<PersonalCareScreen> {
   String heightString = '';
   double _bmi = 0.0;
   String _bmiCategory = '';
-
+   late AnimationController _animationController;
+  late Animation<double> _slideAnimation;
  @override
-void initState() {
-  super.initState();
-  _fetchPersonalCareData();
-  
+  void initState() {
+    super.initState();
+    _fetchPersonalCareData();
 
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (_healthGoals.trim().isNotEmpty) {
-      _showHealthGoalsReminder();
-    }
-  });
-}
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 1), 
+    );
+
+    _slideAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _animationController.forward();
+
+    _fetchPersonalCareData();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
 void _showHealthGoalsReminder() {
   showDialog(
@@ -61,17 +77,16 @@ void _showHealthGoalsReminder() {
 Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
-      title: Text('Personal Care', style: TextStyle(color: Colors.white)),
-      backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-    
+      title: Text('Personal Care', style: TextStyle(color: const Color.fromARGB(255, 30, 71, 104), fontSize: 18)),
+      centerTitle: true,
+      backgroundColor: Colors.white,
+      iconTheme: IconThemeData(color: const Color.fromARGB(255, 30, 71, 104)),
     ),
-    body: Container(
+    body: FadeTransition(
+        opacity: _slideAnimation,
+        child:Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Colors.teal[100]!, Colors.grey[300]!],
-        ),
+        
       ),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -84,7 +99,7 @@ Widget build(BuildContext context) {
                 "Wellness Overview",
                 style: TextStyle(
                   fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.bold, color: const Color.fromARGB(255, 30, 71, 104),
                 ),
               ),
             ),
@@ -104,7 +119,7 @@ Widget build(BuildContext context) {
         ),
       ),
     ),
-  );
+  ),);
 }
 
 
@@ -115,9 +130,10 @@ Widget build(BuildContext context) {
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(15),
     ),
+    color: Color.fromARGB(255, 234, 242, 250),
     child: ListTile(
       contentPadding: EdgeInsets.all(20),
-      leading: Icon(icon, size: 40, color: Colors.teal),
+      leading: Icon(icon, size: 40, color: const Color.fromARGB(255, 30, 71, 104)),
       title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: titleFontSize)),
       subtitle: Text(value, style: TextStyle(fontSize: 18)),
       trailing: Icon(Icons.edit, color: Colors.blueGrey),
@@ -126,17 +142,20 @@ Widget build(BuildContext context) {
 }
 
 
- Widget _buildEditableCard(String title, String value, IconData icon, [String? tooltipMessage, double titleFontSize = 14]) {
-  return InkWell(
-    onTap: () {
-      _showEditDialog(title, value);
-    },
-    child: Tooltip(
-      message: tooltipMessage ?? '',
-      child: _buildMetricCard(title, value, icon, titleFontSize),
-    ),
-  );
-}
+  Widget _buildEditableCard(String title, String value, IconData icon, [String? tooltipMessage, double titleFontSize = 14]) {
+    return SlideTransition(
+      position: Tween<Offset>(begin: Offset(-1, 0), end: Offset.zero).animate(_animationController),
+      child: InkWell(
+        onTap: () {
+          _showEditDialog(title, value);
+        },
+        child: Tooltip(
+          message: tooltipMessage ?? '',
+          child: _buildMetricCard(title, value, icon, titleFontSize),
+        ),
+      ),
+    );
+  }
 
 
  void _showEditDialog(String title, String currentValue) {
@@ -276,23 +295,27 @@ Widget build(BuildContext context) {
   }
 
  Widget _buildBMICard() {
-  return Card(
-    elevation: 5,
-    margin: EdgeInsets.symmetric(vertical: 10),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(15),
-    ),
-    child: ListTile(
-      contentPadding: EdgeInsets.all(20),
-      leading: Icon(
-        Icons.scale_outlined,
-        size: 40,
-        color: Colors.teal,
+  return SlideTransition(
+    position: Tween<Offset>(begin: Offset(-1, 0), end: Offset.zero).animate(_animationController),
+    child: Card(
+      elevation: 5,
+      margin: EdgeInsets.symmetric(vertical: 10),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
       ),
-      title: Text('BMI', style: TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text(
-        "${_bmi.toStringAsFixed(2)} ($_bmiCategory)",
-        style: TextStyle(fontSize: 18),
+      color: Color.fromARGB(255, 234, 242, 250),
+      child: ListTile(
+        contentPadding: EdgeInsets.all(20),
+        leading: Icon(
+          Icons.scale_outlined,
+          size: 40,
+          color: const Color.fromARGB(255, 30, 71, 104),
+        ),
+        title: Text('BMI', style: TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(
+          "${_bmi.toStringAsFixed(2)} ($_bmiCategory)",
+          style: TextStyle(fontSize: 18),
+        ),
       ),
     ),
   );
@@ -330,7 +353,7 @@ String? getBMITooltip(String bmiCategory) {
           leading: Icon(
             icon,
             size: 40,
-            color: Colors.teal,
+            color: const Color.fromARGB(255, 30, 71, 104),
           ),
           title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
           subtitle: Padding(

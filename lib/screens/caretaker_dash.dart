@@ -45,12 +45,12 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
   }
 
   Future<void> _deleteContact(Map<String, dynamic> client) async {
-    // Remove from local list
+    // Removing from local list
     setState(() {
       _clients.remove(client);
     });
 
-    // Remove from Firestore - Clients collection
+    // Removing from firestore collection
     await _firestore.collection('Clients').doc(_auth.currentUser!.uid).set(
       {
         'clientList': _clients.map((client) {
@@ -64,7 +64,7 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
       SetOptions(merge: true),
     );
 
-    // Remove from Firestore - CaretakerList collection
+    // Removing from Firestore caretakerlist collection
     await _firestore.collection('CaretakerList').doc(client['uid']).update({
       'caretakers': FieldValue.arrayRemove([
         {
@@ -75,7 +75,7 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
       ]),
     });
 
-    // Remove from Firestore - Contacts collection (Caretaker's side)
+    // Removing  client from caretaker contacts
     await _firestore.collection('contacts').doc(_auth.currentUser!.uid).update({
       'contactsList': FieldValue.arrayRemove([
         {
@@ -86,7 +86,7 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
       ]),
     });
 
-    // Remove from Firestore - Contacts collection (Client's side)
+    // Removing caretaker from client contacts
     await _firestore.collection('contacts').doc(client['uid']).update({
       'contactsList': FieldValue.arrayRemove([
         {
@@ -120,18 +120,24 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Clients'),
-        backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+        title: Text('Clients',style: TextStyle(color: const Color.fromARGB(255, 30, 71, 104), fontSize: 18),),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: const Color.fromARGB(255, 30, 71, 104)),
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () => _signOut(context),
-          )
+          ),
+          
         ],
       ),
+      
       body: Column(
+        
         children: [
           if (_foundUser != null)
+          
             ListTile(
               title: Text(_foundUser!['displayName'] ?? ''),
               subtitle: Text(_foundUser!['email'] ?? ''),
@@ -146,7 +152,7 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
                           _foundUser = null;
                         });
 
-                        // Add to Firestore
+                        // Add to Firestore clients collection
                         await _firestore
                             .collection('Clients')
                             .doc(_auth.currentUser!.uid)
@@ -173,9 +179,9 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.manage_accounts),
+                        icon: Icon(Icons.manage_accounts, color: const Color.fromARGB(255, 30, 71, 104),),
                         onPressed: () {
-                          // Access the UID using _clients[index]['uid']
+                          // to access the UID using _clients[index]['uid']
                           String clientUid = _clients[index]['uid'];
                           Navigator.push(
                             context,
@@ -187,7 +193,7 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
                         },
                       ),
                       IconButton(
-                        icon: Icon(Icons.delete),
+                        icon: Icon(Icons.delete, color: const Color.fromARGB(255, 30, 71, 104),),
                         onPressed: () {
                           _deleteContact(_clients[index]);
                         },
@@ -208,8 +214,13 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
               );
             },
             child: Text('Communication'),
-            style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 30, 71, 104)), // Change this color to your desired background color
+            style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+              ),
+            ), 
           ),
+          Padding(padding: const EdgeInsets.only(top: 20, right: 15),)
         ],
       ),
     );
