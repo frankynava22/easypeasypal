@@ -14,37 +14,38 @@ class CommunicationScreen extends StatefulWidget {
 class _CommunicationScreenState extends State<CommunicationScreen> {
   void _showHelpModal() {
     showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          final fontSizeNotifier = Provider.of<FontSizeNotifier>(context);
-          final fontWeightNotifier = Provider.of<FontWeightNotifier>(
-              context); // Get the current font weight
+      context: context,
+      builder: (BuildContext context) {
+        final fontSizeNotifier = Provider.of<FontSizeNotifier>(context);
+        final fontWeightNotifier = Provider.of<FontWeightNotifier>(
+            context); // Get the current font weight
 
-          return Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _helpTile(
-                    icon: Icons.chat,
-                    title: "Chat",
-                    subtitle:
-                        "Click this to enter the chat room and start messaging.",
-                    fontSize: fontSizeNotifier.fontSize,
-                    fontWeight:
-                        fontWeightNotifier.fontWeight), // Apply font weight
-                SizedBox(height: 20),
-                _helpTile(
-                    icon: Icons.contacts,
-                    title: "Contacts",
-                    subtitle: "Click this to view and manage your contacts.",
-                    fontSize: fontSizeNotifier.fontSize,
-                    fontWeight:
-                        fontWeightNotifier.fontWeight), // Apply font weight
-              ],
-            ),
-          );
-        });
+        return Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _helpTile(
+                  icon: Icons.chat,
+                  title: "Chat",
+                  subtitle:
+                      "Click this to enter the chat room and start messaging.",
+                  fontSize: fontSizeNotifier.fontSize,
+                  fontWeight:
+                      fontWeightNotifier.fontWeight), // Apply font weight
+              SizedBox(height: 20),
+              _helpTile(
+                  icon: Icons.contacts,
+                  title: "Contacts",
+                  subtitle: "Click this to view and manage your contacts.",
+                  fontSize: fontSizeNotifier.fontSize,
+                  fontWeight:
+                      fontWeightNotifier.fontWeight), // Apply font weight
+            ],
+          ),
+        );
+      },
+    );
   }
 
   ListTile _helpTile(
@@ -73,13 +74,19 @@ class _CommunicationScreenState extends State<CommunicationScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        elevation: 0.0,
-        backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-        title: Text('Chat Room',
-            style: TextStyle(
-                fontSize: fontSizeNotifier.fontSize,
-                fontWeight:
-                    fontWeightNotifier.fontWeight)), // Apply font weight
+        title: Center(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 60.0), // Add left padding
+            child: Text('Chat Menu',
+                style: TextStyle(
+                  fontSize: fontSizeNotifier.fontSize,
+                  color: Color(0xFF1E4768), // Change text color
+                )),
+          ),
+        ),
+        backgroundColor: Colors.white, // Change background color to ARGB
+        iconTheme:
+            IconThemeData(color: Color(0xFF1E4768)), // Change back button color
       ),
       body: Center(
         child: Column(
@@ -119,12 +126,13 @@ class _CommunicationScreenState extends State<CommunicationScreen> {
           Text(title,
               style: TextStyle(
                   fontSize: fontSize,
-                  fontWeight: fontWeight, // Apply font weight
+                  fontWeight: fontWeight,
                   color: const Color.fromARGB(255, 30, 71, 104))),
           SizedBox(height: 10.0),
           InkWell(
             onTap: onTap,
-            child: Icon(icon, size: 50.0, color: const Color.fromARGB(255, 30, 71, 104)),
+            child: Icon(icon,
+                size: 50.0, color: const Color.fromARGB(255, 30, 71, 104)),
           ),
         ],
       ),
