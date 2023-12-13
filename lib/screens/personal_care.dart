@@ -77,9 +77,10 @@ void _showHealthGoalsReminder() {
 Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
-      title: Text('Personal Care', style: TextStyle(color: Colors.white)),
-      backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-    
+      title: Text('Personal Care', style: TextStyle(color: const Color.fromARGB(255, 30, 71, 104), fontSize: 18)),
+      centerTitle: true,
+      backgroundColor: Colors.white,
+      iconTheme: IconThemeData(color: const Color.fromARGB(255, 30, 71, 104)),
     ),
     body: FadeTransition(
         opacity: _slideAnimation,

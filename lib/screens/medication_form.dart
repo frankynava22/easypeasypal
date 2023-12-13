@@ -51,6 +51,7 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Add a Medication', style: TextStyle(fontSize: fontSize)), backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+        centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -83,6 +84,9 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
               primary: const Color.fromARGB(255, 30, 71, 104), // Set the background color
               minimumSize: Size(150, 0),
               padding: EdgeInsets.all(15.0),
+              shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
             ),
           ),
         ),

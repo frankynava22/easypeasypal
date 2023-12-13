@@ -90,6 +90,7 @@ class _MedicationEditFormScreenState extends State<MedicationEditForm> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit a Medication', style: TextStyle(fontSize: fontSize)), backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+        centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -124,6 +125,9 @@ class _MedicationEditFormScreenState extends State<MedicationEditForm> {
               primary: const Color.fromARGB(255, 30, 71, 104), // Set the background color
               minimumSize: Size(150, 0),
               padding: EdgeInsets.all(15.0),
+              shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
             ),
           ),
         ),

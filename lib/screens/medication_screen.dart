@@ -49,8 +49,10 @@ class _MedicationScreenState extends State<MedicationScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(),
-        title: Text('Go Back', style: TextStyle(fontSize: fontSize)),
-        backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+        title: Text('Medications', style: TextStyle(fontSize: fontSize,color:const Color.fromARGB(255, 30, 71, 104), )),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: const Color.fromARGB(255, 30, 71, 104)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -62,7 +64,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
               "My Medications",
               textAlign: TextAlign.center,
               style: TextStyle(
-                  fontSize: fontSize * 2, fontWeight: FontWeight.bold),
+                  fontSize: fontSize+5 , fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16),
             buildAddMedicationButton(context, fontSize),
@@ -103,6 +105,9 @@ class _MedicationScreenState extends State<MedicationScreen> {
       style: ElevatedButton.styleFrom(
         padding: EdgeInsets.all(16),
         textStyle: TextStyle(fontSize: fontSize), primary: const Color.fromARGB(255, 30, 71, 104),
+        shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
       ),
     );
   }
