@@ -45,12 +45,12 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
   }
 
   Future<void> _deleteContact(Map<String, dynamic> client) async {
-    // Remove from local list
+    // Removing from local list
     setState(() {
       _clients.remove(client);
     });
 
-    // Remove from Firestore - Clients collection
+    // Removing from firestore collection
     await _firestore.collection('Clients').doc(_auth.currentUser!.uid).set(
       {
         'clientList': _clients.map((client) {
@@ -64,7 +64,7 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
       SetOptions(merge: true),
     );
 
-    // Remove from Firestore - CaretakerList collection
+    // Removing from Firestore caretakerlist collection
     await _firestore.collection('CaretakerList').doc(client['uid']).update({
       'caretakers': FieldValue.arrayRemove([
         {
@@ -75,7 +75,7 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
       ]),
     });
 
-    // Remove from Firestore - Contacts collection (Caretaker's side)
+    // Removing  client from caretaker contacts
     await _firestore.collection('contacts').doc(_auth.currentUser!.uid).update({
       'contactsList': FieldValue.arrayRemove([
         {
@@ -86,7 +86,7 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
       ]),
     });
 
-    // Remove from Firestore - Contacts collection (Client's side)
+    // Removing caretaker from client contacts
     await _firestore.collection('contacts').doc(client['uid']).update({
       'contactsList': FieldValue.arrayRemove([
         {
@@ -152,7 +152,7 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
                           _foundUser = null;
                         });
 
-                        // Add to Firestore
+                        // Add to Firestore clients collection
                         await _firestore
                             .collection('Clients')
                             .doc(_auth.currentUser!.uid)
@@ -181,7 +181,7 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
                       IconButton(
                         icon: Icon(Icons.manage_accounts, color: const Color.fromARGB(255, 30, 71, 104),),
                         onPressed: () {
-                          // Access the UID using _clients[index]['uid']
+                          // to access the UID using _clients[index]['uid']
                           String clientUid = _clients[index]['uid'];
                           Navigator.push(
                             context,

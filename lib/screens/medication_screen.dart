@@ -4,7 +4,7 @@ import 'medication_edit_form.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-import 'font_size_notifier.dart'; // Ensure this is correctly imported
+import 'font_size_notifier.dart'; 
 
 class MedicationScreen extends StatefulWidget {
   @override
@@ -44,7 +44,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
   @override
   Widget build(BuildContext context) {
     final fontSize =
-        Provider.of<FontSizeNotifier>(context).fontSize; // Fetch font size
+        Provider.of<FontSizeNotifier>(context).fontSize; 
 
     return Scaffold(
       appBar: AppBar(

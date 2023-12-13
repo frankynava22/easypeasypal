@@ -58,7 +58,7 @@ class _CaretakerStartScreenState extends State<CaretakerStartScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 120, // Adjust the width as needed
+                  width: 120, 
                   child: TextField(
                     controller: caretakerIdController,
                     keyboardType: TextInputType.number,
@@ -77,7 +77,7 @@ class _CaretakerStartScreenState extends State<CaretakerStartScreen> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Handle the confirmation action here
+                
                 String caretakerId = caretakerIdController.text;
                 if (caretakerId == '2020202') {
                   // If the caretaker ID is 2020202, navigate to the next screen (CaretakerDashboard)
@@ -96,7 +96,7 @@ class _CaretakerStartScreenState extends State<CaretakerStartScreen> {
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0),
                     ),
-                  ), // Set the background color of the button to blue
+                  ),
                   ),
             ),
           ],

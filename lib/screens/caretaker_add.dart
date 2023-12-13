@@ -29,8 +29,8 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
   
   Future<void> _searchByEmail() async {
   final currentUser = _auth.currentUser;
-  if (currentUser == null) {
-    // Handle the case where the user is not signed in
+  if (currentUser == null) { //catch if user is not signed in
+    
     return;
   }
 
@@ -64,8 +64,8 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
   Future<void> _addClient() async {
   if (_clients.isNotEmpty && _clients[0] != null) {
     final currentUser = _auth.currentUser;
-    if (currentUser == null) {
-      // Handle the case where the user is not signed in
+    if (currentUser == null) {  //catch if user is not sighen in
+      
       return;
     }
 
@@ -89,7 +89,7 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
         ),
       );
     } else {
-      // Add the currently signed-in user to the caretaker's clientList
+      // Adding the currently signed-in user to the caretaker's clientList
       await _firestore.collection('Clients').doc(caretakerUid).set(
         {
           'clientList': FieldValue.arrayUnion([
@@ -103,7 +103,7 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
         SetOptions(merge: true),
       );
 
-      // Add the caretaker to the user's CaretakerList
+      // Adding the caretaker to the user's CaretakerList
       await _firestore.collection('CaretakerList').doc(currentUser.uid).set(
         {
           'caretakers': FieldValue.arrayUnion([
@@ -117,7 +117,7 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
         SetOptions(merge: true),
       );
 
-      // Add the client user to the caretaker's contacts
+      // Adding the client user to the caretaker's contacts
       await _firestore.collection('contacts').doc(caretakerUid).set(
         {
           'contactsList': FieldValue.arrayUnion([
@@ -130,7 +130,7 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
         },
         SetOptions(merge: true),
       );
-
+      // Adding the caretaker user to the client's contacts
       await _firestore.collection('contacts').doc(currentUser.uid).set(
         {
           'contactsList': FieldValue.arrayUnion([
@@ -178,8 +178,8 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
 
   Future<void> _fetchCaretakers() async {
     final currentUser = _auth.currentUser;
-    if (currentUser == null) {
-      // Handle the case where the user is not signed in
+    if (currentUser == null) {  // if user is not signed in
+      
       return;
     }
 
@@ -206,7 +206,7 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
   void initState() {
     super.initState();
     
-    _fetchCaretakers(); // Call the method to load caretakers
+    _fetchCaretakers(); 
     _clearClientsList();
   }
 
@@ -260,7 +260,7 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
                           style: ElevatedButton.styleFrom(
                           backgroundColor: 
                                // Highlighted color
-                               Color.fromARGB(255, 30, 71, 104), // Default color
+                               Color.fromARGB(255, 30, 71, 104), 
                           padding: EdgeInsets.symmetric(horizontal: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20.0),

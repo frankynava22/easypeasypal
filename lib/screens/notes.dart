@@ -60,7 +60,7 @@ class _NotesScreenState extends State<NotesScreen> {
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: const Color.fromARGB(255, 30, 71, 104)), // Change the color 
+        iconTheme: IconThemeData(color: const Color.fromARGB(255, 30, 71, 104)), 
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-import 'font_size_notifier.dart'; // Ensure this is correctly imported
+import 'font_size_notifier.dart'; 
 
 class MedicationFormScreen extends StatefulWidget {
   @override
@@ -81,7 +81,7 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
             },
             child: Text('Save', style: TextStyle(fontSize: fontSize)),
             style: ElevatedButton.styleFrom(
-              primary: const Color.fromARGB(255, 30, 71, 104), // Set the background color
+              primary: const Color.fromARGB(255, 30, 71, 104),
               minimumSize: Size(150, 0),
               padding: EdgeInsets.all(15.0),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0),),

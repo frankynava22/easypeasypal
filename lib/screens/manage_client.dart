@@ -229,7 +229,7 @@ class _MedicationsContentState extends State<MedicationsContent> {
   final _auth = FirebaseAuth.instance;
 
   Stream<List<Map<String, dynamic>>> medicationsStream =
-      Stream.value([]); // Initialize with an empty stream
+      Stream.value([]); 
 
   @override
   void initState() {
@@ -238,7 +238,7 @@ class _MedicationsContentState extends State<MedicationsContent> {
   }
 
   Stream<List<Map<String, dynamic>>> listenToMedications(String clientUid) {
-    // Use the provided clientUid instead of the logged-in user's uid
+    // Using the provided clientUid instead of the logged-in user's uid
     return _medsCollection.doc(clientUid).snapshots().map((doc) {
       if (doc.exists) {
         final List medsFromDB =
@@ -261,10 +261,10 @@ class _MedicationsContentState extends State<MedicationsContent> {
       List<Map<String, dynamic>> userMedications =
           List<Map<String, dynamic>>.from(userMedsSnapshot.data()!['medicationsList']);
 
-      // Remove the medication with the specified name
+      // Removes the medication with the specified name
       userMedications.removeWhere((medication) => medication['name'] == medicationName);
 
-      // Update Firestore with the updated list of medications
+      // Updates Firestore with the updated list of medications
       await userMedsRef.set({'medicationsList': userMedications});
     }
     
@@ -513,19 +513,17 @@ class _AppointmentsContentState extends State<AppointmentsContent> {
     );
 
     if (index >= 0) {
-      // Remove the old appointment
+      
       clientAppointments.removeAt(index);
 
-      // Create a new appointment with the edited title and the same date as the original appointment
+      
       Map<String, dynamic> updatedAppointment = {
         'title': editedTitle,
         'date': oldAppointment['date'],
       };
 
-      // Add the updated appointment to the list
+      // Adds the updated appointment to the list and firestore collection
       clientAppointments.add(updatedAppointment);
-
-      // Update Firestore with the updated list of appointments
       await clientAppointmentsRef.set({'events': clientAppointments});
 
       // Reload the appointments list

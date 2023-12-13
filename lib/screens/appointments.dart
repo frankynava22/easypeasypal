@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:animations/animations.dart'; // Import the animations package
+import 'package:animations/animations.dart'; 
 
 void main() => runApp(MyApp());
 
@@ -264,8 +264,8 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
     child: Text(day),
     style: ElevatedButton.styleFrom(
       backgroundColor: dayOfWeek == _selectedDay || (dayOfWeek == -1 && _selectedDay == null)
-          ? Color.fromARGB(255, 79, 132, 176) // Highlighted color
-          : Color.fromARGB(255, 30, 71, 104), // Default color
+          ? Color.fromARGB(255, 79, 132, 176) // Highlighted 
+          : Color.fromARGB(255, 30, 71, 104), // Default 
       padding: EdgeInsets.symmetric(horizontal: 10),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0),
