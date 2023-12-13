@@ -34,7 +34,10 @@ class _CaretakerStartScreenState extends State<CaretakerStartScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Caretaker Login'), backgroundColor: const Color.fromARGB(255, 30, 71, 104) ,
+        title: Text('Caretaker Login', 
+        style: TextStyle(color: const Color.fromARGB(255, 30, 71, 104), fontSize: 18),), 
+        backgroundColor: Colors.white ,centerTitle: true,
+        iconTheme: IconThemeData(color: const Color.fromARGB(255, 30, 71, 104)),
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
@@ -88,7 +91,12 @@ class _CaretakerStartScreenState extends State<CaretakerStartScreen> {
               },
               child: Text('Confirm'),
               style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 30, 71, 104)), // Set the background color of the button to blue
+                    backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 30, 71, 104)),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                  ), // Set the background color of the button to blue
                   ),
             ),
           ],

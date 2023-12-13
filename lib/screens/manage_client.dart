@@ -15,15 +15,19 @@ class ManageClientScreen extends StatefulWidget {
 
 class _ManageClientScreenState extends State<ManageClientScreen> {
   final _medsCollection = FirebaseFirestore.instance.collection('medications');
+  final _usersCollection = FirebaseFirestore.instance.collection('users');
   final _auth = FirebaseAuth.instance;
 
   Stream<List<Map<String, dynamic>>?> medicationsStream = Stream.value([]);
   bool _showAppointments = true; // Boolean used to toggle between Appointments and Medications
-
+  String screenStateString = 'Appointments';
+  String clientName = '';
+  
   @override
   void initState() {
     super.initState();
     medicationsStream = listenToMedications();
+    getClientName();
   }
 
   Stream<List<Map<String, dynamic>>> listenToMedications() {
@@ -50,30 +54,49 @@ class _ManageClientScreenState extends State<ManageClientScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Manage Client'),
-        backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+        title: Text('Manage Client',style: TextStyle(color: const Color.fromARGB(255, 30, 71, 104), fontSize: 18),),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: const Color.fromARGB(255, 30, 71, 104)),
         actions: [
           IconButton(
             icon: Icon(Icons.calendar_today),
             onPressed: () {
               setState(() {
                 _showAppointments = true;
+                screenStateString = 'Appointments';
               });
             },
           ),
           IconButton(
             icon: Icon(Icons.medical_services),
+            
             onPressed: () {
               setState(() {
                 _showAppointments = false;
+                screenStateString = 'Medications';
               });
             },
           ),
         ],
+        
       ),
-      body: _showAppointments
-          ? AppointmentsContent(clientUid: widget.clientUid)
-          : MedicationsContent(clientUid: widget.clientUid),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              screenStateString,
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: const Color.fromARGB(255, 30, 71, 104),),
+            ),
+          ),
+          Expanded(
+            child: _showAppointments
+                ? AppointmentsContent(clientUid: widget.clientUid)
+                : MedicationsContent(clientUid: widget.clientUid),
+          ),
+        ],
+      ),
       floatingActionButton: _showAppointments
           ? FloatingActionButton(
               onPressed: () {
@@ -82,7 +105,7 @@ class _ManageClientScreenState extends State<ManageClientScreen> {
               child: Icon(Icons.add),
               backgroundColor: const Color.fromARGB(255, 30, 71, 104),
             )
-          : ElevatedButton(
+          : FloatingActionButton(
               onPressed: () {
                 Navigator.push(
                   context,
@@ -95,16 +118,22 @@ class _ManageClientScreenState extends State<ManageClientScreen> {
                   }
                 });
               },
-              child: Text("Add Medication"),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.all(16),
-                textStyle: const TextStyle(fontSize: 18),
-                primary: const Color.fromARGB(255, 30, 71, 104),
-              ),
+              child: Icon(Icons.add),
+              backgroundColor: const Color.fromARGB(255, 30, 71, 104),
             ),
-    );
+      );
+
   }
 
+  Future<void> getClientName() async {
+    final userDoc = await _usersCollection.doc(widget.clientUid).get();
+
+    if (userDoc.exists) {
+      setState(() {
+        clientName = userDoc['name'];
+      });
+    }
+  }
   void _showAddAppointmentDialog(BuildContext context) async {
     showDialog(
       context: context,
@@ -299,6 +328,7 @@ class _MedicationsContentState extends State<MedicationsContent> {
                         medication['intakeInstructions']?.join(", ") ?? '';
 
                     return Card(
+                      color:Color.fromARGB(255, 234, 242, 250),
                       child: ListTile(
                         title: Text(name),
                         subtitle: Column(
@@ -310,7 +340,7 @@ class _MedicationsContentState extends State<MedicationsContent> {
                           ],
                         ),
                         trailing: IconButton(
-                          icon: Icon(Icons.delete),
+                          icon: Icon(Icons.delete, color: const Color.fromARGB(255, 30, 71, 104),),
                           onPressed: () {
                             _showDeleteMedicationDialog(context, name);
                           },
@@ -398,6 +428,7 @@ class _AppointmentsContentState extends State<AppointmentsContent> {
               final date = appointment['date'].toDate();
 
               return Card(
+                color: Color.fromARGB(255, 234, 242, 250),
                 child: ListTile(
                   title: Text(title),
                   subtitle: Text('Date: ${DateFormat('MM-dd-yyyy').format(date)}'),
@@ -405,13 +436,13 @@ class _AppointmentsContentState extends State<AppointmentsContent> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.edit),
+                        icon: Icon(Icons.edit, color:const Color.fromARGB(255, 30, 71, 104),),
                         onPressed: () {
                           _showEditAppointmentDialog(context, appointment);
                         },
                       ),
                       IconButton(
-                        icon: Icon(Icons.delete),
+                        icon: Icon(Icons.delete, color: const Color.fromARGB(255, 30, 71, 104),),
                         onPressed: () {
                           _showDeleteAppointmentDialog(context, title);
                         },

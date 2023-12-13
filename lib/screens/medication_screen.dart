@@ -140,6 +140,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
   Card buildMedicationCard(List<Map<String, dynamic>> medications, int index,
       BuildContext context, double fontSize) {
     return Card(
+      color: Color.fromARGB(255, 234, 242, 250),
       elevation: 4,
       child: Column(
         mainAxisSize: MainAxisSize.min,

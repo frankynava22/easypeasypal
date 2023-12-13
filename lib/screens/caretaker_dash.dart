@@ -120,18 +120,24 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Clients'),
-        backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+        title: Text('Clients',style: TextStyle(color: const Color.fromARGB(255, 30, 71, 104), fontSize: 18),),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: const Color.fromARGB(255, 30, 71, 104)),
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () => _signOut(context),
-          )
+          ),
+          
         ],
       ),
+      
       body: Column(
+        
         children: [
           if (_foundUser != null)
+          
             ListTile(
               title: Text(_foundUser!['displayName'] ?? ''),
               subtitle: Text(_foundUser!['email'] ?? ''),
@@ -173,7 +179,7 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.manage_accounts),
+                        icon: Icon(Icons.manage_accounts, color: const Color.fromARGB(255, 30, 71, 104),),
                         onPressed: () {
                           // Access the UID using _clients[index]['uid']
                           String clientUid = _clients[index]['uid'];
@@ -187,7 +193,7 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
                         },
                       ),
                       IconButton(
-                        icon: Icon(Icons.delete),
+                        icon: Icon(Icons.delete, color: const Color.fromARGB(255, 30, 71, 104),),
                         onPressed: () {
                           _deleteContact(_clients[index]);
                         },
@@ -208,8 +214,13 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
               );
             },
             child: Text('Communication'),
-            style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 30, 71, 104)), // Change this color to your desired background color
+            style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 30, 71, 104),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+              ),
+            ), 
           ),
+          Padding(padding: const EdgeInsets.only(top: 20, right: 15),)
         ],
       ),
     );

@@ -54,8 +54,13 @@ class _NotesScreenState extends State<NotesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Personal Notes'),
-        backgroundColor: const Color.fromARGB(255, 30, 71, 104), // Change the color 
+        title: Text(
+          'Personal Notes',
+          style: TextStyle(color: const Color.fromARGB(255, 30, 71, 104), fontSize: 18),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: const Color.fromARGB(255, 30, 71, 104)), // Change the color 
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -81,7 +86,10 @@ class _NotesScreenState extends State<NotesScreen> {
             ElevatedButton(
               onPressed: _addNote,
               child: Text('Add Note'),
-              style: ElevatedButton.styleFrom(primary: const Color.fromARGB(255, 30, 71, 104)),
+              style: ElevatedButton.styleFrom(primary: const Color.fromARGB(255, 30, 71, 104),
+              shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),),
             ),
             SizedBox(height: 16.0),
             Expanded(
@@ -101,6 +109,7 @@ class _NotesScreenState extends State<NotesScreen> {
                     itemBuilder: (context, index) {
                       var document = snapshot.data!.docs[index];
                       return Card(
+                        color: Color.fromARGB(255, 234, 242, 250),
                         child: ListTile(
                           title: Text(document['name']),
                           subtitle: Text(document['url']),

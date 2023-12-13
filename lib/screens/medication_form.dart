@@ -84,9 +84,7 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
               primary: const Color.fromARGB(255, 30, 71, 104), // Set the background color
               minimumSize: Size(150, 0),
               padding: EdgeInsets.all(15.0),
-              shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0),),
             ),
           ),
         ),

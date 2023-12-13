@@ -218,14 +218,10 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Find Caretaker'),
+        title: Text('Find Caretaker', style: TextStyle(fontSize: 17)),
+        centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 30, 71, 104),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () => _signOut(context),
-          )
-        ],
+        
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -261,12 +257,16 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
                             });
                           },
                           child: Text('Search'),
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                              const Color.fromARGB(255, 30, 71, 104),
-                            ),
+                          style: ElevatedButton.styleFrom(
+                          backgroundColor: 
+                               // Highlighted color
+                               Color.fromARGB(255, 30, 71, 104), // Default color
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
                           ),
                         ),
+                                            ),
                   if (_clients.isNotEmpty)
                     ListTile(
                       title: Text(_clients[0]['displayName'] ?? ''),

@@ -130,6 +130,7 @@ Widget build(BuildContext context) {
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(15),
     ),
+    color: Color.fromARGB(255, 234, 242, 250),
     child: ListTile(
       contentPadding: EdgeInsets.all(20),
       leading: Icon(icon, size: 40, color: const Color.fromARGB(255, 30, 71, 104)),
@@ -302,6 +303,7 @@ Widget build(BuildContext context) {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
+      color: Color.fromARGB(255, 234, 242, 250),
       child: ListTile(
         contentPadding: EdgeInsets.all(20),
         leading: Icon(
