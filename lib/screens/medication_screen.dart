@@ -12,6 +12,7 @@ class MedicationScreen extends StatefulWidget {
 }
 
 class _MedicationScreenState extends State<MedicationScreen> {
+  // get collection named medications from DB 
   final _medsCollection = FirebaseFirestore.instance.collection('medications');
   final _auth = FirebaseAuth.instance;
   Stream<List<Map<String, dynamic>>?> medicationsStream = Stream.value([]);
@@ -22,12 +23,22 @@ class _MedicationScreenState extends State<MedicationScreen> {
     medicationsStream = listenToMedications();
   }
 
+
+  // function that listens to information on the DB
   Stream<List<Map<String, dynamic>>> listenToMedications() {
     final user = _auth.currentUser;
     final uId = user?.uid;
 
+
+    // if uid exists 
     if (uId != null) {
+
+      // return document with respective uId
       return _medsCollection.doc(uId).snapshots().map((doc) {
+
+        // if the document exists then get medicationsList which is an array of maps
+        // each map containing medication info such as frequency, intakeInstructions, etc...
+
         if (doc.exists) {
           final List medsFromDB =
               (doc.data() as Map<String, dynamic>)['medicationsList'] ?? [];
@@ -43,6 +54,8 @@ class _MedicationScreenState extends State<MedicationScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    // fontSize holds whatever value the user has on settings 
     final fontSize =
         Provider.of<FontSizeNotifier>(context).fontSize; 
 
@@ -67,8 +80,10 @@ class _MedicationScreenState extends State<MedicationScreen> {
                   fontSize: fontSize+5 , fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16),
+            // call function to build add medication button
             buildAddMedicationButton(context, fontSize),
             const SizedBox(height: 32),
+            // call function to build cards with info 
             Expanded(
               child: buildMedicationsList(context, fontSize),
             ),
@@ -78,9 +93,11 @@ class _MedicationScreenState extends State<MedicationScreen> {
     );
   }
 
+  // builds add medication button 
   ElevatedButton buildAddMedicationButton(
       BuildContext context, double fontSize) {
     return ElevatedButton(
+      // on button pressed
       onPressed: () async {
         final user = _auth.currentUser;
         final uId = user?.uid;
@@ -92,6 +109,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
             await userDocRef.set({});
           }
         }
+        // show medication form screen on button press
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => MedicationFormScreen()),
@@ -101,6 +119,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
           }
         });
       },
+      // button format
       child: Text("Add a Medication", style: TextStyle(fontSize: fontSize)),
       style: ElevatedButton.styleFrom(
         padding: EdgeInsets.all(16),
@@ -112,6 +131,8 @@ class _MedicationScreenState extends State<MedicationScreen> {
     );
   }
 
+
+  //  takes medicationsStream and builds the medications list with it so most recent changes are reflected
   StreamBuilder<List<Map<String, dynamic>>?> buildMedicationsList(
       BuildContext context, double fontSize) {
     return StreamBuilder<List<Map<String, dynamic>>?>(
@@ -137,6 +158,9 @@ class _MedicationScreenState extends State<MedicationScreen> {
     );
   }
 
+
+  // creates the card with health icon, medication name, and edit button 
+  // then calls function that builds the details of the medication 
   Card buildMedicationCard(List<Map<String, dynamic>> medications, int index,
       BuildContext context, double fontSize) {
     return Card(
@@ -157,6 +181,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
                 IconButton(
                   icon: Icon(Icons.edit, size: 25 * fontSize / 16),
                   onPressed: () {
+                    // when edit button pressed then this will go to medication edit form with previous values showing
                     Navigator.of(context)
                         .push(
                       MaterialPageRoute(
@@ -183,6 +208,8 @@ class _MedicationScreenState extends State<MedicationScreen> {
     );
   }
 
+  // column used to arrange meds details (quantity, frequency, intakeInstructions)
+  // vertically
   Column buildMedicationDetails(
       List<Map<String, dynamic>> medications, int index, double fontSize) {
     return Column(

@@ -37,6 +37,8 @@ class _MedicationEditFormScreenState extends State<MedicationEditForm> {
   final _medsCollection = FirebaseFirestore.instance.collection('medications');
   final _auth = FirebaseAuth.instance;
 
+
+  // reads medications list from Database 
   Future<List<Map<String, dynamic>>> readMedications() async {
     DocumentSnapshot snapshot =
         await _medsCollection.doc(_auth.currentUser!.uid).get();
@@ -50,6 +52,7 @@ class _MedicationEditFormScreenState extends State<MedicationEditForm> {
     }
   }
 
+  // updates existing data values 
   Future<void> updateMedication(Map<String, dynamic> medicationData) async {
     final user = _auth.currentUser;
     final uId = user?.uid;
@@ -219,6 +222,7 @@ class _MedicationEditFormScreenState extends State<MedicationEditForm> {
       ),
     );
   }
+ 
 
   Card buildIntakeInstructionsCard(double fontSize) {
     return Card(
