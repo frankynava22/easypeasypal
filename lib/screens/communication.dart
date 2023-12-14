@@ -6,25 +6,30 @@ import 'chat_history.dart';
 import 'font_size_notifier.dart'; // Import FontSizeNotifier
 import 'font_weight_notifier.dart'; // Import FontWeightNotifier
 
+// CommunicationScreen is a StatefulWidget to manage communication options
 class CommunicationScreen extends StatefulWidget {
   @override
   _CommunicationScreenState createState() => _CommunicationScreenState();
 }
 
+// State class for CommunicationScreen
 class _CommunicationScreenState extends State<CommunicationScreen> {
   void _showHelpModal() {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
+        // Providers for dynamic font size and weight
         final fontSizeNotifier = Provider.of<FontSizeNotifier>(context);
         final fontWeightNotifier = Provider.of<FontWeightNotifier>(
             context); // Get the current font weight
 
+        // Padding widget containing columns of help tiles
         return Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Help tile for 'Chat' feature
               _helpTile(
                   icon: Icons.chat,
                   title: "Chat",
@@ -48,6 +53,7 @@ class _CommunicationScreenState extends State<CommunicationScreen> {
     );
   }
 
+  // Function to create a ListTile as a help tile
   ListTile _helpTile(
       {required IconData icon,
       required String title,
@@ -66,8 +72,10 @@ class _CommunicationScreenState extends State<CommunicationScreen> {
     );
   }
 
+  // Building the UI for CommunicationScreen
   @override
   Widget build(BuildContext context) {
+    // Providers for dynamic font size and weight
     final fontSizeNotifier = Provider.of<FontSizeNotifier>(context);
     final fontWeightNotifier =
         Provider.of<FontWeightNotifier>(context); // Get the current font weight
@@ -92,18 +100,21 @@ class _CommunicationScreenState extends State<CommunicationScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            // Menu option for 'Chat'
             _menuOption("Chat", Icons.chat, () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => MessagingScreen()),
               );
             }, fontSizeNotifier.fontSize,
                 fontWeightNotifier.fontWeight), // Apply font weight
+            // Menu option for 'Contacts'
             _menuOption("Contacts", Icons.contacts, () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => ContactsScreen()),
               );
             }, fontSizeNotifier.fontSize,
                 fontWeightNotifier.fontWeight), // Apply font weight
+            // Menu option for 'Help'
             _menuOption(
                 "Help",
                 Icons.help_outline,
@@ -116,6 +127,7 @@ class _CommunicationScreenState extends State<CommunicationScreen> {
     );
   }
 
+  // Function to create a menu option widget
   Widget _menuOption(String title, IconData icon, VoidCallback onTap,
       double fontSize, FontWeight fontWeight) {
     // Add fontWeight parameter

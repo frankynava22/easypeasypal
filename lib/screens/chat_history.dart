@@ -22,59 +22,59 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
   @override
   void initState() {
     super.initState();
-    markMessagesAsRead();
   }
 
-  void markMessagesAsRead() async {
-    var querySnapshot = await _firestore
-        .collection('chat_history')
-        .doc(_auth.currentUser!.uid)
-        .collection(widget.contact['uid'])
-        .where('read', isEqualTo: false)
-        .get();
-
-    for (var doc in querySnapshot.docs) {
-      doc.reference.update({'read': true});
-    }
-  }
-
+  //method stream listens for changes
+  //listens for changes in collection and orders by time
   Stream<QuerySnapshot> get chatMessagesStream {
+    //gives access to firestore instance
     return _firestore
         .collection('chat_history')
+        //Access document for respective user
         .doc(_auth.currentUser!.uid)
+        //Access the subcollection based on contacts UID
+        //for example /chat_history/4R6SHacbnxRukz9aOiugVqu5FHk1/bXUd3RNf1ngpbvohkxYHqgXL1hH3
         .collection(widget.contact['uid'])
         .orderBy('timestamp', descending: true)
+        //stream for realtime snapchats of changes in database
         .snapshots();
   }
 
+  // Function to send a message.
   Future<void> _sendMessage() async {
     if (_messageController.text.isNotEmpty) {
+      // Create a message map containing message data.
       var message = {
+        //the users text
         'text': _messageController.text,
+        //who sent it
         'senderId': _auth.currentUser!.uid,
+        //who recieves it
         'recipientId': widget.contact['uid'],
         'timestamp': Timestamp.now(),
         'read': false,
       };
 
+      // Add the message to the sender's chat history in Firestore
       await _firestore
           .collection('chat_history')
+          // Access the sender's document
           .doc(_auth.currentUser!.uid)
+          // Access the recipient's subcollection.
           .collection(widget.contact['uid'])
+          // Add the message to this subcollection.
           .add(message);
 
+      // Add the same message to the recipient's chat history in Firestore
       await _firestore
           .collection('chat_history')
+          // Access the recipient's document
           .doc(widget.contact['uid'])
+          // Access the sender's subcollection within the recipient's document.
           .collection(_auth.currentUser!.uid)
           .add(message);
 
-      // Increment unread message count for the recipient
-      _firestore
-          .collection('users')
-          .doc(widget.contact['uid'])
-          .update({'unreadMessagesCount': FieldValue.increment(1)});
-
+      // Clear the message input field after sending.
       _messageController.clear();
     }
   }
@@ -132,12 +132,15 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
                     .map((doc) => doc.data() as Map<String, dynamic>)
                     .toList();
 
+                //creates list of messages
                 return ListView.builder(
                   reverse: true,
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
+                    //checks what user is sending the message
                     bool isCurrentUser =
                         messages[index]['senderId'] == _auth.currentUser!.uid;
+                    //for deleting messages, check which is selected
                     bool isSelected = _selectedMessageIds
                         .contains(snapshot.data!.docs[index].id);
 
