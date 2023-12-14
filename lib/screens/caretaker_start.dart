@@ -38,12 +38,7 @@ class _CaretakerStartScreenState extends State<CaretakerStartScreen> {
         style: TextStyle(color: const Color.fromARGB(255, 30, 71, 104), fontSize: 18),), 
         backgroundColor: Colors.white ,centerTitle: true,
         iconTheme: IconThemeData(color: const Color.fromARGB(255, 30, 71, 104)),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () => _signOut(context),
-          )
-        ],
+        
       ),
       body: Center(
         child: Column(

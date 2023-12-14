@@ -8,12 +8,12 @@ class NotesScreen extends StatefulWidget {
 }
 
 class _NotesScreenState extends State<NotesScreen> {
-  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController(); // text edit controllers
   final TextEditingController _noteController = TextEditingController();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;  // firestore db isntance
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<void> _addNote() async {
+  Future<void> _addNote() async { // function to add new note to firestore
     final String title = _titleController.text.trim();
     final String note = _noteController.text.trim();
     final String userId = _auth.currentUser!.uid;
@@ -30,7 +30,7 @@ class _NotesScreenState extends State<NotesScreen> {
     }
   }
 
-  Future<void> _deleteNote(String docId) async {
+  Future<void> _deleteNote(String docId) async { // delete notes function
     final String userId = _auth.currentUser!.uid;
 
     await _firestore
@@ -41,7 +41,7 @@ class _NotesScreenState extends State<NotesScreen> {
         .delete();
   }
 
-  Stream<QuerySnapshot> _notesStream() {
+  Stream<QuerySnapshot> _notesStream() { // notes loader from db
     final String userId = _auth.currentUser!.uid;
     return _firestore
         .collection('users')
@@ -54,10 +54,7 @@ class _NotesScreenState extends State<NotesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Personal Notes',
-          style: TextStyle(color: const Color.fromARGB(255, 30, 71, 104), fontSize: 18),
-        ),
+        title: Text('Personal Notes',style: TextStyle(color: const Color.fromARGB(255, 30, 71, 104), fontSize: 18),),
         centerTitle: true,
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: const Color.fromARGB(255, 30, 71, 104)), 
@@ -68,28 +65,20 @@ class _NotesScreenState extends State<NotesScreen> {
           children: [
             TextField(
               controller: _titleController,
-              decoration: InputDecoration(
-                labelText: 'Note Title',
-                border: OutlineInputBorder(),
-              ),
+              decoration: InputDecoration(labelText: 'Note Title',border: OutlineInputBorder(),),
             ),
             SizedBox(height: 8.0),
             TextField(
               controller: _noteController,
               maxLines: null,
-              decoration: InputDecoration(
-                labelText: 'Note Text',
-                border: OutlineInputBorder(),
-              ),
+              decoration: InputDecoration(labelText: 'Note Text',border: OutlineInputBorder(),),
             ),
             SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: _addNote,
               child: Text('Add Note'),
               style: ElevatedButton.styleFrom(primary: const Color.fromARGB(255, 30, 71, 104),
-              shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0),),),
             ),
             SizedBox(height: 16.0),
             Expanded(

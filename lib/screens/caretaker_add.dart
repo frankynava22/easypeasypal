@@ -58,9 +58,6 @@ class _CaretakerAddScreenState extends State<CaretakerAddScreen> {
   }
 }
 
-
-
-
   Future<void> _addClient() async {
   if (_clients.isNotEmpty && _clients[0] != null) {
     final currentUser = _auth.currentUser;

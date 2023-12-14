@@ -124,13 +124,7 @@ class _CaretakerDashboardScreenState extends State<CaretakerDashboardScreen> {
         centerTitle: true,
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: const Color.fromARGB(255, 30, 71, 104)),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () => _signOut(context),
-          ),
-          
-        ],
+        
       ),
       
       body: Column(
