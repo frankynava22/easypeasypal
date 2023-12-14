@@ -92,6 +92,7 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
     );
   }
 
+  // builds card with passed controller, label, and fontsize 
   Card buildCard(
       TextEditingController controller, String label, double fontSize) {
     return Card(
@@ -110,6 +111,7 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
     );
   }
 
+  // builds quantity card 
   Card buildQuantityCard(double fontSize) {
     return Card(
       elevation: 4,
@@ -143,6 +145,7 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
     );
   }
 
+  // builds frequency card 
   Card buildFrequencyCard(double fontSize) {
     return Card(
       elevation: 4,
@@ -175,6 +178,8 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
     );
   }
 
+
+  // builds instake instructions card 
   Card buildIntakeInstructionsCard(double fontSize) {
     return Card(
       elevation: 4,
