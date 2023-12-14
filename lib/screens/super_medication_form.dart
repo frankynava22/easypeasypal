@@ -11,7 +11,7 @@ class SuperMedicationFormScreen extends StatefulWidget {
   _SuperMedicationFormScreenState createState() =>
       _SuperMedicationFormScreenState();
 }
-
+// purpose of file is to give super users access to client users data separately
 class _SuperMedicationFormScreenState
     extends State<SuperMedicationFormScreen> {
   final TextEditingController _nameController = TextEditingController();

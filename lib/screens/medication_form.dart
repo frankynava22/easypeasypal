@@ -25,7 +25,7 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
     'before dinner',
     'after dinner',
   ];
-  final _medsCollection = FirebaseFirestore.instance.collection('medications');
+  final _medsCollection = FirebaseFirestore.instance.collection('medications'); // reference for firestore
   final _auth = FirebaseAuth.instance;
 
   Future<void> addMedication(Map<String, dynamic> medicationData) async {
@@ -33,7 +33,7 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
     final uId = user?.uid;
 
     if (uId != null) {
-      await _medsCollection.doc(uId).update({
+      await _medsCollection.doc(uId).update({  // adds medication data using reference for firestore
         'medicationsList': FieldValue.arrayUnion([medicationData])
       });
     }

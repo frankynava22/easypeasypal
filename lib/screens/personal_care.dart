@@ -261,7 +261,7 @@ Widget build(BuildContext context) {
   );
 }
 
- String? getBloodPressureTooltip(String bloodPressureValue) {
+ String? getBloodPressureTooltip(String bloodPressureValue) {  //function that returns message regarding blood pressure status
   final bpValues = bloodPressureValue.split('/');
   if (bpValues.length == 2) {
     final systolic = int.tryParse(bpValues[0]);
@@ -277,24 +277,24 @@ Widget build(BuildContext context) {
   return null;
 }
 
-  double calculateBMI(double weightInPounds, int heightFeet, int heightInches) {
-    int totalHighetInInches = (heightFeet * 12) + heightInches;
-    return (weightInPounds / (totalHighetInInches * totalHighetInInches)) * 703;
-  }
+double calculateBMI(double weightInPounds, int heightFeet, int heightInches) {  //calculates BMI based on weight & height 
+  int totalHighetInInches = (heightFeet * 12) + heightInches;
+  return (weightInPounds / (totalHighetInInches * totalHighetInInches)) * 703;
+}
 
-  String getBMICategory(double bmi) {
-    if (bmi < 18.5) {
-      return "Underweight";
-    } else if (bmi >= 18.5 && bmi < 24.9) {
-      return "Normal weight";
-    } else if (bmi >= 25 && bmi < 29.9) {
-      return "Overweight";
-    } else {
-      return "Obesity";
-    }
+String getBMICategory(double bmi) { // calculates output based on calculateBMI function input
+  if (bmi < 18.5) {
+    return "Underweight";
+  } else if (bmi >= 18.5 && bmi < 24.9) {
+    return "Normal weight";
+  } else if (bmi >= 25 && bmi < 29.9) {
+    return "Overweight";
+  } else {
+    return "Obesity";
   }
+}
 
- Widget _buildBMICard() {
+ Widget _buildBMICard() { // function that builds card for BMI display
   return SlideTransition(
     position: Tween<Offset>(begin: Offset(-1, 0), end: Offset.zero).animate(_animationController),
     child: Card(
@@ -322,7 +322,7 @@ Widget build(BuildContext context) {
 }
 
 
-String? getBMITooltip(String bmiCategory) {
+String? getBMITooltip(String bmiCategory) { // function denoting what message to be displayed for BMI
   switch (bmiCategory) {
     case "Underweight":
       return 'Being underweight can be a sign of health problems. It’s important to eat a balanced diet and see a healthcare professional.';
@@ -348,6 +348,7 @@ String? getBMITooltip(String bmiCategory) {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
         ),
+        color: Color.fromARGB(255, 234, 242, 250),
         child: ListTile(
           contentPadding: EdgeInsets.all(20),
           leading: Icon(
@@ -369,7 +370,7 @@ String? getBMITooltip(String bmiCategory) {
     );
   }
 
-Widget _buildWeightAndHeightRow() {
+Widget _buildWeightAndHeightRow() { // building 
   return Row(
     children: [
       Expanded(
@@ -388,31 +389,31 @@ Widget _buildWeightAndHeightRow() {
   );
 }
 
-
-  Future<void> _savePersonalCareData() async {
-    final uid = _auth.currentUser?.uid;
-    if (uid != null) {
-      Map<String, dynamic> metricsData = {
-        'bloodType': _bloodType,
-        'weight': _weight,
-        'heightFeet': _heightFeet,
-        'heightInches': _heightInches,
-        'bloodPressure': _bloodPressure,
-        'healthGoals': _healthGoals,
-        'allergies': _allergies,
-        'bmi': _bmi,
-        'bmiCategory': _bmiCategory,
-      };
-
-      await _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('personal_care')
-          .doc('metrics')
-          .set(metricsData, SetOptions(merge: true));
-    }
+// function interacting with firestore
+Future<void> _savePersonalCareData() async {
+  final uid = _auth.currentUser?.uid;
+  if (uid != null) {
+    Map<String, dynamic> metricsData = {
+      'bloodType': _bloodType,
+      'weight': _weight,
+      'heightFeet': _heightFeet,
+      'heightInches': _heightInches,
+      'bloodPressure': _bloodPressure,
+      'healthGoals': _healthGoals,
+      'allergies': _allergies,
+      'bmi': _bmi,
+      'bmiCategory': _bmiCategory,
+    };
+    await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('personal_care')
+        .doc('metrics')
+        // merging new data with current data on DB
+        .set(metricsData, SetOptions(merge: true)); 
   }
-
+}
+// fetching data from firestore for the user
 Future<void> _fetchPersonalCareData() async {
   final uid = _auth.currentUser?.uid;
   if (uid != null) {

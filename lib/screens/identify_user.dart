@@ -11,7 +11,6 @@ import 'appointments.dart';
 import 'personal_care.dart';
 import 'settings.dart';
 import 'notes.dart';
-import 'personal_menu.dart';
 import 'caretaker_add.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 
@@ -317,9 +316,9 @@ class _IdentifyUserScreenState extends State<IdentifyUserScreen> {
                 ElevatedButton(
                   onPressed: () async {
                     List<Map<String, dynamic>> appointments =
-                        await fetchTodaysAppointments(widget.user.uid);
+                        await fetchTodaysAppointments(widget.user.uid); // retrieves appointment data from db for today
                     List<Map<String, dynamic>> medications =
-                        await fetchTodaysMedications(widget.user.uid);
+                        await fetchTodaysMedications(widget.user.uid);  // retrieves medication data from db for today
 
                     showDialog(
                       context: context,

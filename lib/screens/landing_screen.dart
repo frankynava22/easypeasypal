@@ -15,14 +15,14 @@ class _LandingScreenState extends State<LandingScreen> {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<User?> _handleSignIn() async {
+  Future<User?> _handleSignIn() async { // sign in for client access
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser != null) {
         final GoogleSignInAuthentication googleAuth =
             await googleUser.authentication;
         final AuthCredential credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
+          accessToken: googleAuth.accessToken,  // token granted for legitimate access 
           idToken: googleAuth.idToken,
         );
         final UserCredential authResult =
@@ -30,24 +30,14 @@ class _LandingScreenState extends State<LandingScreen> {
         final User? user = authResult.user;
 
         if (user != null) {
-          // Check if the user belongs to 'Susers' collection   ***DISABLED FEATURE***
-          //final usersRef = FirebaseFirestore.instance.collection('Susers');
-          //final snapshot = await usersRef.doc(user.uid).get();
 
-          //if (snapshot.exists) {
-          //  // User belongs to 'Susers' collection, show snackbar error
-          //  showSnackbarError("Logged in as Caretaker, please use Caretaker Access");
-          //  return null;
-          //}
-
-          // Store the user's details in Firestore
-          final usersCollectionRef =
-              FirebaseFirestore.instance.collection('users');
+          
+          final usersCollectionRef = FirebaseFirestore.instance.collection('users'); //firestore reference
           final userSnapshot = await usersCollectionRef.doc(user.uid).get();
 
           // Check if user already exists, if not, add to Firestore
           if (!userSnapshot.exists) {
-            usersCollectionRef.doc(user.uid).set({
+            usersCollectionRef.doc(user.uid).set({ // Store the user's details in Firestore
               'uid': user.uid,
               'displayName': user.displayName,
               'photoURL': user.photoURL,
@@ -64,14 +54,14 @@ class _LandingScreenState extends State<LandingScreen> {
     return null;
   }
 
-  Future<User?> _superHandleSignIn() async {
+  Future<User?> _superHandleSignIn() async { // signin for caretaker access
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser != null) {
         final GoogleSignInAuthentication googleAuth =
             await googleUser.authentication;
         final AuthCredential credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
+          accessToken: googleAuth.accessToken,  // token granted for legitimate access 
           idToken: googleAuth.idToken,
         );
         final UserCredential authResult =
@@ -79,17 +69,7 @@ class _LandingScreenState extends State<LandingScreen> {
         final User? suser = authResult.user;
 
         if (suser != null) {
-          // Check if the user already exists in 'users' collection     ***DISABLED FEATURE***
-          //final usersCollectionRef =
-          //    FirebaseFirestore.instance.collection('users');
-          //final userSnapshot = await usersCollectionRef.doc(suser.uid).get();
-//
-          //if (userSnapshot.exists) {
-          //  // User already exists in 'users' collection, show snackbar error
-          //  showSnackbarError("Logged in as User, please use Login");
-          //  return null;
-          //}
-
+        
           // Store the user's details in Firestore for 'Susers' collection
           final susersRef = FirebaseFirestore.instance.collection('Susers');
           final snapshot = await susersRef.doc(suser.uid).get();
@@ -113,7 +93,7 @@ class _LandingScreenState extends State<LandingScreen> {
     return null;
   }
 
-  void showSnackbarError(String message) {
+  void showSnackbarError(String message) { // snackbar error function
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),

@@ -7,16 +7,16 @@ import 'super_medication_form.dart';
 class ManageClientScreen extends StatefulWidget {
   final String clientUid;
 
-  ManageClientScreen({required this.clientUid});
+  ManageClientScreen({required this.clientUid}); // passing in client uid for db reference
 
   @override
   _ManageClientScreenState createState() => _ManageClientScreenState();
 }
 
 class _ManageClientScreenState extends State<ManageClientScreen> {
-  final _medsCollection = FirebaseFirestore.instance.collection('medications');
-  final _usersCollection = FirebaseFirestore.instance.collection('users');
-  final _auth = FirebaseAuth.instance;
+  final _medsCollection = FirebaseFirestore.instance.collection('medications'); // instance for selected user medications
+  final _usersCollection = FirebaseFirestore.instance.collection('users'); // instance to find selected user
+  final _auth = FirebaseAuth.instance; // loged in caretaker user 
 
   Stream<List<Map<String, dynamic>>?> medicationsStream = Stream.value([]);
   bool _showAppointments = true; // Boolean used to toggle between Appointments and Medications
@@ -27,7 +27,7 @@ class _ManageClientScreenState extends State<ManageClientScreen> {
   void initState() {
     super.initState();
     medicationsStream = listenToMedications();
-    getClientName();
+    
   }
 
   Stream<List<Map<String, dynamic>>> listenToMedications() {
@@ -125,15 +125,6 @@ class _ManageClientScreenState extends State<ManageClientScreen> {
 
   }
 
-  Future<void> getClientName() async {
-    final userDoc = await _usersCollection.doc(widget.clientUid).get();
-
-    if (userDoc.exists) {
-      setState(() {
-        clientName = userDoc['name'];
-      });
-    }
-  }
   void _showAddAppointmentDialog(BuildContext context) async {
     showDialog(
       context: context,
